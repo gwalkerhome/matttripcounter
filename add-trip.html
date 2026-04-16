@@ -8,96 +8,89 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.npmcdn.com/flatpickr/dist/flatpickr.min.js"></script>
     
     <style>
-        /* 1. The Outer Container */
+        /* 1. The Wrapper - Remove padding to give the calendar every pixel possible */
         #calendar-holder {
             width: 100% !important;
             display: flex;
             justify-content: center;
-            padding: 10px;
+            padding: 0 !important;
+            margin-top: 10px;
         }
 
-        /* 2. The Widget Itself - Hard width to force 7 columns */
+        /* 2. The Window - Open it wide and remove internal padding */
         .flatpickr-calendar { 
             background: rgba(15, 23, 42, 0.98) !important; 
             border: 1px solid rgba(255,255,255,0.3) !important;
-            width: 315px !important; 
-            min-width: 315px !important;
-            font-family: inherit !important;
+            width: 280px !important; /* Total width: (35px + 4px margin) * 7 = 273px */
+            min-width: 280px !important;
+            max-width: 280px !important;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important;
-            border-radius: 1.5rem !important;
-            display: block !important;
+            border-radius: 1.2rem !important;
+            overflow: hidden !important;
         }
 
-        /* 3. The Grid Containers */
-        .flatpickr-innerContainer, .flatpickr-rContainer, .flatpickr-days {
-            width: 315px !important;
-            min-width: 315px !important;
+        /* 3. Force the internal containers to stay 7-days wide */
+        .flatpickr-innerContainer, .flatpickr-rContainer, .flatpickr-days, .dayContainer {
+            width: 280px !important;
+            min-width: 280px !important;
+            max-width: 280px !important;
         }
 
-        /* 4. Individual Day Cells - Sized to fit 7 across */
+        /* 4. The Cells - Reduce size so 7 fit across easily */
         .flatpickr-day {
-            width: 40px !important;
-            height: 40px !important;
-            line-height: 40px !important;
+            width: 35px !important;
+            height: 35px !important;
+            line-height: 35px !important;
             margin: 2px !important;
-            font-size: 1rem !important;
+            font-size: 0.9rem !important; /* Slightly smaller font */
             font-weight: 600 !important;
-            border-radius: 10px !important;
+            border-radius: 8px !important;
             color: white !important;
+            flex-basis: 35px !important; /* Ensures the flexbox respects the size */
         }
 
-        /* 5. Header / Month Logic */
+        /* 5. Header Adjustments */
         .flatpickr-current-month {
-            font-size: 1.1rem !important;
-            font-weight: 800 !important;
-            width: 100% !important;
-            left: 0 !important;
+            font-size: 1rem !important;
+            font-weight: 700 !important;
             padding: 0 !important;
+            top: 5px !important;
+        }
+        
+        .flatpickr-month { height: 40px !important; }
+
+        .flatpickr-weekday {
+            width: 40px !important; /* Matching cell spacing */
+            font-size: 0.75rem !important;
+            color: rgba(255,255,255,0.5) !important;
         }
 
-        .flatpickr-month {
-            height: 50px !important;
-            padding-top: 10px !important;
-        }
-
-        .flatpickr-prev-month, .flatpickr-next-month {
-            padding: 15px !important;
-        }
-
-        /* 6. Selected/Range Highlights */
+        /* 6. Active States */
         .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
             background: #fb923c !important;
             border-color: #fb923c !important;
-            color: white !important;
         }
 
         .flatpickr-day.inRange {
             background: rgba(251, 146, 60, 0.2) !important;
-            border-color: transparent !important;
-            box-shadow: -5px 0 0 rgba(251, 146, 60, 0.2), 5px 0 0 rgba(251, 146, 60, 0.2) !important;
-        }
-
-        /* Ensure day names (S, M, T...) are visible */
-        .flatpickr-weekday {
-            color: rgba(255,255,255,0.6) !important;
-            font-weight: bold !important;
+            box-shadow: -3px 0 0 rgba(251, 146, 60, 0.2), 3px 0 0 rgba(251, 146, 60, 0.2) !important;
         }
     </style>
 </head>
-<body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
+<body class="bg-home min-h-screen flex flex-col items-center p-4 text-white">
 
-    <div class="w-full max-w-md flex justify-between items-center mb-6 mt-4">
-        <h1 class="text-3xl font-black tracking-tight" style="text-shadow: 0 4px 10px rgba(0,0,0,0.5);">Select Dates</h1>
+    <div class="w-full max-w-md flex justify-between items-center mb-4 mt-2">
+        <h1 class="text-2xl font-black tracking-tight" style="text-shadow: 0 4px 10px rgba(0,0,0,0.5);">Select Dates</h1>
         <a href="log.html" class="glass-button px-4 py-2 text-sm font-bold">Cancel</a>
     </div>
 
-    <div class="w-full max-w-md flex flex-col items-center">
-        <div id="calendar-holder" class="mb-8"></div>
+    <div class="w-full flex flex-col items-center">
+        <div id="calendar-holder" class="mb-6"></div>
         
-        <button onclick="saveTrip()" id="add-btn" class="w-full py-5 bg-green-500 text-white font-black rounded-2xl shadow-xl transition-all opacity-20 cursor-not-allowed" disabled>
+        <button onclick="saveTrip()" id="add-btn" class="w-full max-w-[280px] py-4 bg-green-500 text-white font-black rounded-xl shadow-xl transition-all opacity-20 cursor-not-allowed" disabled>
             SAVE THIS TRIP
         </button>
     </div>
@@ -106,7 +99,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     
     <script>
-        // Use the same config as your other pages
         const firebaseConfig = {
             apiKey: "AIzaSyB5l2JrkNaHqpg3KBCwyDW3UTBlv1QSrZo",
             authDomain: "matttrip-56a17.firebaseapp.com",
@@ -118,13 +110,11 @@
 
         let selectedDates = [];
 
-        // Initialize the inline diary widget
         const fp = flatpickr("#calendar-holder", {
             mode: "range",
             inline: true,
             dateFormat: "Y-m-d",
             monthSelectorType: "static",
-            animate: true,
             onChange: function(dates) {
                 selectedDates = dates;
                 const btn = document.getElementById('add-btn');
@@ -138,12 +128,10 @@
             }
         });
 
-        // Save logic with local date formatting to prevent day-shifting
         function saveTrip() {
             if (selectedDates.length === 2) {
                 const entry = formatDateStorage(selectedDates[0]);
                 const exit = formatDateStorage(selectedDates[1]);
-                
                 db.ref('trips').push({ entry, exit }).then(() => {
                     window.location.href = "log.html";
                 });
