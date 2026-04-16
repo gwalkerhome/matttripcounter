@@ -12,58 +12,61 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     
     <style>
-        /* 1. Ensure the container can actually be seen */
-        #calendar-holder {
-            display: block !important;
-            min-height: 300px; /* Forces the 'window' to stay open */
+        /* 1. The Container - Centered and visible */
+        #calendar-container {
             width: 100%;
             max-width: 320px;
+            min-height: 320px;
             margin: 0 auto;
+            display: flex;
+            justify-content: center;
         }
 
-        /* 2. The Calendar Widget */
+        /* 2. The Widget - Forcing the 7-day width */
         .flatpickr-calendar { 
-            background: rgba(15, 23, 42, 0.98) !important; 
-            border: 1px solid rgba(255,255,255,0.3) !important;
+            background: rgba(15, 23, 42, 0.95) !important; 
+            border: 1px solid rgba(255,255,255,0.2) !important;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important;
             border-radius: 1.5rem !important;
-            width: 300px !important; /* Fixed width for 7-day stability */
+            width: 315px !important; /* The magic number for 7 columns */
         }
 
-        /* 3. The 'Window' - Opening it wide enough for 7 days */
+        /* 3. Opening the internal 'window' */
         .flatpickr-innerContainer, .flatpickr-rContainer, .dayContainer, .flatpickr-days {
-            width: 300px !important;
-            min-width: 300px !important;
-            max-width: 300px !important;
+            width: 315px !important;
+            min-width: 315px !important;
+            max-width: 315px !important;
         }
 
-        /* 4. Cell Sizing - Small enough to fit, large enough to tap */
+        /* 4. Cell Sizes - Balanced for iPad/iPhone */
         .flatpickr-day {
-            width: 38px !important;
-            height: 38px !important;
-            line-height: 38px !important;
+            width: 40px !important;
+            height: 40px !important;
+            line-height: 40px !important;
             margin: 2px !important;
             font-size: 1rem !important;
             font-weight: 600 !important;
-            border-radius: 10px !important;
             color: white !important;
-            flex-basis: 38px !important;
+            max-width: none !important;
         }
 
-        /* 5. Header / Navigation */
+        /* 5. Fixing the Header Font sizes */
         .flatpickr-current-month {
-            font-size: 1.1rem !important;
+            font-size: 1rem !important;
             font-weight: 800 !important;
-            padding: 5px 0 !important;
+            padding-top: 5px !important;
         }
+
+        .flatpickr-month { height: 45px !important; }
 
         .flatpickr-weekday {
-            width: 42px !important; /* Space for the day labels (S, M, T...) */
-            font-size: 0.8rem !important;
-            color: rgba(255,255,255,0.5) !important;
+            width: 45px !important;
+            font-size: 0.7rem !important;
+            font-weight: bold !important;
+            color: rgba(255,255,255,0.4) !important;
         }
 
-        /* 6. Colors */
+        /* 6. Selected Colors */
         .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
             background: #fb923c !important;
             border-color: #fb923c !important;
@@ -75,16 +78,18 @@
         }
     </style>
 </head>
-<body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
+<body class="bg-home min-h-screen flex flex-col items-center p-4 text-white">
 
-    <div class="w-full max-w-md flex justify-between items-center mb-8 mt-4">
+    <div class="w-full max-w-md flex justify-between items-center mb-6 mt-2">
         <h1 class="text-3xl font-black tracking-tight" style="text-shadow: 0 4px 10px rgba(0,0,0,0.5);">Select Dates</h1>
         <a href="log.html" class="glass-button px-4 py-2 text-sm font-bold">Cancel</a>
     </div>
 
-    <div id="calendar-holder" class="mb-8"></div>
+    <div id="calendar-container" class="mb-6">
+        <div id="diary-widget"></div>
+    </div>
     
-    <div class="w-full max-w-[300px]">
+    <div class="w-full max-w-[315px]">
         <button onclick="saveTrip()" id="add-btn" class="w-full py-5 bg-green-500 text-white font-black rounded-2xl shadow-xl transition-all opacity-20 cursor-not-allowed" disabled>
             SAVE THIS TRIP
         </button>
@@ -105,28 +110,29 @@
 
         let selectedDates = [];
 
-        // Attach the calendar directly to the #calendar-holder div
-        const fp = flatpickr("#calendar-holder", {
-            mode: "range",
-            inline: true,
-            dateFormat: "Y-m-d",
-            monthSelectorType: "static",
-            onChange: function(dates) {
-                selectedDates = dates;
-                const btn = document.getElementById('add-btn');
-                if (dates.length === 2) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-20', 'cursor-not-allowed');
-                } else {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-20', 'cursor-not-allowed');
+        // Wait for everything to be loaded before starting the diary
+        window.addEventListener('load', function() {
+            flatpickr("#diary-widget", {
+                mode: "range",
+                inline: true,
+                dateFormat: "Y-m-d",
+                monthSelectorType: "static",
+                onChange: function(dates) {
+                    selectedDates = dates;
+                    const btn = document.getElementById('add-btn');
+                    if (dates.length === 2) {
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-20', 'cursor-not-allowed');
+                    } else {
+                        btn.disabled = true;
+                        btn.classList.add('opacity-20', 'cursor-not-allowed');
+                    }
                 }
-            }
+            });
         });
 
         function saveTrip() {
             if (selectedDates.length === 2) {
-                // Ensure we save the date precisely as selected
                 const entry = formatDate(selectedDates[0]);
                 const exit = formatDate(selectedDates[1]);
                 db.ref('trips').push({ entry, exit }).then(() => {
