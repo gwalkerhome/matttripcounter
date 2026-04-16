@@ -65,3 +65,9 @@ body {
     border-radius: 2rem;
     padding: 2rem;
 }
+
+/* Styling for the dedicated add-trip page */
+#calendar-holder .flatpickr-calendar {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-radius: 1.5rem;
+}
