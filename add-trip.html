@@ -6,39 +6,18 @@
     <title>Select Dates</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    
     <style>
-        /* The "Hammer" Fix: Scale the entire widget so it fits the screen */
-        .calendar-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            padding: 20px 0;
-            overflow: visible;
-        }
-
-        .flatpickr-calendar {
-            transform: scale(0.9); /* Shrinks the whole thing by 10% */
-            transform-origin: center top;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-        }
-
-        /* Essential color override for the orange theme */
-        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
-            background: #fb923c !important;
-            border-color: #fb923c !important;
-        }
+        .calendar-wrapper { display: flex; justify-content: center; width: 100%; padding: 10px 0; }
+        .flatpickr-calendar { transform: scale(0.95); transform-origin: top; }
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: #fb923c !important; border-color: #fb923c !important; }
     </style>
 </head>
 <body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
 
-    <div class="w-full max-w-md flex justify-between items-center mb-8 mt-4">
+    <div class="w-full max-w-md flex justify-between items-center mb-6 mt-4">
         <h1 class="text-3xl font-black tracking-tight">Select Dates</h1>
         <a href="log.html" class="glass-button px-4 py-2 text-sm font-bold">Cancel</a>
     </div>
@@ -47,7 +26,7 @@
         <div id="diary-widget"></div>
     </div>
     
-    <div class="w-full max-w-xs mt-4">
+    <div class="w-full max-w-xs mt-2">
         <button onclick="saveTrip()" id="add-btn" class="w-full py-5 bg-green-500 text-white font-black rounded-2xl shadow-xl transition-all opacity-20 cursor-not-allowed" disabled>
             SAVE THIS TRIP
         </button>
@@ -55,7 +34,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyB5l2JrkNaHqpg3KBCwyDW3UTBlv1QSrZo",
@@ -66,9 +44,11 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // Load Success Sound
+        const successSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+
         let selectedDates = [];
 
-        // Basic initialization - let Flatpickr do its job
         flatpickr("#diary-widget", {
             mode: "range",
             inline: true,
@@ -88,10 +68,12 @@
 
         function saveTrip() {
             if (selectedDates.length === 2) {
+                successSound.play(); // Play Sound
                 const entry = formatDate(selectedDates[0]);
                 const exit = formatDate(selectedDates[1]);
+                
                 db.ref('trips').push({ entry, exit }).then(() => {
-                    window.location.href = "log.html";
+                    setTimeout(() => { window.location.href = "log.html"; }, 300); // Small delay to hear sound
                 });
             }
         }
