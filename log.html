@@ -6,6 +6,22 @@
     <title>Trip History</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* The Scrolling Window */
+        #history-window {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 50vh; /* Limits height to half the screen */
+            overflow-y: auto; /* Enables scrolling */
+            padding: 1.5rem;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll for iPad */
+        }
+        /* Custom scrollbar to keep it looking tidy */
+        #history-window::-webkit-scrollbar { width: 4px; }
+        #history-window::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+    </style>
 </head>
 <body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
 
@@ -16,14 +32,17 @@
 
     <div class="w-full max-w-md mb-8">
         <a href="add-trip.html" class="block w-full py-5 glass-button font-black text-lg text-center tracking-wide uppercase shadow-2xl">
-            + Log a New Trip
+            + Log a Trip
         </a>
     </div>
 
     <div class="w-full max-w-md">
         <h2 class="text-lg font-bold mb-4 px-2" style="text-shadow: 0 2px 5px rgba(0,0,0,0.5);">Saved Trips</h2>
-        <div id="trip-list" class="space-y-3 pb-20">
-            <p class="text-center opacity-50 italic py-10">Loading history...</p>
+        
+        <div id="history-window">
+            <div id="trip-list" class="space-y-3">
+                <p class="text-center opacity-50 italic py-10">Loading history...</p>
+            </div>
         </div>
     </div>
 
@@ -52,13 +71,12 @@
 
             data.forEach(trip => {
                 const div = document.createElement('div');
-                div.className = 'trip-item p-5 flex justify-between items-center shadow-lg bg-white/10 rounded-2xl mb-3';
+                div.className = 'p-4 flex justify-between items-center bg-white/5 rounded-xl border border-white/10 mb-2';
                 div.innerHTML = `
                     <div>
-                        <div class="font-bold text-base text-white">${new Date(trip.entry).toLocaleDateString('en-GB')} — ${new Date(trip.exit).toLocaleDateString('en-GB')}</div>
-                        <div class="text-xs text-orange-400 font-bold uppercase mt-1">${Math.ceil((new Date(trip.exit) - new Date(trip.entry)) / 86400000) + 1} Day Stay</div>
+                        <div class="font-bold text-sm text-white">${new Date(trip.entry).toLocaleDateString('en-GB')} — ${new Date(trip.exit).toLocaleDateString('en-GB')}</div>
                     </div>
-                    <button onclick="deleteTrip('${trip.key}')" class="bg-red-500/10 p-3 rounded-xl text-red-400 text-xs font-bold border border-red-500/20">Delete</button>
+                    <button onclick="deleteTrip('${trip.key}')" class="text-red-400 text-xs font-bold px-3 py-1 bg-red-500/10 rounded-lg">Delete</button>
                 `;
                 tripList.appendChild(div);
             });
