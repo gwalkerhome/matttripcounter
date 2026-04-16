@@ -10,28 +10,36 @@
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
-        .flatpickr-calendar { background: rgba(0,0,0,0.9) !important; border: 1px solid rgba(255,255,255,0.2) !important; }
+        .flatpickr-calendar { background: rgba(0,0,0,0.95) !important; border: 1px solid rgba(255,255,255,0.2) !important; }
         .flatpickr-day.selected { background: #fb923c !important; border-color: #fb923c !important; }
-        /* Ensuring the date text is small enough to fit the box on mobile */
-        #range-picker { font-size: 0.9rem; letter-spacing: -0.02em; }
+        .hidden-section { display: none; }
     </style>
 </head>
 <body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
 
     <div class="w-full max-w-md flex justify-between items-center mb-8 mt-4">
         <h1 class="text-3xl font-black tracking-tight" style="text-shadow: 0 4px 10px rgba(0,0,0,0.5);">Trip Log</h1>
-        <a href="index.html" class="glass-button px-4 py-2 text-sm font-bold">Done</a>
+        <a href="index.html" class="glass-button px-6 py-2 text-sm font-bold">Done</a>
     </div>
 
-    <div class="w-full max-w-md mb-10">
-        <div class="glass-button p-4 mb-4">
-            <p class="text-xs uppercase tracking-widest font-bold opacity-70 mb-3 text-center">Log a previous visit</p>
+    <div id="initial-actions" class="w-full max-w-md mb-6">
+        <button onclick="showCalendar()" class="w-full py-5 glass-button font-black text-lg tracking-wide uppercase shadow-2xl">
+            + Log a New Trip
+        </button>
+    </div>
+
+    <div id="calendar-section" class="hidden-section w-full max-w-md mb-10 animate-in fade-in duration-500">
+        <div class="glass-button p-4">
+            <p class="text-xs uppercase tracking-widest font-bold opacity-70 mb-3 text-center">Select Dates Below</p>
             
-            <input type="text" id="range-picker" class="w-full p-4 rounded-xl text-black font-bold text-center mb-4 bg-white" placeholder="Select Start & End Dates" readonly>
+            <input type="text" id="range-picker" class="w-full p-4 rounded-xl text-black font-bold text-center mb-4 bg-white" placeholder="Tap to open calendar">
             
-            <button onclick="saveTrip()" id="add-btn" class="w-full py-4 bg-green-500 text-white font-black rounded-xl shadow-lg transition-all opacity-30 cursor-not-allowed" disabled>
-                COMMIT TRIP
-            </button>
+            <div class="flex gap-2">
+                <button onclick="hideCalendar()" class="w-1/3 py-4 bg-white/10 text-white font-bold rounded-xl border border-white/20">Cancel</button>
+                <button onclick="saveTrip()" id="add-btn" class="w-2/3 py-4 bg-green-500 text-white font-black rounded-xl shadow-lg transition-all opacity-30 cursor-not-allowed" disabled>
+                    SAVE TRIP
+                </button>
+            </div>
         </div>
     </div>
 
@@ -61,7 +69,8 @@
             mode: "range",
             dateFormat: "d/m/Y",
             monthSelectorType: "static",
-            closeOnSelect: false, // STOPS THE JUMPING
+            closeOnSelect: false,
+            inline: true, // This makes the calendar always visible when the section is shown
             onChange: function(dates) {
                 selectedDates = dates;
                 const btn = document.getElementById('add-btn');
@@ -74,6 +83,18 @@
                 }
             }
         });
+
+        function showCalendar() {
+            document.getElementById('initial-actions').classList.add('hidden-section');
+            document.getElementById('calendar-section').classList.remove('hidden-section');
+            fp.redraw(); 
+        }
+
+        function hideCalendar() {
+            document.getElementById('calendar-section').classList.add('hidden-section');
+            document.getElementById('initial-actions').classList.remove('hidden-section');
+            fp.clear();
+        }
 
         function loadTrips() {
             db.ref('trips').on('value', (snapshot) => {
@@ -92,23 +113,18 @@
                     const div = document.createElement('div');
                     div.className = 'trip-item p-5 flex justify-between items-center shadow-lg bg-white/10 rounded-2xl mb-3';
                     
-                    // Force display to ignore timezone shifting
-                    const entryLabel = formatDateDisplay(trip.entry);
-                    const exitLabel = formatDateDisplay(trip.exit);
-
                     div.innerHTML = `
                         <div>
-                            <div class="font-bold text-base text-white">${entryLabel} — ${exitLabel}</div>
+                            <div class="font-bold text-base text-white">${formatDateDisplay(trip.entry)} — ${formatDateDisplay(trip.exit)}</div>
                             <div class="text-xs text-orange-400 font-bold uppercase tracking-tighter mt-1">${calculateDays(trip.entry, trip.exit)} Day Stay</div>
                         </div>
-                        <button onclick="deleteTrip('${trip.key}')" class="bg-red-500/20 p-3 rounded-xl text-red-400 text-xs font-bold border border-red-500/20">Delete</button>
+                        <button onclick="deleteTrip('${trip.key}')" class="bg-red-500/10 p-3 rounded-xl text-red-400 text-xs font-bold border border-red-500/20">Delete</button>
                     `;
                     tripList.appendChild(div);
                 });
             });
         }
 
-        // Fixes the "Day Shifting" by forcing Local date strings
         function formatDateDisplay(dateStr) {
             const date = new Date(dateStr);
             return date.toLocaleDateString('en-GB');
@@ -122,18 +138,13 @@
 
         function saveTrip() {
             if (selectedDates.length === 2) {
-                // Formatting as YYYY-MM-DD manually to avoid ISO timezone jumps
                 const entry = formatDateStorage(selectedDates[0]);
                 const exit = formatDateStorage(selectedDates[1]);
-
                 db.ref('trips').push({ entry, exit });
-                fp.clear();
-                document.getElementById('add-btn').disabled = true;
-                document.getElementById('add-btn').classList.add('opacity-30', 'cursor-not-allowed');
+                hideCalendar();
             }
         }
 
-        // Helper to ensure dates are saved exactly as seen on the calendar
         function formatDateStorage(date) {
             const d = new Date(date);
             let month = '' + (d.getMonth() + 1);
