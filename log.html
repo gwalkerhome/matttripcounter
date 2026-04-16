@@ -2,119 +2,133 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Trip Log - Spain Tracker</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        /* Customizing the calendar to look better with our glass theme */
+        .flatpickr-calendar { background: rgba(0,0,0,0.9) !important; border: 1px solid rgba(255,255,255,0.2) !important; box-shadow: none !important; }
+        .flatpickr-day.selected { background: #fb923c !important; border-color: #fb923c !important; }
+        .flatpickr-day.inRange { background: rgba(251, 146, 60, 0.2) !important; box-shadow: -5px 0 0 rgba(251, 146, 60, 0.2), 5px 0 0 rgba(251, 146, 60, 0.2) !important; }
+    </style>
 </head>
 <body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
 
-    <div class="glass-card w-full max-w-md p-6 rounded-3xl shadow-2xl mb-6 mt-4">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">Trip Log</h1>
-            <a href="index.html" class="text-white/70 hover:text-white text-sm">← Back</a>
-        </div>
+    <div class="w-full max-w-md flex justify-between items-center mb-8 mt-4">
+        <h1 class="text-3xl font-black tracking-tight" style="text-shadow: 0 4px 10px rgba(0,0,0,0.5);">Trip Log</h1>
+        <a href="index.html" class="glass-button px-4 py-2 text-sm font-bold">Done</a>
+    </div>
 
-        <div class="bg-white/10 p-4 rounded-2xl mb-6 border border-white/10">
-            <h2 class="text-white font-semibold mb-3 text-sm">Add New Stay</h2>
-            <input type="text" id="range-picker" class="w-full p-3 rounded-lg text-black mb-3 text-center font-bold" placeholder="Select Start & End Dates">
+    <div class="w-full max-w-md mb-10">
+        <div class="glass-button p-4 mb-4">
+            <p class="text-xs uppercase tracking-widest font-bold opacity-70 mb-3 text-center">Log a previous visit</p>
+            <input type="text" id="range-picker" class="w-full p-4 rounded-xl text-black font-bold text-center mb-4" placeholder="Tap to select dates">
             
-            <button onclick="saveTrip()" id="add-btn" class="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-all text-sm opacity-50 cursor-not-allowed" disabled>
-                Confirm Trip
+            <button onclick="saveTrip()" id="add-btn" class="w-full py-4 bg-green-500 text-white font-black rounded-xl shadow-lg transition-all opacity-30 cursor-not-allowed" disabled>
+                COMMIT TRIP
             </button>
         </div>
+    </div>
 
-        <div id="trip-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-            <p class="text-center opacity-50 italic py-10">Loading your trips...</p>
+    <div class="w-full max-w-md">
+        <h2 class="text-lg font-bold mb-4 px-2" style="text-shadow: 0 2px 5px rgba(0,0,0,0.5);">Saved Trips</h2>
+        <div id="trip-list" class="space-y-3 pb-20">
+            <p class="text-center opacity-50 italic py-10">Loading your history...</p>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     
     <script>
-        // Use the hardcoded config from your setup
         const firebaseConfig = {
             apiKey: "AIzaSyB5l2JrkNaHqpg3KBCwyDW3UTBlv1QSrZo",
             authDomain: "matttrip-56a17.firebaseapp.com",
             projectId: "matttrip-56a17",
-            storageBucket: "matttrip-56a17.firebasestorage.app",
-            messagingSenderId: "1046960982511",
-            appId: "1:1046960982511:web:9d4e506dbc94b52fab8e1a"
+            databaseURL: "https://matttrip-56a17-default-rtdb.europe-west1.firebasedatabase.app"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const db = firebase.database();
 
         let selectedDates = [];
 
-        // Initialize the Calendar Range Picker
+        // Setup the Calendar
         const fp = flatpickr("#range-picker", {
             mode: "range",
             dateFormat: "d/m/Y",
+            animate: true,
+            // Removes the month/year dropdowns for simple arrows
+            monthSelectorType: "static", 
             onChange: function(dates) {
                 selectedDates = dates;
                 const btn = document.getElementById('add-btn');
                 if (dates.length === 2) {
                     btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btn.classList.remove('opacity-30', 'cursor-not-allowed');
                 } else {
                     btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                    btn.classList.add('opacity-30', 'cursor-not-allowed');
                 }
             }
         });
 
-        async function loadTrips() {
-            const tripList = document.getElementById('trip-list');
-            const snapshot = await db.collection('trips').orderBy('entry', 'desc').get();
-            
-            tripList.innerHTML = '';
-            if (snapshot.empty) {
-                tripList.innerHTML = '<p class="text-center opacity-50 py-10">No trips logged yet.</p>';
-                return;
-            }
+        // Load trips from Realtime Database
+        function loadTrips() {
+            db.ref('trips').on('value', (snapshot) => {
+                const tripList = document.getElementById('trip-list');
+                tripList.innerHTML = '';
+                
+                if (!snapshot.exists()) {
+                    tripList.innerHTML = '<p class="text-center opacity-50 py-10">No trips recorded.</p>';
+                    return;
+                }
 
-            snapshot.forEach(doc => {
-                const trip = doc.data();
-                const div = document.createElement('div');
-                div.className = 'trip-item p-4 rounded-xl flex justify-between items-center bg-white/10 border-b border-white/10';
-                div.innerHTML = `
-                    <div>
-                        <div class="font-bold text-sm">${new Date(trip.entry).toLocaleDateString('en-GB')} — ${new Date(trip.exit).toLocaleDateString('en-GB')}</div>
-                        <div class="text-xs text-orange-400 font-semibold">${calculateDays(trip.entry, trip.exit)} Days</div>
-                    </div>
-                    <button onclick="deleteTrip('${doc.id}')" class="bg-red-500/20 hover:bg-red-500/40 p-2 rounded-lg text-red-400 text-xs transition-all">Delete</button>
-                `;
-                tripList.appendChild(div);
+                // Sorting trips to show most recent at top
+                let data = [];
+                snapshot.forEach(child => {
+                    data.push({ key: child.key, ...child.val() });
+                });
+                data.sort((a, b) => new Date(b.entry) - new Date(a.entry));
+
+                data.forEach(trip => {
+                    const div = document.createElement('div');
+                    div.className = 'trip-item p-5 flex justify-between items-center shadow-lg';
+                    div.innerHTML = `
+                        <div>
+                            <div class="font-bold text-base text-white">${new Date(trip.entry).toLocaleDateString('en-GB')} — ${new Date(trip.exit).toLocaleDateString('en-GB')}</div>
+                            <div class="text-xs text-orange-400 font-bold uppercase tracking-tighter mt-1">${calculateDays(trip.entry, trip.exit)} Day Stay</div>
+                        </div>
+                        <button onclick="deleteTrip('${trip.key}')" class="bg-red-500/20 p-3 rounded-xl text-red-400 text-xs font-bold border border-red-500/20">Delete</button>
+                    `;
+                    tripList.appendChild(div);
+                });
             });
         }
 
         function calculateDays(start, end) {
             const d1 = new Date(start);
             const d2 = new Date(end);
-            const diff = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
-            return diff;
+            return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
         }
 
-        async function saveTrip() {
+        function saveTrip() {
             if (selectedDates.length === 2) {
-                // Ensure dates are saved in a simple YYYY-MM-DD format for consistency
                 const entry = selectedDates[0].toISOString().split('T')[0];
                 const exit = selectedDates[1].toISOString().split('T')[0];
-
-                await db.collection('trips').add({ entry, exit });
-                fp.clear(); // Clear calendar
-                loadTrips(); // Refresh list
+                db.ref('trips').push({ entry, exit });
+                fp.clear();
+                document.getElementById('add-btn').disabled = true;
+                document.getElementById('add-btn').classList.add('opacity-30', 'cursor-not-allowed');
             }
         }
 
-        async function deleteTrip(id) {
-            if(confirm("Delete this trip?")) {
-                await db.collection('trips').doc(id).delete();
-                loadTrips();
+        function deleteTrip(key) {
+            if(confirm("Delete this trip entry?")) {
+                db.ref('trips').child(key).remove();
             }
         }
 
