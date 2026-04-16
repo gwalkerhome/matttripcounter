@@ -1,0 +1,35 @@
+/* Custom Styles for Matt's App */
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #1a1a1a;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    transition: background-image 1s ease-in-out;
+}
+
+/* Default background if no image is set yet */
+.bg-home {
+    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('assets/uk_sad.png');
+}
+
+/* The Glassmorphism Card Effect */
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Smooth Gauge Animation */
+#gauge-progress {
+    transition: stroke-dashoffset 1.5s ease-out;
+}
+
+/* Button hover tweak for mobile touch */
+button:active, a:active {
+    transform: scale(0.98);
+}
