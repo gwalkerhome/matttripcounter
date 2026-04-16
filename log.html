@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Log - Spain Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-home min-h-screen flex flex-col items-center p-6">
+
+    <div class="glass-card w-full max-w-md p-6 rounded-3xl shadow-2xl mb-6 mt-4">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-white">Trip Log</h1>
+            <a href="index.html" class="text-white/70 hover:text-white text-sm">← Back</a>
+        </div>
+
+        <div class="bg-white/10 p-4 rounded-2xl mb-6 border border-white/10">
+            <h2 class="text-white font-semibold mb-3 text-sm">Add New Stay</h2>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <input type="date" id="entry-date" class="p-2 rounded-lg text-sm">
+                <input type="date" id="exit-date" class="p-2 rounded-lg text-sm">
+            </div>
+            <button onclick="addTrip()" class="w-full py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-all text-sm">
+                + Add Trip to Firebase
+            </button>
+        </div>
+
+        <div id="trip-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 text-white">
+            <p class="text-center opacity-50 italic py-10">Loading your trips...</p>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Load settings from LocalStorage
+        const config = JSON.parse(localStorage.getItem('firebase_config'));
+        firebase.initializeApp(config);
+        const db = firebase.firestore();
+
+        // Function to render trips
+        async function loadTrips() {
+            const tripList = document.getElementById('trip-list');
+            const snapshot = await db.collection('trips').orderBy('entry', 'desc').get();
+            
+            if (snapshot.empty) {
+                tripList.innerHTML = '<p class="text-center opacity-50 py-10">No trips logged yet.</p>';
+                return;
+            }
+
+            tripList.innerHTML = '';
+            snapshot.forEach(doc => {
+                const trip = doc.data();
+                const div = document.createElement('div');
+                div.className = 'trip-item p-4 rounded-xl flex justify-between items-center';
+                div.innerHTML = `
+                    <div>
+                        <div class="font-bold">${new Date(trip.entry).toLocaleDateString('en-GB')}</div>
+                        <div class="text-xs opacity-70">to ${new Date(trip.exit).toLocaleDateString('en-GB')}</div>
+                    </div>
+                    <button onclick="deleteTrip('${doc.id}')" class="text-red-400 text-xs">Delete</button>
+                `;
+                tripList.appendChild(div);
+            });
+        }
+
+        async function addTrip() {
+            const entry = document.getElementById('entry-date').value;
+            const exit = document.getElementById('exit-date').value;
+
+            if (entry && exit) {
+                await db.collection('trips').add({ entry, exit });
+                loadTrips(); // Refresh list
+            } else {
+                alert("Please select both dates.");
+            }
+        }
+
+        async function deleteTrip(id) {
+            if(confirm("Delete this trip?")) {
+                await db.collection('trips').doc(id).delete();
+                loadTrips();
+            }
+        }
+
+        window.onload = loadTrips;
+    </script>
+</body>
+</html>
