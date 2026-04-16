@@ -1,4 +1,3 @@
-// Firebase Configuration (Ensure this matches your other pages)
 const firebaseConfig = {
     apiKey: "AIzaSyB5l2JrkNaHqpg3KBCwyDW3UTBlv1QSrZo",
     authDomain: "matttrip-56a17.firebaseapp.com",
@@ -17,20 +16,15 @@ function initializeAppLogic() {
         snapshot.forEach(child => {
             trips.push(child.val());
         });
-
         const status = calculateSchengenStatus(trips);
-        
-        // Use a tiny timeout to ensure the HTML elements exist before updating
-        setTimeout(() => {
-            updateUI(status);
-        }, 100);
+        updateUI(status);
     });
 }
 
 function calculateSchengenStatus(trips) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayStr = formatDate(today);
+    const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
 
     let daysUsed = 0;
     let currentlyInSpain = false;
@@ -39,12 +33,9 @@ function calculateSchengenStatus(trips) {
     windowStart.setDate(windowStart.getDate() - 180);
 
     trips.forEach(trip => {
-        // Handle Matt being in Spain today
         if (todayStr >= trip.entry && todayStr <= trip.exit) {
             currentlyInSpain = true;
         }
-
-        // 180-day calculation
         const entry = new Date(trip.entry);
         const exit = new Date(trip.exit);
         if (exit >= windowStart) {
@@ -62,17 +53,13 @@ function calculateSchengenStatus(trips) {
 }
 
 function updateUI(status) {
-    // 1. FIX BACKGROUND: Target the 'bg-home' class specifically
-    const body = document.body;
-    
-    // Ensure the path to the images is correct. 
-    // If they are in the root folder, use the filenames directly.
-    const bgImage = status.inSpain ? "sp1.jpg" : "uk1.jpg";
-    body.style.backgroundImage = `url('${bgImage}')`;
-    body.style.backgroundSize = "cover";
-    body.style.backgroundPosition = "center";
+    // FIX 1: Correct Image Paths
+    const bgImage = status.inSpain ? "assets/sp1.jpg" : "assets/uk1.jpg";
+    document.body.style.backgroundImage = `url('${bgImage}')`;
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
 
-    // 2. Update Circle Numbers
+    // FIX 2: Explicitly target IDs
     const dayCountEl = document.getElementById('day-count');
     const statusTextEl = document.getElementById('status-text');
 
@@ -84,11 +71,5 @@ function updateUI(status) {
     }
 }
 
-// Helper to match YYYY-MM-DD format
-function formatDate(date) {
-    const d = new Date(date);
-    return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
-}
-
-// Start the logic
-initializeAppLogic();
+// Ensure the page is ready before running
+window.onload = initializeAppLogic;
