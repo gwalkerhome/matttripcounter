@@ -71,3 +71,18 @@ body {
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     border-radius: 1.5rem;
 }
+
+/* Ensure the green save button pops but remains readable */
+#add-btn {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 0.05em;
+}
+
+/* Smooth out the transitions for the calendar items */
+.flatpickr-day {
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.flatpickr-day:active {
+    transform: scale(0.9);
+}
