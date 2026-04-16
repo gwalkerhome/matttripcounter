@@ -12,84 +12,42 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     
     <style>
-        /* 1. The Container - Centered and visible */
-        #calendar-container {
-            width: 100%;
-            max-width: 320px;
-            min-height: 320px;
-            margin: 0 auto;
+        /* The "Hammer" Fix: Scale the entire widget so it fits the screen */
+        .calendar-wrapper {
             display: flex;
             justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px 0;
+            overflow: visible;
         }
 
-        /* 2. The Widget - Forcing the 7-day width */
-        .flatpickr-calendar { 
-            background: rgba(15, 23, 42, 0.95) !important; 
-            border: 1px solid rgba(255,255,255,0.2) !important;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important;
-            border-radius: 1.5rem !important;
-            width: 315px !important; /* The magic number for 7 columns */
+        .flatpickr-calendar {
+            transform: scale(0.9); /* Shrinks the whole thing by 10% */
+            transform-origin: center top;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
         }
 
-        /* 3. Opening the internal 'window' */
-        .flatpickr-innerContainer, .flatpickr-rContainer, .dayContainer, .flatpickr-days {
-            width: 315px !important;
-            min-width: 315px !important;
-            max-width: 315px !important;
-        }
-
-        /* 4. Cell Sizes - Balanced for iPad/iPhone */
-        .flatpickr-day {
-            width: 40px !important;
-            height: 40px !important;
-            line-height: 40px !important;
-            margin: 2px !important;
-            font-size: 1rem !important;
-            font-weight: 600 !important;
-            color: white !important;
-            max-width: none !important;
-        }
-
-        /* 5. Fixing the Header Font sizes */
-        .flatpickr-current-month {
-            font-size: 1rem !important;
-            font-weight: 800 !important;
-            padding-top: 5px !important;
-        }
-
-        .flatpickr-month { height: 45px !important; }
-
-        .flatpickr-weekday {
-            width: 45px !important;
-            font-size: 0.7rem !important;
-            font-weight: bold !important;
-            color: rgba(255,255,255,0.4) !important;
-        }
-
-        /* 6. Selected Colors */
+        /* Essential color override for the orange theme */
         .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
             background: #fb923c !important;
             border-color: #fb923c !important;
         }
-
-        .flatpickr-day.inRange {
-            background: rgba(251, 146, 60, 0.2) !important;
-            box-shadow: -5px 0 0 rgba(251, 146, 60, 0.2), 5px 0 0 rgba(251, 146, 60, 0.2) !important;
-        }
     </style>
 </head>
-<body class="bg-home min-h-screen flex flex-col items-center p-4 text-white">
+<body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
 
-    <div class="w-full max-w-md flex justify-between items-center mb-6 mt-2">
-        <h1 class="text-3xl font-black tracking-tight" style="text-shadow: 0 4px 10px rgba(0,0,0,0.5);">Select Dates</h1>
+    <div class="w-full max-w-md flex justify-between items-center mb-8 mt-4">
+        <h1 class="text-3xl font-black tracking-tight">Select Dates</h1>
         <a href="log.html" class="glass-button px-4 py-2 text-sm font-bold">Cancel</a>
     </div>
 
-    <div id="calendar-container" class="mb-6">
+    <div class="calendar-wrapper">
         <div id="diary-widget"></div>
     </div>
     
-    <div class="w-full max-w-[315px]">
+    <div class="w-full max-w-xs mt-4">
         <button onclick="saveTrip()" id="add-btn" class="w-full py-5 bg-green-500 text-white font-black rounded-2xl shadow-xl transition-all opacity-20 cursor-not-allowed" disabled>
             SAVE THIS TRIP
         </button>
@@ -110,25 +68,22 @@
 
         let selectedDates = [];
 
-        // Wait for everything to be loaded before starting the diary
-        window.addEventListener('load', function() {
-            flatpickr("#diary-widget", {
-                mode: "range",
-                inline: true,
-                dateFormat: "Y-m-d",
-                monthSelectorType: "static",
-                onChange: function(dates) {
-                    selectedDates = dates;
-                    const btn = document.getElementById('add-btn');
-                    if (dates.length === 2) {
-                        btn.disabled = false;
-                        btn.classList.remove('opacity-20', 'cursor-not-allowed');
-                    } else {
-                        btn.disabled = true;
-                        btn.classList.add('opacity-20', 'cursor-not-allowed');
-                    }
+        // Basic initialization - let Flatpickr do its job
+        flatpickr("#diary-widget", {
+            mode: "range",
+            inline: true,
+            monthSelectorType: "static",
+            onChange: function(dates) {
+                selectedDates = dates;
+                const btn = document.getElementById('add-btn');
+                if (dates.length === 2) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-20', 'cursor-not-allowed');
+                } else {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-20', 'cursor-not-allowed');
                 }
-            });
+            }
         });
 
         function saveTrip() {
@@ -143,9 +98,7 @@
 
         function formatDate(date) {
             const d = new Date(date);
-            const month = (d.getMonth() + 1).toString().padStart(2, '0');
-            const day = d.getDate().toString().padStart(2, '0');
-            return `${d.getFullYear()}-${month}-${day}`;
+            return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
         }
     </script>
 </body>
