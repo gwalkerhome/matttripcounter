@@ -6,69 +6,64 @@
     <title>Select Dates</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
-    <script src="https://cdn.npmcdn.com/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     
     <style>
-        /* 1. The Wrapper - Remove padding to give the calendar every pixel possible */
+        /* 1. Ensure the container can actually be seen */
         #calendar-holder {
-            width: 100% !important;
-            display: flex;
-            justify-content: center;
-            padding: 0 !important;
-            margin-top: 10px;
+            display: block !important;
+            min-height: 300px; /* Forces the 'window' to stay open */
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
         }
 
-        /* 2. The Window - Open it wide and remove internal padding */
+        /* 2. The Calendar Widget */
         .flatpickr-calendar { 
             background: rgba(15, 23, 42, 0.98) !important; 
             border: 1px solid rgba(255,255,255,0.3) !important;
-            width: 280px !important; /* Total width: (35px + 4px margin) * 7 = 273px */
-            min-width: 280px !important;
-            max-width: 280px !important;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5) !important;
-            border-radius: 1.2rem !important;
-            overflow: hidden !important;
+            border-radius: 1.5rem !important;
+            width: 300px !important; /* Fixed width for 7-day stability */
         }
 
-        /* 3. Force the internal containers to stay 7-days wide */
-        .flatpickr-innerContainer, .flatpickr-rContainer, .flatpickr-days, .dayContainer {
-            width: 280px !important;
-            min-width: 280px !important;
-            max-width: 280px !important;
+        /* 3. The 'Window' - Opening it wide enough for 7 days */
+        .flatpickr-innerContainer, .flatpickr-rContainer, .dayContainer, .flatpickr-days {
+            width: 300px !important;
+            min-width: 300px !important;
+            max-width: 300px !important;
         }
 
-        /* 4. The Cells - Reduce size so 7 fit across easily */
+        /* 4. Cell Sizing - Small enough to fit, large enough to tap */
         .flatpickr-day {
-            width: 35px !important;
-            height: 35px !important;
-            line-height: 35px !important;
+            width: 38px !important;
+            height: 38px !important;
+            line-height: 38px !important;
             margin: 2px !important;
-            font-size: 0.9rem !important; /* Slightly smaller font */
+            font-size: 1rem !important;
             font-weight: 600 !important;
-            border-radius: 8px !important;
+            border-radius: 10px !important;
             color: white !important;
-            flex-basis: 35px !important; /* Ensures the flexbox respects the size */
+            flex-basis: 38px !important;
         }
 
-        /* 5. Header Adjustments */
+        /* 5. Header / Navigation */
         .flatpickr-current-month {
-            font-size: 1rem !important;
-            font-weight: 700 !important;
-            padding: 0 !important;
-            top: 5px !important;
+            font-size: 1.1rem !important;
+            font-weight: 800 !important;
+            padding: 5px 0 !important;
         }
-        
-        .flatpickr-month { height: 40px !important; }
 
         .flatpickr-weekday {
-            width: 40px !important; /* Matching cell spacing */
-            font-size: 0.75rem !important;
+            width: 42px !important; /* Space for the day labels (S, M, T...) */
+            font-size: 0.8rem !important;
             color: rgba(255,255,255,0.5) !important;
         }
 
-        /* 6. Active States */
+        /* 6. Colors */
         .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
             background: #fb923c !important;
             border-color: #fb923c !important;
@@ -76,21 +71,21 @@
 
         .flatpickr-day.inRange {
             background: rgba(251, 146, 60, 0.2) !important;
-            box-shadow: -3px 0 0 rgba(251, 146, 60, 0.2), 3px 0 0 rgba(251, 146, 60, 0.2) !important;
+            box-shadow: -5px 0 0 rgba(251, 146, 60, 0.2), 5px 0 0 rgba(251, 146, 60, 0.2) !important;
         }
     </style>
 </head>
-<body class="bg-home min-h-screen flex flex-col items-center p-4 text-white">
+<body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
 
-    <div class="w-full max-w-md flex justify-between items-center mb-4 mt-2">
-        <h1 class="text-2xl font-black tracking-tight" style="text-shadow: 0 4px 10px rgba(0,0,0,0.5);">Select Dates</h1>
+    <div class="w-full max-w-md flex justify-between items-center mb-8 mt-4">
+        <h1 class="text-3xl font-black tracking-tight" style="text-shadow: 0 4px 10px rgba(0,0,0,0.5);">Select Dates</h1>
         <a href="log.html" class="glass-button px-4 py-2 text-sm font-bold">Cancel</a>
     </div>
 
-    <div class="w-full flex flex-col items-center">
-        <div id="calendar-holder" class="mb-6"></div>
-        
-        <button onclick="saveTrip()" id="add-btn" class="w-full max-w-[280px] py-4 bg-green-500 text-white font-black rounded-xl shadow-xl transition-all opacity-20 cursor-not-allowed" disabled>
+    <div id="calendar-holder" class="mb-8"></div>
+    
+    <div class="w-full max-w-[300px]">
+        <button onclick="saveTrip()" id="add-btn" class="w-full py-5 bg-green-500 text-white font-black rounded-2xl shadow-xl transition-all opacity-20 cursor-not-allowed" disabled>
             SAVE THIS TRIP
         </button>
     </div>
@@ -110,6 +105,7 @@
 
         let selectedDates = [];
 
+        // Attach the calendar directly to the #calendar-holder div
         const fp = flatpickr("#calendar-holder", {
             mode: "range",
             inline: true,
@@ -130,22 +126,20 @@
 
         function saveTrip() {
             if (selectedDates.length === 2) {
-                const entry = formatDateStorage(selectedDates[0]);
-                const exit = formatDateStorage(selectedDates[1]);
+                // Ensure we save the date precisely as selected
+                const entry = formatDate(selectedDates[0]);
+                const exit = formatDate(selectedDates[1]);
                 db.ref('trips').push({ entry, exit }).then(() => {
                     window.location.href = "log.html";
                 });
             }
         }
 
-        function formatDateStorage(date) {
+        function formatDate(date) {
             const d = new Date(date);
-            let month = '' + (d.getMonth() + 1);
-            let day = '' + d.getDate();
-            let year = d.getFullYear();
-            if (month.length < 2) month = '0' + month;
-            if (day.length < 2) day = '0' + day;
-            return [year, month, day].join('-');
+            const month = (d.getMonth() + 1).toString().padStart(2, '0');
+            const day = d.getDate().toString().padStart(2, '0');
+            return `${d.getFullYear()}-${month}-${day}`;
         }
     </script>
 </body>
