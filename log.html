@@ -6,27 +6,28 @@
     <title>Trip Log - Spain Tracker</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
-<body class="bg-home min-h-screen flex flex-col items-center p-6">
+<body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
 
     <div class="glass-card w-full max-w-md p-6 rounded-3xl shadow-2xl mb-6 mt-4">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-white">Trip Log</h1>
+            <h1 class="text-2xl font-bold">Trip Log</h1>
             <a href="index.html" class="text-white/70 hover:text-white text-sm">← Back</a>
         </div>
 
         <div class="bg-white/10 p-4 rounded-2xl mb-6 border border-white/10">
             <h2 class="text-white font-semibold mb-3 text-sm">Add New Stay</h2>
-            <div class="grid grid-cols-2 gap-3 mb-3">
-                <input type="date" id="entry-date" class="p-2 rounded-lg text-sm">
-                <input type="date" id="exit-date" class="p-2 rounded-lg text-sm">
-            </div>
-            <button onclick="addTrip()" class="w-full py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-all text-sm">
-                + Add Trip to Firebase
+            <input type="text" id="range-picker" class="w-full p-3 rounded-lg text-black mb-3 text-center font-bold" placeholder="Select Start & End Dates">
+            
+            <button onclick="saveTrip()" id="add-btn" class="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-all text-sm opacity-50 cursor-not-allowed" disabled>
+                Confirm Trip
             </button>
         </div>
 
-        <div id="trip-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 text-white">
+        <div id="trip-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
             <p class="text-center opacity-50 italic py-10">Loading your trips...</p>
         </div>
     </div>
@@ -35,46 +36,78 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     
     <script>
-        // Load settings from LocalStorage
-        const config = JSON.parse(localStorage.getItem('firebase_config'));
-        firebase.initializeApp(config);
+        // Use the hardcoded config from your setup
+        const firebaseConfig = {
+            apiKey: "AIzaSyB5l2JrkNaHqpg3KBCwyDW3UTBlv1QSrZo",
+            authDomain: "matttrip-56a17.firebaseapp.com",
+            projectId: "matttrip-56a17",
+            storageBucket: "matttrip-56a17.firebasestorage.app",
+            messagingSenderId: "1046960982511",
+            appId: "1:1046960982511:web:9d4e506dbc94b52fab8e1a"
+        };
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Function to render trips
+        let selectedDates = [];
+
+        // Initialize the Calendar Range Picker
+        const fp = flatpickr("#range-picker", {
+            mode: "range",
+            dateFormat: "d/m/Y",
+            onChange: function(dates) {
+                selectedDates = dates;
+                const btn = document.getElementById('add-btn');
+                if (dates.length === 2) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        });
+
         async function loadTrips() {
             const tripList = document.getElementById('trip-list');
             const snapshot = await db.collection('trips').orderBy('entry', 'desc').get();
             
+            tripList.innerHTML = '';
             if (snapshot.empty) {
                 tripList.innerHTML = '<p class="text-center opacity-50 py-10">No trips logged yet.</p>';
                 return;
             }
 
-            tripList.innerHTML = '';
             snapshot.forEach(doc => {
                 const trip = doc.data();
                 const div = document.createElement('div');
-                div.className = 'trip-item p-4 rounded-xl flex justify-between items-center';
+                div.className = 'trip-item p-4 rounded-xl flex justify-between items-center bg-white/10 border-b border-white/10';
                 div.innerHTML = `
                     <div>
-                        <div class="font-bold">${new Date(trip.entry).toLocaleDateString('en-GB')}</div>
-                        <div class="text-xs opacity-70">to ${new Date(trip.exit).toLocaleDateString('en-GB')}</div>
+                        <div class="font-bold text-sm">${new Date(trip.entry).toLocaleDateString('en-GB')} — ${new Date(trip.exit).toLocaleDateString('en-GB')}</div>
+                        <div class="text-xs text-orange-400 font-semibold">${calculateDays(trip.entry, trip.exit)} Days</div>
                     </div>
-                    <button onclick="deleteTrip('${doc.id}')" class="text-red-400 text-xs">Delete</button>
+                    <button onclick="deleteTrip('${doc.id}')" class="bg-red-500/20 hover:bg-red-500/40 p-2 rounded-lg text-red-400 text-xs transition-all">Delete</button>
                 `;
                 tripList.appendChild(div);
             });
         }
 
-        async function addTrip() {
-            const entry = document.getElementById('entry-date').value;
-            const exit = document.getElementById('exit-date').value;
+        function calculateDays(start, end) {
+            const d1 = new Date(start);
+            const d2 = new Date(end);
+            const diff = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+            return diff;
+        }
 
-            if (entry && exit) {
+        async function saveTrip() {
+            if (selectedDates.length === 2) {
+                // Ensure dates are saved in a simple YYYY-MM-DD format for consistency
+                const entry = selectedDates[0].toISOString().split('T')[0];
+                const exit = selectedDates[1].toISOString().split('T')[0];
+
                 await db.collection('trips').add({ entry, exit });
+                fp.clear(); // Clear calendar
                 loadTrips(); // Refresh list
-            } else {
-                alert("Please select both dates.");
             }
         }
 
