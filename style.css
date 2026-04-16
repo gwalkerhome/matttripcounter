@@ -1,4 +1,4 @@
-/* Custom Styles for Matt's App - Vibrant Glass Edition */
+/* Matt's Spain Tracker - Floating UI Edition */
 
 body {
     margin: 0;
@@ -9,62 +9,59 @@ body {
     background-position: center;
     background-attachment: fixed;
     transition: background-image 1s ease-in-out;
-    /* This ensures the app fills the whole screen on mobile */
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Default Background Image - Matt UK 1 */
+/* Background Image */
 .bg-home {
-    background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('assets/uk1.jpg');
+    background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url('assets/uk1.jpg');
 }
 
-/* THE GLASS CARD 
-   We lowered the '0.1' to '0.05' for more transparency 
-   and reduced the blur from 20px to 8px 
+/* Floating Gauge Text Shadow (for readability) */
+#days-count, .gauge-label {
+    text-shadow: 0px 4px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* FROSTED GLASS BUTTONS 
+   These now float independently on the background
 */
-.glass-card {
-    background: rgba(255, 255, 255, 0.05); 
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 2rem;
-}
-
-/* Buttons - Making them slightly clearer but visible */
-.glass-button {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+.glass-button, a.block {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    border-radius: 1.25rem;
     transition: all 0.3s ease;
 }
 
 .glass-button:active {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(0.98);
+    background: rgba(255, 255, 255, 0.25) !important;
+    transform: scale(0.96);
 }
 
-/* Smooth Gauge Animation */
+/* Gauge styling */
 #gauge-progress {
     transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0px 0px 8px rgba(0,0,0,0.5));
 }
 
-/* Input boxes for the Log page */
-input, textarea {
-    background: rgba(255, 255, 255, 0.85) !important;
-    border: none !important;
-    outline: none !important;
-    color: #000 !important;
-}
-
-/* Trip Log Items */
+/* Keep the log items readable if they appear on this page */
 .trip-item {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border-radius: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(2px);
 }
 
-/* iPhone Notch Support */
-#dashboard-screen, .glass-card {
-    margin-top: env(safe-area-inset-top);
+/* Ensure the Setup Screen still has a background so Matt can see the inputs */
+#setup-screen {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    border-radius: 2rem;
+    padding: 2rem;
 }
