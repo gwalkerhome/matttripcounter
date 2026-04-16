@@ -10,26 +10,24 @@ body {
     transition: background-image 1s ease-in-out;
 }
 
-/* Default background if no image is set yet */
+/* Default Background Image - UK Sad Matt */
 .bg-home {
-    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('assets/uk_sad.png');
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('assets/uk_sad.png');
 }
 
-/* The Glassmorphism Card Effect */
 .glass-card {
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* Smooth Gauge Animation */
 #gauge-progress {
     transition: stroke-dashoffset 1.5s ease-out;
 }
 
-/* Button hover tweak for mobile touch */
-button:active, a:active {
-    transform: scale(0.98);
+input, textarea {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    outline: none;
 }
