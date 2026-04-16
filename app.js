@@ -6,13 +6,11 @@ const firebaseConfig = {
     databaseURL: "https://matttrip-56a17-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
-// Initialize Firebase if not already initialized
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
 
-// THE HANDSHAKE: Listen for trip data and update the whole app
 function initializeAppLogic() {
     db.ref('trips').on('value', (snapshot) => {
         const trips = [];
@@ -21,32 +19,34 @@ function initializeAppLogic() {
         });
 
         const status = calculateSchengenStatus(trips);
-        updateUI(status);
+        
+        // Use a tiny timeout to ensure the HTML elements exist before updating
+        setTimeout(() => {
+            updateUI(status);
+        }, 100);
     });
 }
 
 function calculateSchengenStatus(trips) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+    const todayStr = formatDate(today);
 
     let daysUsed = 0;
     let currentlyInSpain = false;
 
-    // 180-day window start
     const windowStart = new Date(today);
     windowStart.setDate(windowStart.getDate() - 180);
 
     trips.forEach(trip => {
-        const entry = new Date(trip.entry);
-        const exit = new Date(trip.exit);
-
-        // Check if Matt is currently there
+        // Handle Matt being in Spain today
         if (todayStr >= trip.entry && todayStr <= trip.exit) {
             currentlyInSpain = true;
         }
 
-        // Calculate days in the last 180 days
+        // 180-day calculation
+        const entry = new Date(trip.entry);
+        const exit = new Date(trip.exit);
         if (exit >= windowStart) {
             const actualStart = entry < windowStart ? windowStart : entry;
             const diffTime = Math.abs(exit - actualStart);
@@ -56,32 +56,39 @@ function calculateSchengenStatus(trips) {
     });
 
     return {
-        daysRemaining: 90 - daysUsed,
+        daysRemaining: Math.max(0, 90 - daysUsed),
         inSpain: currentlyInSpain
     };
 }
 
 function updateUI(status) {
-    // 1. Update Background Image
-    // If in Spain, use sp1, sp2, or sp3. If in UK, use uk1, uk2, or uk3.
+    // 1. FIX BACKGROUND: Target the 'bg-home' class specifically
     const body = document.body;
-    if (status.inSpain) {
-        body.style.backgroundImage = "url('sp1.jpg')"; // You can randomize this later
-        console.log("Status: Matt is in Spain.");
-    } else {
-        body.style.backgroundImage = "url('uk1.jpg')";
-        console.log("Status: Matt is in the UK.");
-    }
+    
+    // Ensure the path to the images is correct. 
+    // If they are in the root folder, use the filenames directly.
+    const bgImage = status.inSpain ? "sp1.jpg" : "uk1.jpg";
+    body.style.backgroundImage = `url('${bgImage}')`;
+    body.style.backgroundSize = "cover";
+    body.style.backgroundPosition = "center";
 
-    // 2. Update the Counters (only if we are on index.html)
+    // 2. Update Circle Numbers
     const dayCountEl = document.getElementById('day-count');
     const statusTextEl = document.getElementById('status-text');
 
-    if (dayCountEl) dayCountEl.innerText = status.daysRemaining;
+    if (dayCountEl) {
+        dayCountEl.innerText = status.daysRemaining;
+    }
     if (statusTextEl) {
         statusTextEl.innerText = status.inSpain ? "Days Left in Spain" : "Days Available";
     }
 }
 
-// Fire it up
+// Helper to match YYYY-MM-DD format
+function formatDate(date) {
+    const d = new Date(date);
+    return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+}
+
+// Start the logic
 initializeAppLogic();
