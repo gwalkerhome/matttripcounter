@@ -10,10 +10,10 @@
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
-        /* Customizing the calendar to look better with our glass theme */
-        .flatpickr-calendar { background: rgba(0,0,0,0.9) !important; border: 1px solid rgba(255,255,255,0.2) !important; box-shadow: none !important; }
+        .flatpickr-calendar { background: rgba(0,0,0,0.9) !important; border: 1px solid rgba(255,255,255,0.2) !important; }
         .flatpickr-day.selected { background: #fb923c !important; border-color: #fb923c !important; }
-        .flatpickr-day.inRange { background: rgba(251, 146, 60, 0.2) !important; box-shadow: -5px 0 0 rgba(251, 146, 60, 0.2), 5px 0 0 rgba(251, 146, 60, 0.2) !important; }
+        /* Ensuring the date text is small enough to fit the box on mobile */
+        #range-picker { font-size: 0.9rem; letter-spacing: -0.02em; }
     </style>
 </head>
 <body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
@@ -26,7 +26,8 @@
     <div class="w-full max-w-md mb-10">
         <div class="glass-button p-4 mb-4">
             <p class="text-xs uppercase tracking-widest font-bold opacity-70 mb-3 text-center">Log a previous visit</p>
-            <input type="text" id="range-picker" class="w-full p-4 rounded-xl text-black font-bold text-center mb-4" placeholder="Tap to select dates">
+            
+            <input type="text" id="range-picker" class="w-full p-4 rounded-xl text-black font-bold text-center mb-4 bg-white" placeholder="Select Start & End Dates" readonly>
             
             <button onclick="saveTrip()" id="add-btn" class="w-full py-4 bg-green-500 text-white font-black rounded-xl shadow-lg transition-all opacity-30 cursor-not-allowed" disabled>
                 COMMIT TRIP
@@ -56,13 +57,11 @@
 
         let selectedDates = [];
 
-        // Setup the Calendar
         const fp = flatpickr("#range-picker", {
             mode: "range",
             dateFormat: "d/m/Y",
-            animate: true,
-            // Removes the month/year dropdowns for simple arrows
-            monthSelectorType: "static", 
+            monthSelectorType: "static",
+            closeOnSelect: false, // STOPS THE JUMPING
             onChange: function(dates) {
                 selectedDates = dates;
                 const btn = document.getElementById('add-btn');
@@ -76,30 +75,30 @@
             }
         });
 
-        // Load trips from Realtime Database
         function loadTrips() {
             db.ref('trips').on('value', (snapshot) => {
                 const tripList = document.getElementById('trip-list');
                 tripList.innerHTML = '';
-                
                 if (!snapshot.exists()) {
                     tripList.innerHTML = '<p class="text-center opacity-50 py-10">No trips recorded.</p>';
                     return;
                 }
 
-                // Sorting trips to show most recent at top
                 let data = [];
-                snapshot.forEach(child => {
-                    data.push({ key: child.key, ...child.val() });
-                });
+                snapshot.forEach(child => { data.push({ key: child.key, ...child.val() }); });
                 data.sort((a, b) => new Date(b.entry) - new Date(a.entry));
 
                 data.forEach(trip => {
                     const div = document.createElement('div');
-                    div.className = 'trip-item p-5 flex justify-between items-center shadow-lg';
+                    div.className = 'trip-item p-5 flex justify-between items-center shadow-lg bg-white/10 rounded-2xl mb-3';
+                    
+                    // Force display to ignore timezone shifting
+                    const entryLabel = formatDateDisplay(trip.entry);
+                    const exitLabel = formatDateDisplay(trip.exit);
+
                     div.innerHTML = `
                         <div>
-                            <div class="font-bold text-base text-white">${new Date(trip.entry).toLocaleDateString('en-GB')} — ${new Date(trip.exit).toLocaleDateString('en-GB')}</div>
+                            <div class="font-bold text-base text-white">${entryLabel} — ${exitLabel}</div>
                             <div class="text-xs text-orange-400 font-bold uppercase tracking-tighter mt-1">${calculateDays(trip.entry, trip.exit)} Day Stay</div>
                         </div>
                         <button onclick="deleteTrip('${trip.key}')" class="bg-red-500/20 p-3 rounded-xl text-red-400 text-xs font-bold border border-red-500/20">Delete</button>
@@ -107,6 +106,12 @@
                     tripList.appendChild(div);
                 });
             });
+        }
+
+        // Fixes the "Day Shifting" by forcing Local date strings
+        function formatDateDisplay(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB');
         }
 
         function calculateDays(start, end) {
@@ -117,8 +122,10 @@
 
         function saveTrip() {
             if (selectedDates.length === 2) {
-                const entry = selectedDates[0].toISOString().split('T')[0];
-                const exit = selectedDates[1].toISOString().split('T')[0];
+                // Formatting as YYYY-MM-DD manually to avoid ISO timezone jumps
+                const entry = formatDateStorage(selectedDates[0]);
+                const exit = formatDateStorage(selectedDates[1]);
+
                 db.ref('trips').push({ entry, exit });
                 fp.clear();
                 document.getElementById('add-btn').disabled = true;
@@ -126,10 +133,19 @@
             }
         }
 
+        // Helper to ensure dates are saved exactly as seen on the calendar
+        function formatDateStorage(date) {
+            const d = new Date(date);
+            let month = '' + (d.getMonth() + 1);
+            let day = '' + d.getDate();
+            let year = d.getFullYear();
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+            return [year, month, day].join('-');
+        }
+
         function deleteTrip(key) {
-            if(confirm("Delete this trip entry?")) {
-                db.ref('trips').child(key).remove();
-            }
+            if(confirm("Delete this trip entry?")) { db.ref('trips').child(key).remove(); }
         }
 
         window.onload = loadTrips;
