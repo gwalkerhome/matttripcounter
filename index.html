@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matt's Spain Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-home">
+    <div class="min-h-screen flex flex-col items-center justify-center p-6">
+        
+        <div class="glass-card w-full max-w-md p-8 text-center rounded-3xl shadow-2xl">
+            <h1 class="text-3xl font-bold text-white mb-6">Hola, Matt!</h1>
+
+            <div class="relative w-64 h-64 mx-auto mb-8">
+                <svg class="w-full h-full" viewBox="0 0 100 100">
+                    <circle class="text-white/20" stroke="currentColor" stroke-width="8" fill="transparent" r="40" cx="50" cy="50"/>
+                    <circle id="gauge-progress" class="text-orange-400 transition-all duration-1000" stroke="currentColor" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" fill="transparent" r="40" cx="50" cy="50" transform="rotate(-90 50 50)"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-white">
+                    <span id="days-count" class="text-6xl font-black">--</span>
+                    <span class="text-sm uppercase tracking-widest opacity-80">Days Left</span>
+                </div>
+            </div>
+
+            <p id="status-message" class="text-white/90 mb-8 italic">Checking your allowance...</p>
+
+            <div class="space-y-4">
+                <a href="log.html" class="block w-full py-4 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl transition-all border border-white/30 backdrop-blur-md">
+                    View Trip Log
+                </a>
+                <a href="plan.html" class="block w-full py-4 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl transition-all border border-white/30 backdrop-blur-md">
+                    Plan Future Trips
+                </a>
+            </div>
+        </div>
+        
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
