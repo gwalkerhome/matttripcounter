@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Select Dates</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        /* Force the calendar to take up as much space as needed and stay centered */
+        .flatpickr-calendar { 
+            background: rgba(0,0,0,0.8) !important; 
+            border: 1px solid rgba(255,255,255,0.2) !important;
+            margin: 0 auto;
+            width: 100% !important;
+            max-width: 330px !important;
+        }
+        .flatpickr-day.selected { background: #fb923c !important; border-color: #fb923c !important; }
+    </style>
+</head>
+<body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
+
+    <div class="w-full max-w-md flex justify-between items-center mb-6 mt-4">
+        <h1 class="text-2xl font-black">Select Dates</h1>
+        <a href="log.html" class="text-white/60 text-sm font-bold">Cancel</a>
+    </div>
+
+    <div class="w-full max-w-md flex flex-col items-center">
+        <div id="calendar-holder" class="w-full mb-8"></div>
+        
+        <button onclick="saveTrip()" id="add-btn" class="w-full py-5 bg-green-500 text-white font-black rounded-2xl shadow-lg transition-all opacity-20 cursor-not-allowed" disabled>
+            SAVE THIS TRIP
+        </button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB5l2JrkNaHqpg3KBCwyDW3UTBlv1QSrZo",
+            authDomain: "matttrip-56a17.firebaseapp.com",
+            projectId: "matttrip-56a17",
+            databaseURL: "https://matttrip-56a17-default-rtdb.europe-west1.firebasedatabase.app"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let selectedDates = [];
+
+        const fp = flatpickr("#calendar-holder", {
+            mode: "range",
+            inline: true, // Calendar is always open
+            dateFormat: "Y-m-d",
+            monthSelectorType: "static",
+            showMonths: 1,
+            onChange: function(dates) {
+                selectedDates = dates;
+                const btn = document.getElementById('add-btn');
+                if (dates.length === 2) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-20', 'cursor-not-allowed');
+                } else {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-20', 'cursor-not-allowed');
+                }
+            }
+        });
+
+        function saveTrip() {
+            if (selectedDates.length === 2) {
+                const entry = selectedDates[0].toISOString().split('T')[0];
+                const exit = selectedDates[1].toISOString().split('T')[0];
+                db.ref('trips').push({ entry, exit }).then(() => {
+                    window.location.href = "log.html"; // Send him back to the list
+                });
+            }
+        }
+    </script>
+</body>
+</html>
