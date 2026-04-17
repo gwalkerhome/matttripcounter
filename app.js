@@ -12,7 +12,12 @@ window.db = db;
 function initializeApp() {
     db.ref('trips').on('value', (snapshot) => {
         const trips = [];
-        snapshot.forEach(child => { trips.push({key: child.key, ...child.val()}); });
+        snapshot.forEach(child => { 
+            const data = child.val();
+            if (data.entry && data.exit) {
+                trips.push({key: child.key, ...data}); 
+            }
+        });
         const status = calculateStatus(trips);
         updateUI(status);
     });
@@ -27,12 +32,11 @@ function calculateStatus(trips) {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-    // Sort chronologically
     const sorted = trips.sort((a, b) => new Date(a.entry) - new Date(b.entry));
     window.allTrips = sorted;
 
-    let currentTrip = null; // A trip Matt is currently on
-    let nextTrip = null;    // The very next trip on the horizon
+    let currentTrip = null; 
+    let nextTrip = null;    
     let daysUsed90 = 0;
     
     const windowStart = new Date(now);
@@ -42,16 +46,13 @@ function calculateStatus(trips) {
         const entryDate = new Date(t.entry + 'T12:00:00');
         const exitDate = new Date(t.exit + 'T12:00:00');
 
-        // Current Stay Logic
         if (todayStr >= t.entry && todayStr <= t.exit) {
             currentTrip = t;
         } 
-        // Find next future trip
         else if (entryDate > now && !nextTrip) {
             nextTrip = t;
         }
 
-        // Standard Schengen Math (For the Gauge only)
         if (exitDate >= windowStart) {
             const start = entryDate < windowStart ? windowStart : entryDate;
             const diff = Math.ceil(Math.abs(exitDate - start) / (1000 * 60 * 60 * 24)) + 1;
@@ -71,20 +72,21 @@ function calculateStatus(trips) {
 
 function getMattMoodImage(status) {
     const { inSpain, currentTrip, nextTrip, todayStr, tomorrowStr } = status;
+    const prefix = inSpain ? "sp" : "uk";
 
-    // 1. TRAVEL DAYS (The crossing images)
-    // Going to Spain today
-    if (nextTrip && todayStr === nextTrip.entry) return "assets/uk-sp.jpg";
-    // Leaving Spain today
+    // 1. TRAVEL DAYS (Prioritized)
+    // Arrival in Spain TODAY
+    if (currentTrip && todayStr === currentTrip.entry) return "assets/uk-sp.jpg";
+    // Departure from Spain TODAY
     if (currentTrip && todayStr === currentTrip.exit) return "assets/sp-uk.jpg";
+    // Arrival in Spain TODAY (if not yet marked as current)
+    if (nextTrip && todayStr === nextTrip.entry) return "assets/uk-sp.jpg";
 
-    // 2. THE DAY BEFORE (Anticipation images)
-    // Tomorrow he goes to Spain
+    // 2. THE DAY BEFORE (Anticipation)
     if (nextTrip && tomorrowStr === nextTrip.entry) return "assets/uk4.jpg";
-    // Tomorrow he leaves Spain
     if (currentTrip && tomorrowStr === currentTrip.exit) return "assets/sp4.jpg";
 
-    // 3. PROGRESSION DURING A STAY (1, 2, 3)
+    // 3. PROGRESSION (1, 2, 3)
     if (currentTrip) {
         const start = new Date(currentTrip.entry + 'T12:00:00');
         const end = new Date(currentTrip.exit + 'T12:00:00');
@@ -94,29 +96,25 @@ function getMattMoodImage(status) {
         const daysSpent = Math.ceil(Math.abs(today - start) / (1000 * 60 * 60 * 24)) + 1;
         const percent = (daysSpent / totalDuration) * 100;
 
-        if (percent <= 33) return "assets/sp1.jpg";
-        if (percent <= 66) return "assets/sp2.jpg";
-        return "assets/sp3.jpg";
+        if (percent <= 33) return `assets/${prefix}1.jpg`;
+        if (percent <= 66) return `assets/${prefix}2.jpg`;
+        return `assets/${prefix}3.jpg`;
     }
 
-    // 4. FALLBACK / UK TIME
-    // If we have a next trip but we are still in the UK
-    if (nextTrip) {
-        // Here we could calculate how far away the next trip is to use uk1/2/3,
-        // but per instructions: if no next trip date is "relevant" yet, use uk2.
-        return "assets/uk2.jpg";
-    }
-
+    // 4. FALLBACK (UK Default)
     return "assets/uk2.jpg"; 
 }
 
 function updateUI(status) {
     const imgPath = getMattMoodImage(status);
-    
-    document.body.style.backgroundImage = `url('${imgPath}')`;
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center";
-    document.body.style.backgroundAttachment = "fixed";
+    const body = document.getElementById('main-body');
+
+    // Robust background injection
+    if (body) {
+        body.style.backgroundImage = `url('${imgPath}')`;
+        body.style.backgroundSize = "cover";
+        body.style.backgroundPosition = "center center";
+    }
 
     const countEl = document.getElementById('days-count');
     const msgEl = document.getElementById('status-message');
