@@ -23,33 +23,38 @@ function calculateStatus(trips) {
     now.setHours(12, 0, 0, 0);
     const todayStr = now.toISOString().split('T')[0];
     
-    // Sort trips chronologically
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+    // Sort chronologically
     const sorted = trips.sort((a, b) => new Date(a.entry) - new Date(b.entry));
     window.allTrips = sorted;
 
-    let currentTrip = null;
-    let nextTrip = null;
+    let currentTrip = null; // A trip Matt is currently on
+    let nextTrip = null;    // The very next trip on the horizon
     let daysUsed90 = 0;
+    
     const windowStart = new Date(now);
     windowStart.setDate(windowStart.getDate() - 179);
 
     sorted.forEach(t => {
-        const entry = new Date(t.entry + 'T12:00:00');
-        const exit = new Date(t.exit + 'T12:00:00');
-        
-        // 1. Identify where Matt is right now
+        const entryDate = new Date(t.entry + 'T12:00:00');
+        const exitDate = new Date(t.exit + 'T12:00:00');
+
+        // Current Stay Logic
         if (todayStr >= t.entry && todayStr <= t.exit) {
             currentTrip = t;
         } 
-        // 2. Identify the very next trip in the future
-        else if (entry > now && !nextTrip) {
+        // Find next future trip
+        else if (entryDate > now && !nextTrip) {
             nextTrip = t;
         }
 
-        // 3. Keep the Schengen 90-day math running in the background for the gauge
-        if (exit >= windowStart) {
-            const start = entry < windowStart ? windowStart : entry;
-            const diff = Math.ceil(Math.abs(exit - start) / (1000 * 60 * 60 * 24)) + 1;
+        // Standard Schengen Math (For the Gauge only)
+        if (exitDate >= windowStart) {
+            const start = entryDate < windowStart ? windowStart : entryDate;
+            const diff = Math.ceil(Math.abs(exitDate - start) / (1000 * 60 * 60 * 24)) + 1;
             daysUsed90 += diff;
         }
     });
@@ -59,64 +64,68 @@ function calculateStatus(trips) {
         inSpain: !!currentTrip,
         currentTrip,
         nextTrip,
-        todayStr
+        todayStr,
+        tomorrowStr
     };
 }
 
 function getMattMoodImage(status) {
-    const { inSpain, currentTrip, nextTrip, todayStr } = status;
-    const prefix = inSpain ? "sp" : "uk";
-    
-    // 1. TRAVEL DAY (sp-uk or uk-sp)
-    if (currentTrip && todayStr === currentTrip.exit) {
-        return inSpain ? "assets/sp-uk.jpg" : "assets/uk-sp.jpg";
-    }
+    const { inSpain, currentTrip, nextTrip, todayStr, tomorrowStr } = status;
 
-    // 2. DAY BEFORE TRAVEL (sp4 or uk4)
-    if (nextTrip) {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().split('T')[0];
-        
-        if (tomorrowStr === nextTrip.entry) {
-            return `${prefix}4.jpg`;
-        }
-    }
+    // 1. TRAVEL DAYS (The crossing images)
+    // Going to Spain today
+    if (nextTrip && todayStr === nextTrip.entry) return "assets/uk-sp.jpg";
+    // Leaving Spain today
+    if (currentTrip && todayStr === currentTrip.exit) return "assets/sp-uk.jpg";
 
-    // 3. PROGRESSION LOGIC (1, 2, or 3)
+    // 2. THE DAY BEFORE (Anticipation images)
+    // Tomorrow he goes to Spain
+    if (nextTrip && tomorrowStr === nextTrip.entry) return "assets/uk4.jpg";
+    // Tomorrow he leaves Spain
+    if (currentTrip && tomorrowStr === currentTrip.exit) return "assets/sp4.jpg";
+
+    // 3. PROGRESSION DURING A STAY (1, 2, 3)
     if (currentTrip) {
         const start = new Date(currentTrip.entry + 'T12:00:00');
         const end = new Date(currentTrip.exit + 'T12:00:00');
         const today = new Date(todayStr + 'T12:00:00');
         
         const totalDuration = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24)) + 1;
-        const daysIn = Math.ceil(Math.abs(today - start) / (1000 * 60 * 60 * 24)) + 1;
-        const percent = (daysIn / totalDuration) * 100;
+        const daysSpent = Math.ceil(Math.abs(today - start) / (1000 * 60 * 60 * 24)) + 1;
+        const percent = (daysSpent / totalDuration) * 100;
 
-        if (percent <= 33) return `${prefix}1.jpg`;
-        if (percent <= 66) return `${prefix}2.jpg`;
-        return `${prefix}3.jpg`;
+        if (percent <= 33) return "assets/sp1.jpg";
+        if (percent <= 66) return "assets/sp2.jpg";
+        return "assets/sp3.jpg";
     }
 
-    // 4. NO TRIP CURRENTLY SET (Default to mood 2)
-    return `${prefix}2.jpg`;
+    // 4. FALLBACK / UK TIME
+    // If we have a next trip but we are still in the UK
+    if (nextTrip) {
+        // Here we could calculate how far away the next trip is to use uk1/2/3,
+        // but per instructions: if no next trip date is "relevant" yet, use uk2.
+        return "assets/uk2.jpg";
+    }
+
+    return "assets/uk2.jpg"; 
 }
 
 function updateUI(status) {
-    const imgName = getMattMoodImage(status);
+    const imgPath = getMattMoodImage(status);
     
-    document.body.style.backgroundImage = `url('${imgName}')`;
+    document.body.style.backgroundImage = `url('${imgPath}')`;
     document.body.style.backgroundSize = "cover";
     document.body.style.backgroundPosition = "center";
     document.body.style.backgroundAttachment = "fixed";
 
-    // Standard UI Updates
     const countEl = document.getElementById('days-count');
     const msgEl = document.getElementById('status-message');
     const gauge = document.getElementById('gauge-progress');
 
     if (countEl) countEl.innerText = status.remaining;
-    if (msgEl) msgEl.innerText = status.inSpain ? "Matt is currently in Spain!" : "Matt is currently in the UK.";
+    if (msgEl) {
+        msgEl.innerText = status.inSpain ? "Matt is currently in Spain!" : "Matt is currently in the UK.";
+    }
 
     if (gauge) {
         const circumference = 251.2;
