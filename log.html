@@ -1,35 +1,67 @@
-<style>
-    /* 1. Fully Transparent Scrolling Window */
-    #history-window {
-        background: transparent; /* Removed the frost */
-        width: 100vw; /* Full viewport width */
-        margin-left: calc(-50vw + 50%); /* Centers the full-width element */
-        max-height: 55vh; 
-        overflow-y: auto;
-        padding: 0 1.5rem; /* Keeps the text from hitting the edges */
-        -webkit-overflow-scrolling: touch;
-    }
-
-    /* 2. Cleaner Rows for Transparency */
-    .trip-row {
-        background: rgba(255, 255, 255, 0.05); /* Very subtle hint of a row */
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 1.25rem 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    /* Hide scrollbar for a cleaner look */
-    #history-window::-webkit-scrollbar { display: none; }
-</style>
-
-<div class="w-full max-w-md">
-    <h2 class="text-lg font-bold mb-4 px-6 opacity-80" style="text-shadow: 0 2px 5px rgba(0,0,0,0.5);">Saved Trips</h2>
-    
-    <div id="history-window">
-        <div id="trip-list">
-            <p class="text-center opacity-50 italic py-10">Loading history...</p>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Log</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #history-window {
+            background: transparent;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+            max-height: 55vh; 
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        #history-window::-webkit-scrollbar { display: none; }
+        .trip-row {
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
+    <div class="w-full max-w-md flex justify-between items-center mb-8 mt-4">
+        <h1 class="text-3xl font-black">Trip Log</h1>
+        <a href="index.html" class="glass-button px-6 py-2 text-sm font-bold">DONE</a>
     </div>
-</div>
+    <div class="w-full max-w-md mb-8">
+        <a href="add-trip.html" class="block w-full py-5 glass-button font-black text-lg text-center uppercase tracking-widest">+ LOG A TRIP</a>
+    </div>
+    <div class="w-full max-w-md">
+        <h2 class="text-sm font-bold mb-4 px-6 opacity-50 uppercase tracking-widest">Saved History</h2>
+        <div id="history-window"><div id="trip-list"></div></div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="app.js"></script>
+    <script>
+        const checkDb = setInterval(() => {
+            if (window.db) {
+                clearInterval(checkDb);
+                window.db.ref('trips').on('value', snap => {
+                    const list = document.getElementById('trip-list');
+                    list.innerHTML = '';
+                    if (!snap.exists()) { list.innerHTML = '<p class="text-center opacity-30 py-10 italic">No trips recorded.</p>'; return; }
+                    let data = [];
+                    snap.forEach(c => { data.push({key: c.key, ...c.val()}); });
+                    data.sort((a,b) => new Date(b.entry) - new Date(a.entry));
+                    data.forEach(t => {
+                        const div = document.createElement('div');
+                        div.className = 'trip-row';
+                        div.innerHTML = `<div><div class="text-[10px] opacity-40 font-bold uppercase mb-1">Dates</div><div class="font-bold text-sm">${t.entry} — ${t.exit}</div></div><button onclick="deleteTrip('${t.key}')" class="text-red-400 text-xs font-bold px-4 py-2 bg-red-500/10 rounded-full border border-red-500/20">Delete</button>`;
+                        list.appendChild(div);
+                    });
+                });
+            }
+        }, 100);
+        function deleteTrip(key) { if(confirm("Delete trip?")) window.db.ref('trips').child(key).remove(); }
+    </script>
+</body>
+</html>
