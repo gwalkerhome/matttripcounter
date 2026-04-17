@@ -5,71 +5,64 @@ const firebaseConfig = {
     databaseURL: "https://matttrip-56a17-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
+// Singleton initialization
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.database();
+window.db = db; // Export for other pages
 
-function initializeAppLogic() {
+function initializeApp() {
     db.ref('trips').on('value', (snapshot) => {
         const trips = [];
-        snapshot.forEach(child => {
-            trips.push(child.val());
-        });
-        const status = calculateSchengenStatus(trips);
+        snapshot.forEach(child => { trips.push(child.val()); });
+        const status = calculateStatus(trips);
         updateUI(status);
     });
 }
 
-function calculateSchengenStatus(trips) {
+function calculateStatus(trips) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-
+    today.setHours(0,0,0,0);
+    const todayStr = today.toISOString().split('T')[0];
+    
     let daysUsed = 0;
-    let currentlyInSpain = false;
-
+    let inSpain = false;
     const windowStart = new Date(today);
     windowStart.setDate(windowStart.getDate() - 180);
 
-    trips.forEach(trip => {
-        if (todayStr >= trip.entry && todayStr <= trip.exit) {
-            currentlyInSpain = true;
-        }
-        const entry = new Date(trip.entry);
-        const exit = new Date(trip.exit);
+    trips.forEach(t => {
+        if (todayStr >= t.entry && todayStr <= t.exit) inSpain = true;
+        const entry = new Date(t.entry);
+        const exit = new Date(t.exit);
         if (exit >= windowStart) {
-            const actualStart = entry < windowStart ? windowStart : entry;
-            const diffTime = Math.abs(exit - actualStart);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            daysUsed += diffDays;
+            const start = entry < windowStart ? windowStart : entry;
+            const diff = Math.ceil(Math.abs(exit - start) / (1000 * 60 * 60 * 24)) + 1;
+            daysUsed += diff;
         }
     });
-
-    return {
-        daysRemaining: Math.max(0, 90 - daysUsed),
-        inSpain: currentlyInSpain
-    };
+    return { remaining: Math.max(0, 90 - daysUsed), inSpain: inSpain };
 }
 
 function updateUI(status) {
-    // FIX 1: Correct Image Paths
-    const bgImage = status.inSpain ? "assets/sp1.jpg" : "assets/uk1.jpg";
-    document.body.style.backgroundImage = `url('${bgImage}')`;
+    // 1. Background (using assets folder)
+    const img = status.inSpain ? "assets/sp1.jpg" : "assets/uk1.jpg";
+    document.body.style.backgroundImage = `url('${img}')`;
     document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center";
 
-    // FIX 2: Explicitly target IDs
-    const dayCountEl = document.getElementById('day-count');
-    const statusTextEl = document.getElementById('status-text');
+    // 2. ID Match for Index.html
+    const countEl = document.getElementById('days-count');
+    const msgEl = document.getElementById('status-message');
+    const gauge = document.getElementById('gauge-progress');
 
-    if (dayCountEl) {
-        dayCountEl.innerText = status.daysRemaining;
-    }
-    if (statusTextEl) {
-        statusTextEl.innerText = status.inSpain ? "Days Left in Spain" : "Days Available";
+    if (countEl) countEl.innerText = status.remaining;
+    if (msgEl) msgEl.innerText = status.inSpain ? "Matt is currently in Spain!" : "Matt is currently in the UK.";
+
+    // 3. Gauge Animation (SVG circle)
+    if (gauge) {
+        const circumference = 251.2;
+        const offset = circumference - (status.remaining / 90) * circumference;
+        gauge.style.strokeDashoffset = offset;
     }
 }
-
-// Ensure the page is ready before running
-window.onload = initializeAppLogic;
+window.onload = initializeApp;
