@@ -63,5 +63,11 @@
         }, 100);
         function deleteTrip(key) { if(confirm("Delete trip?")) window.db.ref('trips').child(key).remove(); }
     </script>
+
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+<script src="app.js"></script>
+
+    
 </body>
 </html>
