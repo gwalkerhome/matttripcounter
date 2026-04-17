@@ -3,29 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Plan Future Trips</title>
+    <title>Schengen Strategist</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-home text-white">
 
-    <div class="w-full flex justify-between items-center pt-10 mb-6">
-        <h1 class="text-3xl font-black">Plan</h1>
+    <div class="w-full flex justify-between items-center pt-10 mb-2">
+        <h1 class="text-3xl font-black">Strategy</h1>
         <a href="index.html" class="glass-button px-5 py-2 text-xs font-bold uppercase">Back</a>
     </div>
 
-    <div class="w-full flex-grow flex flex-col items-center justify-center">
-        <div class="glass-card p-8 rounded-[2.5rem] text-center w-full max-w-sm shadow-2xl">
-            <h2 class="text-orange-400 font-bold uppercase tracking-widest text-xs mb-2">Available Balance</h2>
-            <div id="plan-days-count" class="text-8xl font-black mb-2">--</div>
-            <p class="text-white/60 text-sm px-4">These are the days you can use starting <span class="text-white font-bold">Today</span>.</p>
+    <div class="flex-grow w-full flex flex-col space-y-4 justify-center">
+        <div class="glass-button p-8 rounded-[2rem] w-full bg-black/20">
+            <p class="text-[10px] uppercase tracking-[0.2em] opacity-50 font-bold mb-1">Available Now</p>
+            <div id="plan-days" class="text-7xl font-black mb-4">--</div>
+            
+            <div class="flex justify-between border-t border-white/10 pt-4 mt-2">
+                <div class="text-left">
+                    <p class="text-[9px] uppercase opacity-40 font-bold">Next Recovery</p>
+                    <p id="recovery-date" class="font-bold text-sm text-orange-400">Calculating...</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[9px] uppercase opacity-40 font-bold">Max Stay</p>
+                    <p id="max-stay" class="font-bold text-sm text-green-400">Loading...</p>
+                </div>
+            </div>
         </div>
 
-        <div class="mt-8 text-center px-6">
-            <p class="text-xs uppercase tracking-[0.2em] opacity-40 font-bold mb-4">AI Travel Assistant</p>
-            <a href="ai-planner.html" class="block py-6 px-10 bg-orange-500 text-white rounded-3xl font-black shadow-lg hover:scale-105 transition-transform uppercase tracking-tighter">
-                Consult Gemini AI
-            </a>
+        <div class="p-6 bg-white/5 rounded-[2rem] border border-white/10 text-center">
+            <h3 class="text-sm font-bold mb-2">Need a "What If" simulation?</h3>
+            <p class="text-xs opacity-50 mb-6">Ask Gemini to check specific future dates against your history.</p>
+            <a href="ai-planner.html" class="block w-full py-5 bg-orange-500 rounded-2xl font-black uppercase tracking-widest shadow-xl">Consult AI Assistant</a>
         </div>
     </div>
 
@@ -33,20 +42,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="app.js"></script>
     <script>
-        // Use the same app.js logic to fill the plan-days-count
         const check = setInterval(() => {
-            if (window.db) {
+            if (window.allTrips) {
                 clearInterval(check);
-                window.db.ref('trips').on('value', snap => {
-                    // Logic from app.js will automatically run, 
-                    // we just need to target the specific element here
-                    const el = document.getElementById('plan-days-count');
-                    // Recalculating via app.js function
-                    const trips = [];
-                    snap.forEach(c => trips.push(c.val()));
-                    const status = calculateStatus(trips);
-                    if(el) el.innerText = status.remaining;
-                });
+                const status = calculateStatus(window.allTrips);
+                document.getElementById('plan-days').innerText = status.remaining;
+                
+                // Recovery Date
+                const recovery = getNextRecovery(window.allTrips);
+                document.getElementById('recovery-date').innerText = recovery || "None Pending";
+
+                // Max Stay Calculation
+                const maxDate = new Date();
+                maxDate.setDate(maxDate.getDate() + status.remaining - 1);
+                document.getElementById('max-stay').innerText = maxDate.toLocaleDateString('en-GB', {day:'2-digit', month:'short'});
             }
         }, 100);
     </script>
