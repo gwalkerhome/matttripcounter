@@ -107,29 +107,26 @@ function getMattMoodImage(status) {
 
 function updateUI(status) {
     const imgPath = getMattMoodImage(status);
-    const body = document.getElementById('main-body');
+    
+    // This part sets the background for WHATEVER page you are on
+    document.body.style.backgroundImage = `url('${imgPath}')`;
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center center";
+    document.body.style.backgroundAttachment = "fixed";
 
-    // Robust background injection
-    if (body) {
-        body.style.backgroundImage = `url('${imgPath}')`;
-        body.style.backgroundSize = "cover";
-        body.style.backgroundPosition = "center center";
-    }
-
+    // This part only updates the numbers/gauge IF they exist on the page
     const countEl = document.getElementById('days-count');
     const msgEl = document.getElementById('status-message');
     const gauge = document.getElementById('gauge-progress');
 
     if (countEl) countEl.innerText = status.remaining;
-    if (msgEl) {
-        msgEl.innerText = status.inSpain ? "Matt is currently in Spain!" : "Matt is currently in the UK.";
-    }
-
+    if (msgEl) msgEl.innerText = status.inSpain ? "Matt is in Spain!" : "Matt is in the UK.";
     if (gauge) {
         const circumference = 251.2;
         const offset = circumference - (status.remaining / 90) * circumference;
         gauge.style.strokeDashoffset = offset;
     }
 }
+
 
 window.onload = initializeApp;
