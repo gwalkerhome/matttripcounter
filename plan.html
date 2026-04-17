@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Plan Future Trips</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-home text-white">
+
+    <div class="w-full flex justify-between items-center pt-10 mb-6">
+        <h1 class="text-3xl font-black">Plan</h1>
+        <a href="index.html" class="glass-button px-5 py-2 text-xs font-bold uppercase">Back</a>
+    </div>
+
+    <div class="w-full flex-grow flex flex-col items-center justify-center">
+        <div class="glass-card p-8 rounded-[2.5rem] text-center w-full max-w-sm shadow-2xl">
+            <h2 class="text-orange-400 font-bold uppercase tracking-widest text-xs mb-2">Available Balance</h2>
+            <div id="plan-days-count" class="text-8xl font-black mb-2">--</div>
+            <p class="text-white/60 text-sm px-4">These are the days you can use starting <span class="text-white font-bold">Today</span>.</p>
+        </div>
+
+        <div class="mt-8 text-center px-6">
+            <p class="text-xs uppercase tracking-[0.2em] opacity-40 font-bold mb-4">AI Travel Assistant</p>
+            <a href="ai-planner.html" class="block py-6 px-10 bg-orange-500 text-white rounded-3xl font-black shadow-lg hover:scale-105 transition-transform uppercase tracking-tighter">
+                Consult Gemini AI
+            </a>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Use the same app.js logic to fill the plan-days-count
+        const check = setInterval(() => {
+            if (window.db) {
+                clearInterval(check);
+                window.db.ref('trips').on('value', snap => {
+                    // Logic from app.js will automatically run, 
+                    // we just need to target the specific element here
+                    const el = document.getElementById('plan-days-count');
+                    // Recalculating via app.js function
+                    const trips = [];
+                    snap.forEach(c => trips.push(c.val()));
+                    const status = calculateStatus(trips);
+                    if(el) el.innerText = status.remaining;
+                });
+            }
+        }, 100);
+    </script>
+</body>
+</html>
