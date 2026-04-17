@@ -9,17 +9,6 @@
 </head>
 <body id="main-body" class="bg-home min-h-screen flex flex-col items-center justify-center p-6 text-white">
 
-    <div id="setup-screen" class="hidden glass-card w-full max-w-md p-8 text-center rounded-3xl shadow-2xl">
-        <h2 class="text-2xl font-bold mb-4">Welcome, Matt</h2>
-        <p class="text-white/80 mb-6 text-sm">To use the AI Planner, please enter your Gemini API Key. This is saved only on your phone.</p>
-        
-        <input id="ai-key-input" type="password" class="w-full p-4 rounded-xl mb-6 text-black" placeholder="Paste Gemini API Key here">
-        
-        <button onclick="saveSettings()" class="w-full py-4 bg-orange-500 hover:bg-orange-600 font-bold rounded-xl transition-all">
-            Unlock My App
-        </button>
-    </div>
-
     <div id="dashboard-screen" class="glass-card w-full max-w-md p-8 text-center rounded-3xl shadow-2xl">
         <h1 class="text-3xl font-bold mb-6">Hola, Matt!</h1>
 
@@ -34,29 +23,16 @@
             </div>
         </div>
 
-        <p id="status-message" class="mb-8 italic opacity-90 italic">Crunching the numbers...</p>
+        <p id="status-message" class="mb-8 italic opacity-90">Connecting to Firebase...</p>
 
-        <div class="space-y-4 text-white">
-            <a href="log.html" class="block w-full py-4 bg-white/20 hover:bg-white/30 font-semibold rounded-xl border border-white/30 backdrop-blur-md">
-                View Trip Log
-            </a>
-            <a href="plan.html" class="block w-full py-4 bg-white/20 hover:bg-white/30 font-semibold rounded-xl border border-white/30 backdrop-blur-md">
-                Plan Future Trips
-            </a>
+        <div class="space-y-4">
+            <a href="log.html" class="block w-full py-4 glass-button font-semibold">View Trip Log</a>
+            <a href="#" class="block w-full py-4 glass-button font-semibold opacity-50">Plan Future Trips</a>
         </div>
-        
-        <button onclick="clearSettings()" class="mt-10 text-white/30 text-xs underline">Change API Key</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    
     <script src="app.js"></script>
-</body>
-</html>
-
-
-
 </body>
 </html>
