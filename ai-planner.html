@@ -45,7 +45,7 @@
                 clearInterval(checkData);
                 
                 // Get Key
-                window.db.ref('gemini_config/apiKey').once('value', snap => {
+                window.db.ref('gemini-config/apiKey').once('value', snap => {
                     GEMINI_API_KEY = snap.val();
                 });
 
