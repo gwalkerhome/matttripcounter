@@ -11,80 +11,43 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         .calendar-wrapper { display: flex; justify-content: center; width: 100%; padding: 10px 0; }
-        .flatpickr-calendar { transform: scale(0.95); transform-origin: top; }
-        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: #fb923c !important; border-color: #fb923c !important; }
+        .flatpickr-calendar { transform: scale(0.95); transform-origin: top; background: #1a1a1a !important; border-radius: 1.5rem !important; }
     </style>
 </head>
 <body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
-
     <div class="w-full max-w-md flex justify-between items-center mb-6 mt-4">
-        <h1 class="text-3xl font-black tracking-tight">Select Dates</h1>
-        <a href="log.html" class="glass-button px-4 py-2 text-sm font-bold">Cancel</a>
+        <h1 class="text-3xl font-black">Select Dates</h1>
+        <a href="log.html" class="glass-button px-4 py-2 text-sm font-bold">CANCEL</a>
     </div>
-
-    <div class="calendar-wrapper">
-        <div id="diary-widget"></div>
+    <div class="calendar-wrapper"><div id="diary-widget"></div></div>
+    <div class="w-full max-w-xs mt-4">
+        <button onclick="saveTrip()" id="add-btn" class="w-full py-5 bg-green-500 text-white font-black rounded-2xl shadow-xl opacity-20 transition-all" disabled>SAVE THIS TRIP</button>
     </div>
-    
-    <div class="w-full max-w-xs mt-2">
-        <button onclick="saveTrip()" id="add-btn" class="w-full py-5 bg-green-500 text-white font-black rounded-2xl shadow-xl transition-all opacity-20 cursor-not-allowed" disabled>
-            SAVE THIS TRIP
-        </button>
-    </div>
-
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="app.js"></script>
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyB5l2JrkNaHqpg3KBCwyDW3UTBlv1QSrZo",
-            authDomain: "matttrip-56a17.firebaseapp.com",
-            projectId: "matttrip-56a17",
-            databaseURL: "https://matttrip-56a17-default-rtdb.europe-west1.firebasedatabase.app"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        // Load Success Sound
         const successSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
-
         let selectedDates = [];
-
         flatpickr("#diary-widget", {
-            mode: "range",
-            inline: true,
-            monthSelectorType: "static",
+            mode: "range", inline: true, monthSelectorType: "static",
             onChange: function(dates) {
                 selectedDates = dates;
                 const btn = document.getElementById('add-btn');
-                if (dates.length === 2) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-20', 'cursor-not-allowed');
-                } else {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-20', 'cursor-not-allowed');
-                }
+                btn.disabled = dates.length !== 2;
+                btn.classList.toggle('opacity-20', dates.length !== 2);
             }
         });
-
         function saveTrip() {
-            if (selectedDates.length === 2) {
-                successSound.play(); // Play Sound
-                const entry = formatDate(selectedDates[0]);
-                const exit = formatDate(selectedDates[1]);
-                
-                db.ref('trips').push({ entry, exit }).then(() => {
-                    setTimeout(() => { window.location.href = "log.html"; }, 300); // Small delay to hear sound
+            if (selectedDates.length === 2 && window.db) {
+                successSound.play();
+                const entry = selectedDates[0].toISOString().split('T')[0];
+                const exit = selectedDates[1].toISOString().split('T')[0];
+                window.db.ref('trips').push({ entry, exit }).then(() => {
+                    setTimeout(() => { window.location.href = "log.html"; }, 400);
                 });
             }
         }
-
-        function formatDate(date) {
-            const d = new Date(date);
-            return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
-        }
     </script>
-
-    <script src="app.js"></script>
-    
 </body>
 </html>
