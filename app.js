@@ -32,6 +32,8 @@ function calculateStatus(trips) {
     windowStart.setDate(windowStart.getDate() - 180);
 
     trips.forEach(t => {
+        const entry = new Date(t.entry + 'T12:00:00');
+        const exit = new Date(t.exit + 'T12:00:00');
         if (todayStr >= t.entry && todayStr <= t.exit) inSpain = true;
         const entry = new Date(t.entry);
         const exit = new Date(t.exit);
