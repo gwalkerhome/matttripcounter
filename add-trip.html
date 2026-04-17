@@ -39,15 +39,24 @@
             }
         });
         function saveTrip() {
-            if (selectedDates.length === 2 && window.db) {
-                successSound.play();
-                const entry = selectedDates[0].toISOString().split('T')[0];
-                const exit = selectedDates[1].toISOString().split('T')[0];
-                window.db.ref('trips').push({ entry, exit }).then(() => {
-                    setTimeout(() => { window.location.href = "log.html"; }, 400);
-                });
-            }
-        }
+    if (selectedDates.length === 2 && window.db) {
+        successSound.play();
+        
+        // We take the clean Y-m-d string from Flatpickr 
+        // and append T12:00:00 to lock it into the middle of the day.
+        const entry = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+        const exit = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+        
+        window.db.ref('trips').push({ 
+            entry: entry, 
+            exit: exit,
+            timestamp: new Date().getTime() // Optional: helps with sorting
+        }).then(() => {
+            setTimeout(() => { window.location.href = "log.html"; }, 400);
+        });
+    }
+}
+
     </script>
 </body>
 </html>
