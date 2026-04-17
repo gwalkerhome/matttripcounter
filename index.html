@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body id="main-body" class="bg-home min-h-screen flex flex-col items-center justify-center p-6 text-white">
+<body id="main-body" class="min-h-screen flex flex-col items-center justify-center p-6 text-white">
 
     <div id="dashboard-screen" class="glass-card w-full max-w-md p-8 text-center rounded-3xl shadow-2xl">
         <h1 class="text-3xl font-bold mb-6">Hola, Matt!</h1>
@@ -15,7 +15,7 @@
         <div class="relative w-64 h-64 mx-auto mb-8">
             <svg class="w-full h-full" viewBox="0 0 100 100">
                 <circle class="text-white/20" stroke="currentColor" stroke-width="8" fill="transparent" r="40" cx="50" cy="50"/>
-                <circle id="gauge-progress" class="text-orange-400 transition-all duration-1000" stroke="currentColor" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" fill="transparent" r="40" cx="50" cy="50" transform="rotate(-90 50 50)"/>
+                <circle id="gauge-progress" class="text-orange-400" stroke="currentColor" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" fill="transparent" r="40" cx="50" cy="50" transform="rotate(-90 50 50)"/>
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center text-white">
                 <span id="days-count" class="text-6xl font-black">--</span>
