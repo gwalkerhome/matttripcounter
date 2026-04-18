@@ -1,98 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Native App Meta Tags -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Select Dates</title>
+    <title>Add Trip</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <style>
-        .calendar-wrapper { display: flex; justify-content: center; width: 100%; padding: 10px 0; }
-        /* Make the calendar look native and high-end */
-        .flatpickr-calendar { 
-            transform: scale(1.05); 
-            transform-origin: top; 
-            background: rgba(20, 20, 20, 0.95) !important; 
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 1.5rem !important; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
-        }
-        .flatpickr-day.selected { background: #22c55e !important; border-color: #22c55e !important; }
-    </style>
 </head>
-<body class="bg-home min-h-screen flex flex-col items-center p-6 text-white">
-    
-    <div class="w-full max-w-md flex justify-between items-center mb-6 mt-4">
-        <h1 class="text-3xl font-black tracking-tighter italic">NEW TRIP</h1>
-        <a href="log.html" class="glass-button px-4 py-2 text-[10px] font-black uppercase tracking-widest">Cancel</a>
+<body id="main-body" class="min-h-screen flex flex-col items-center p-6 text-white bg-black">
+
+    <div class="w-full max-w-md flex justify-between items-center mb-10 mt-4">
+        <h1 class="text-2xl font-black italic tracking-tighter">NEW TRIP</h1>
+        <a href="log.html" class="glass-button px-4 py-2 text-xs font-bold uppercase">Cancel</a>
     </div>
 
-    <div class="calendar-wrapper">
-        <div id="diary-widget"></div>
-    </div>
+    <div class="w-full max-w-md space-y-6">
+        <div class="glass-card p-6 rounded-[2rem]">
+            <label class="block text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-2">Entry Date</label>
+            <input type="date" id="entry" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500">
+        </div>
 
-    <div class="w-full max-w-xs mt-10">
-        <button onclick="saveTrip()" id="add-btn" class="w-full py-5 bg-white text-black font-black rounded-[2rem] shadow-xl opacity-20 transition-all duration-300 scale-95" disabled>
-            SAVE THIS TRIP
+        <div class="glass-card p-6 rounded-[2rem]">
+            <label class="block text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-2">Exit Date</label>
+            <input type="date" id="exit" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500">
+        </div>
+
+        <button onclick="saveTrip()" class="w-full py-5 bg-white text-black font-black rounded-[2rem] shadow-xl uppercase tracking-widest active:scale-95 transition-transform mt-8">
+            Save to Log
         </button>
-        <p class="text-[10px] text-center mt-4 opacity-40 uppercase tracking-widest">Select entry and exit dates</p>
     </div>
 
-    <!-- Firebase -->
+    <!-- Firebase & Master Logic -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="app.js"></script>
 
     <script>
-        const successSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
-        let selectedDates = [];
-
-        flatpickr("#diary-widget", {
-            mode: "range",
-            inline: true,
-            monthSelectorType: "static",
-            dateFormat: "d-m-Y", // This ensures the UI displays in UK format
-            onChange: function(dates) {
-                selectedDates = dates;
-                const btn = document.getElementById('add-btn');
-                const isReady = dates.length === 2;
-                btn.disabled = !isReady;
-                btn.classList.toggle('opacity-20', !isReady);
-                btn.classList.toggle('scale-95', !isReady);
-                btn.classList.toggle('scale-100', isReady);
-                
-                // Visual feedback: Green button when ready
-                if(isReady) {
-                    btn.style.backgroundColor = "white";
-                }
-            }
-        });
-
         function saveTrip() {
-            if (selectedDates.length === 2 && window.db) {
-                successSound.play();
-                
-                // CRITICAL: We format for the DATABASE in Y-m-d (ISO)
-                // This ensures the Engine and Firebase sorting stay perfect.
-                const entry = flatpickr.formatDate(selectedDates[0], "Y-m-d");
-                const exit = flatpickr.formatDate(selectedDates[1], "Y-m-d");
-                
-                window.db.ref('trips').push({ 
-                    entry: entry, 
+            const entry = document.getElementById('entry').value;
+            const exit = document.getElementById('exit').value;
+
+            if (!entry || !exit) {
+                alert("Please select both dates.");
+                return;
+            }
+
+            if (new Date(exit) < new Date(entry)) {
+                alert("Exit date cannot be before entry date.");
+                return;
+            }
+
+            // Using window.db provided by app.js
+            if (window.db) {
+                window.db.ref('trips').push({
+                    entry: entry,
                     exit: exit,
-                    timestamp: new Date().getTime()
+                    timestamp: Date.now()
                 }).then(() => {
-                    setTimeout(() => { window.location.href = "log.html"; }, 400);
+                    window.location.href = 'log.html';
+                }).catch(err => {
+                    alert("Error saving: " + err.message);
                 });
+            } else {
+                alert("Database connection not ready. Try again.");
             }
         }
     </script>
