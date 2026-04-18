@@ -1,5 +1,48 @@
 /* Matt's Spain Tracker - Master Style */
 
+/* --- APP LOCKDOWN: NATIVE IPHONE FEEL --- */
+
+/* 1. Prevent the "Web" feel (bouncing and scrolling) */
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden; 
+    position: fixed; 
+    margin: 0;
+    padding: 0;
+    /* Use the font you've been using, or a clean system font */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    touch-action: manipulation; /* Removes the 300ms tap delay */
+    -webkit-user-select: none;  /* Prevents accidental text highlighting */
+    -webkit-tap-highlight-color: transparent; /* Removes the grey box when tapping buttons */
+}
+
+/* 2. The Main Container (Applied to <body id="main-body">) */
+#main-body {
+    height: 100vh;
+    height: -webkit-fill-available; /* Crucial for fixing the Safari height bug */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; 
+    
+    /* Safely handles the iPhone Notch and Home Bar */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: border-box;
+    
+    /* Smooth transition for background image changes */
+    transition: background-image 0.8s ease-in-out;
+}
+
+/* 3. The Scrollable Area (For the Log or Long Lists) */
+.scroll-container, #history-window {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* High-end iOS momentum scroll */
+}
+
+/* --- YOUR EXISTING STYLES BELOW THIS LINE --- */
+
 body {
     margin: 0;
     padding: 0;
