@@ -1,45 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Native App Meta Tags -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Schengen Suggestor</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body id="main-body" class="min-h-screen flex flex-col items-center p-6 text-white">
-
     <div class="w-full max-w-md flex justify-between items-center mb-8 mt-4">
         <h1 class="text-2xl font-black italic tracking-tighter">SUGGESTOR</h1>
         <a href="plan.html" class="glass-button px-4 py-2 text-xs font-bold uppercase">Back</a>
     </div>
-
-    <!-- Duration Selector -->
     <div class="glass-card w-full max-w-md p-8 rounded-[2.5rem] text-center mb-6">
         <p class="text-[10px] uppercase tracking-[0.2em] opacity-60 mb-4">How long do you want to stay?</p>
-        
         <div class="flex items-center justify-between px-8">
             <button onclick="changeDuration(-1)" class="w-12 h-12 glass-button flex items-center justify-center text-2xl font-bold">-</button>
             <div class="text-7xl font-black" id="desired-days">14</div>
             <button onclick="changeDuration(1)" class="w-12 h-12 glass-button flex items-center justify-center text-2xl font-bold">+</button>
         </div>
-        <p class="mt-4 text-xs font-bold opacity-40 uppercase">Days in Spain</p>
     </div>
-
-    <!-- The Result -->
     <div id="result-card" class="w-full max-w-md glass-card p-8 rounded-[2.5rem] border-orange-500/30 transition-all duration-500 opacity-0 transform translate-y-4">
         <p class="text-[10px] uppercase tracking-[0.2em] text-orange-400 font-bold mb-2">Earliest Departure</p>
         <h2 id="suggested-date" class="text-3xl font-black mb-1">Checking...</h2>
         <p id="suggested-range" class="text-xs opacity-60 mb-6 font-medium">--</p>
-        
-        <button onclick="saveSuggestion()" class="w-full py-5 bg-orange-500 text-white font-black rounded-2xl shadow-xl uppercase tracking-widest text-sm">
-            Book These Dates
-        </button>
+        <button onclick="saveSuggestion()" class="w-full py-5 bg-orange-500 text-white font-black rounded-2xl shadow-xl uppercase tracking-widest text-sm">Book These Dates</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
@@ -49,8 +36,7 @@
 
     <script>
         let currentDesired = 14;
-        let foundEntry = null;
-        let foundExit = null;
+        let foundEntry = null, foundExit = null;
 
         function changeDuration(val) {
             currentDesired = Math.max(1, Math.min(90, currentDesired + val));
@@ -60,26 +46,15 @@
 
         function findEarliest() {
             if (!window.allTrips) return;
-
-            const card = document.getElementById('result-card');
-            let testDate = new Date(); // Start from today
+            let testDate = new Date();
             testDate.setHours(12, 0, 0, 0);
-
-            // Safety limit: only look 6 months ahead
             for (let i = 0; i < 180; i++) {
                 const entryStr = testDate.toISOString().split('T')[0];
-                
-                // Calculate potential exit
                 const exitDate = new Date(testDate);
                 exitDate.setDate(exitDate.getDate() + currentDesired - 1);
                 const exitStr = exitDate.toISOString().split('T')[0];
-
-                const tempTrip = { entry: entryStr, exit: exitStr };
-                const status = SchengenEngine.calculateStatus([...window.allTrips, tempTrip], exitDate);
-
-                if (status.remaining >= 0) {
-                    foundEntry = entryStr;
-                    foundExit = exitStr;
+                if (SchengenEngine.calculateStatus([...window.allTrips, { entry: entryStr, exit: exitStr }], exitDate).remaining >= 0) {
+                    foundEntry = entryStr; foundExit = exitStr;
                     displayResult(testDate, exitDate);
                     return;
                 }
@@ -88,34 +63,18 @@
         }
 
         function displayResult(entry, exit) {
-            const card = document.getElementById('result-card');
-            const dateDisplay = document.getElementById('suggested-date');
-            const rangeDisplay = document.getElementById('suggested-range');
-
-            dateDisplay.innerText = entry.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-            rangeDisplay.innerText = `Returning on ${exit.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`;
-            
-            card.classList.remove('opacity-0', 'translate-y-4');
+            document.getElementById('suggested-date').innerText = entry.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('suggested-range').innerText = `Returning on ${exit.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`;
+            document.getElementById('result-card').classList.remove('opacity-0', 'translate-y-4');
         }
 
         function saveSuggestion() {
-            if (!foundEntry || !foundExit) return;
-            window.db.ref('trips').push({
-                entry: foundEntry,
-                exit: foundExit,
-                timestamp: Date.now()
-            }).then(() => {
-                window.location.href = 'index.html';
-            });
+            if (foundEntry && foundExit && window.db) {
+                window.db.ref('trips').push({ entry: foundEntry, exit: foundExit, timestamp: Date.now() }).then(() => { window.location.href = 'index.html'; });
+            }
         }
 
-        // Wait for app.js to fetch trips
-        const check = setInterval(() => {
-            if (window.allTrips) {
-                clearInterval(check);
-                findEarliest();
-            }
-        }, 100);
+        window.addEventListener('tripsUpdated', findEarliest);
     </script>
 </body>
 </html>
