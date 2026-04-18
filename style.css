@@ -1,7 +1,4 @@
-/* Matt's Spain Tracker - Master Style */
-
-/* --- APP LOCKDOWN: NATIVE IPHONE FEEL --- */
-
+/* --- APP LOCKDOWN --- */
 html, body {
     height: 100%;
     width: 100%;
@@ -12,9 +9,6 @@ html, body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     touch-action: manipulation;
     -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    
-    /* ADDED: This makes sure the background images actually show up and cover the screen */
     background-color: #000;
     background-size: cover;
     background-position: center center;
@@ -27,52 +21,35 @@ html, body {
     height: -webkit-fill-available; 
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; 
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     box-sizing: border-box;
 }
 
-/* --- THE REST OF YOUR GLASS UI STYLES --- */
-
-
-/* 3. The Scrollable Area (For the Log or Long Lists) */
-.scroll-container, #history-window {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* High-end iOS momentum scroll */
-}
-
-/* --- YOUR EXISTING STYLES BELOW THIS LINE --- */
-
-
-/* Glass UI Elements */
-.glass-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
+/* Glass Elements */
 .glass-button {
     background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 1.25rem;
-    transition: all 0.3s ease;
-    text-align: center;
+    border-radius: 1.5rem;
+    transition: all 0.2s ease;
 }
 
 .glass-button:active {
-    transform: scale(0.98);
+    transform: scale(0.95);
     background: rgba(255, 255, 255, 0.2) !important;
 }
 
+/* Gauge Animation */
 #gauge-progress {
-    transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: stroke-dashoffset 1.5s ease-in-out, stroke 0.5s ease;
 }
 
 #days-count {
-    text-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+    text-shadow: 0px 10px 30px rgba(0, 0, 0, 0.8);
+    z-index: 10;
 }
+
+/* Ensure 'DAYS AVAILABLE' sits correctly */
+.z-20 { z-index: 20; }
