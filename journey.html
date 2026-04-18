@@ -52,25 +52,31 @@
 
     <script>
         const container = document.getElementById('calendar-container');
-        const today = new Date();
-        today.setHours(0,0,0,0);
+const today = new Date();
+today.setHours(0,0,0,0);
 
-        function renderYear() {
-            if (!window.allTrips) return;
-            container.innerHTML = '';
+function renderYear() {
+    if (!window.allTrips) return;
+    container.innerHTML = '';
 
-            // Centering logic: Start 6 months ago, end 6 months from now
-            for (let i = -6; i <= 6; i++) {
-                const monthDate = new Date(today.getFullYear(), today.getMonth() + i, 1);
-                renderMonth(monthDate);
-            }
-            
-            // Auto-scroll to current month
-            setTimeout(() => {
-                const currentMonthEl = document.getElementById('current-month');
-                if (currentMonthEl) currentMonthEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 500);
-        }
+    for (let i = -6; i <= 6; i++) {
+        const monthDate = new Date(today.getFullYear(), today.getMonth() + i, 1);
+        renderMonth(monthDate);
+    }
+    
+    setTimeout(() => {
+        const currentMonthEl = document.getElementById('current-month');
+        if (currentMonthEl) currentMonthEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 500);
+}
+
+// ... (keep renderMonth and getDayStatus exactly as they were) ...
+
+// FIX: Listen for the event instead of using setInterval
+window.addEventListener('tripsUpdated', () => {
+    renderYear();
+});
+
 
         function renderMonth(date) {
             const month = date.getMonth();
