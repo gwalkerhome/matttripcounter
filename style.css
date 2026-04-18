@@ -2,7 +2,6 @@
 
 /* --- APP LOCKDOWN: NATIVE IPHONE FEEL --- */
 
-/* 1. Prevent the "Web" feel (bouncing and scrolling) */
 html, body {
     height: 100%;
     width: 100%;
@@ -10,29 +9,32 @@ html, body {
     position: fixed; 
     margin: 0;
     padding: 0;
-    /* Use the font you've been using, or a clean system font */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    touch-action: manipulation; /* Removes the 300ms tap delay */
-    -webkit-user-select: none;  /* Prevents accidental text highlighting */
-    -webkit-tap-highlight-color: transparent; /* Removes the grey box when tapping buttons */
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    
+    /* ADDED: This makes sure the background images actually show up and cover the screen */
+    background-color: #000;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    transition: background-image 1s ease-in-out;
 }
 
-/* 2. The Main Container (Applied to <body id="main-body">) */
 #main-body {
     height: 100vh;
-    height: -webkit-fill-available; /* Crucial for fixing the Safari height bug */
+    height: -webkit-fill-available; 
     display: flex;
     flex-direction: column;
     justify-content: flex-start; 
-    
-    /* Safely handles the iPhone Notch and Home Bar */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     box-sizing: border-box;
-    
-    /* Smooth transition for background image changes */
-    transition: background-image 0.8s ease-in-out;
 }
+
+/* --- THE REST OF YOUR GLASS UI STYLES --- */
+
 
 /* 3. The Scrollable Area (For the Log or Long Lists) */
 .scroll-container, #history-window {
