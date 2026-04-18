@@ -12,34 +12,32 @@
 </head>
 <body id="main-body" class="text-white overflow-hidden bg-black flex flex-col items-center">
 
-    <!-- 1) Centered Header -->
+    <!-- Centered Header -->
     <header class="w-full pt-10 flex justify-center z-50">
         <h1 class="text-xl font-black italic tracking-[0.3em] uppercase opacity-90 text-shadow text-center">Schengen Tracker</h1>
     </header>
 
-    <!-- 2) Main Section: Starts 20% down for the '53' -->
-    <main class="w-full flex flex-col items-center pt-[20vh] relative"> 
+    <!-- Pinned at 15% from top to ensure it sits in the upper third -->
+    <main class="w-full flex flex-col items-center absolute top-[15vh]"> 
         <div class="relative flex items-center justify-center">
-            <!-- 3) Gauge: Centered on the number -->
+            <!-- Gauge centered on the number -->
             <svg class="w-80 h-80 transform -rotate-90 absolute">
                 <circle cx="160" cy="160" r="70" stroke="rgba(255,255,255,0.15)" stroke-width="14" fill="transparent" />
                 <circle id="gauge-progress" cx="160" cy="160" r="70" stroke="white" stroke-width="14" fill="transparent" 
                         stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
             </svg>
             
-            <!-- The Number -->
             <div class="flex flex-col items-center justify-center text-center z-10">
                 <span id="days-count" class="text-[9.5rem] font-black leading-[0.8] tracking-tighter text-shadow">--</span>
                 <span class="text-[11px] uppercase tracking-[0.4em] font-black mt-2 text-shadow">Days Available</span>
+                <!-- Tagline moves with the number -->
                 <div id="recovery-tagline" class="text-[10px] font-bold uppercase tracking-widest mt-12 px-10 leading-relaxed text-shadow min-h-[30px]"></div>
             </div>
         </div>
-
-        <!-- Status text moved below the gauge group -->
         <p id="status-message" class="text-sm font-black uppercase tracking-[0.2em] opacity-90 mt-4 text-shadow">Calculating...</p>
     </main>
 
-    <!-- 4) Footer: Pinned to bottom to prevent overlap -->
+    <!-- Footer Pinned to Bottom -->
     <footer class="fixed bottom-0 w-full max-w-md px-6 pb-12 space-y-4 z-50">
         <div class="grid grid-cols-2 gap-4">
             <a href="plan.html" class="glass-button py-6 flex flex-col items-center justify-center">
