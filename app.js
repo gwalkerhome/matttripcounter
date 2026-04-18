@@ -5,7 +5,6 @@ const firebaseConfig = {
     databaseURL: "https://matttrip-56a17-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
-// Fix Bug 2: Prevent multiple initializations
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
@@ -13,15 +12,17 @@ if (!firebase.apps.length) {
 window.db = firebase.database();
 
 function updateUI(status) {
-    // Determine Background Image
-    let img = "assets/uk2.jpg";
+    // Determine Image - Updated to .png
+    let img = "assets/uk2.png"; 
     if (status.isTravelDay) {
-        img = "assets/sp-uk.jpg"; 
+        img = "assets/sp-uk.png"; 
     } else if (status.inSpain) {
-        img = "assets/sp2.jpg";
+        img = "assets/sp2.png";
     }
 
-    if (document.body) document.body.style.backgroundImage = `url('${img}')`;
+    if (document.body) {
+        document.body.style.backgroundImage = `url('${img}')`;
+    }
     
     const daysCountEl = document.getElementById('days-count');
     if (daysCountEl) daysCountEl.innerText = status.remaining;
@@ -51,26 +52,19 @@ window.db.ref('trips').on('value', (snap) => {
     const trips = [];
     snap.forEach(c => { 
         const val = c.val();
-        // Fix Bug 2 (Log): Attach the Firebase ID to the trip object for deletion
         if(val.entry) {
-            trips.push({
-                ...val,
-                id: c.key
-            });
+            trips.push({ ...val, id: c.key });
         }
     });
     
-    // Fix Bug 1: Export to global window object
     window.allTrips = trips;
     
-    // Fix Bug 3: Timezone Armor - Calculate "Today" in Local Time YYYY-MM-DD
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const todayStr = `${year}-${month}-${day}`; 
     
-    // Create a local noon date for the engine calculation
     const calcDate = new Date(`${todayStr}T12:00:00`);
     
     const res = SchengenEngine.calculateStatus(trips, calcDate);
@@ -86,6 +80,5 @@ window.db.ref('trips').on('value', (snap) => {
         isTravelDay: isTravelDay
     });
 
-    // Fix Bug 4: Dispatch event for sub-pages
     window.dispatchEvent(new CustomEvent('tripsUpdated'));
 });
