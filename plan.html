@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Native App Meta Tags -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- Cleaned up Meta Tags for Native Feel -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <title>Plan Ahead</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body id="main-body" class="min-h-screen flex flex-col items-center py-6 px-6 text-white overflow-hidden">
+<body id="main-body" class="flex flex-col items-center py-6 px-6 text-white">
 
     <!-- Header -->
     <div class="w-full max-w-md flex justify-between items-center mb-4">
@@ -31,8 +30,6 @@
 
         <!-- Navigation Options -->
         <div class="grid grid-cols-1 gap-3">
-            
-            <!-- 1. Manual Entry -->
             <a href="plan-manual.html" class="glass-button py-4 px-5 flex items-center justify-between group active:scale-95 transition-transform">
                 <div class="text-left">
                     <p class="font-black text-base leading-tight uppercase tracking-tight">Manually Enter...</p>
@@ -41,7 +38,6 @@
                 <svg class="w-4 h-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
             </a>
 
-            <!-- 2. Suggestion -->
             <a href="plan-suggest.html" class="glass-button py-4 px-5 flex items-center justify-between border-l-4 border-orange-500 group active:scale-95 transition-transform bg-orange-500/5">
                 <div class="text-left">
                     <p class="font-black text-base leading-tight uppercase tracking-tight text-orange-400">Earliest Return</p>
@@ -50,14 +46,13 @@
                 <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             </a>
 
-            <!-- 3. AI Strategic -->
             <a href="ai-planner.html" class="glass-button py-5 px-5 bg-orange-500/20 border border-orange-500/30 active:scale-95 transition-transform mt-2">
                 <div class="text-left flex justify-between items-center w-full">
                     <div>
                         <p class="font-black text-base leading-tight text-orange-400 uppercase tracking-tighter">Plan with AI</p>
                         <p class="text-[9px] text-orange-200/60 font-bold uppercase tracking-widest">Strategic scenario mapping</p>
                     </div>
-                    <div class="bg-orange-500 p-1.5 rounded-lg shadow-lg shadow-orange-500/20">
+                    <div class="bg-orange-500 p-1.5 rounded-lg">
                         <svg class="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L14.5 9H22L16 14L18.5 21L12 17L5.5 21L8 14L2 9H9.5L12 2Z"/></svg>
                     </div>
                 </div>
@@ -65,7 +60,6 @@
         </div>
     </div>
 
-    <!-- Dependencies -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="schengen-engine.js"></script>
@@ -80,11 +74,9 @@
                         const val = c.val();
                         if(val.entry && val.exit) trips.push(val);
                     });
-                    
                     const status = SchengenEngine.calculateStatus(trips);
                     const daysEl = document.getElementById('plan-days');
                     const statusEl = document.getElementById('baseline-status');
-                    
                     if (daysEl) {
                         daysEl.innerText = status.remaining;
                         daysEl.className = status.remaining < 10 
