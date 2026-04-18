@@ -6,41 +6,55 @@ const firebaseConfig = {
 };
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+
+// Fix 7: Explicitly attach db to window so all pages see it
+window.db = firebase.database();
 
 function updateUI(status) {
     // Determine Image
     let img = "assets/uk2.jpg";
     if (status.isTravelDay) {
-        // Today is Sp-Uk day based on your description
         img = "assets/sp-uk.jpg"; 
     } else if (status.inSpain) {
         img = "assets/sp2.jpg";
     }
 
-    document.body.style.backgroundImage = `url('${img}')`;
-    document.getElementById('days-count').innerText = status.remaining;
+    // Ensure elements exist before updating (prevents errors on sub-pages)
+    if (document.body) document.body.style.backgroundImage = `url('${img}')`;
+    
+    const daysCountEl = document.getElementById('days-count');
+    if (daysCountEl) daysCountEl.innerText = status.remaining;
     
     const msgEl = document.getElementById('status-message');
-    msgEl.innerText = status.isTravelDay ? "Travel Day!" : (status.inSpain ? "Matt is in Spain!" : "Matt is in the UK.");
+    if (msgEl) msgEl.innerText = status.isTravelDay ? "Travel Day!" : (status.inSpain ? "Matt is in Spain!" : "Matt is in the UK.");
 
     const gauge = document.getElementById('gauge-progress');
-    const circ = 439.8;
-    gauge.style.strokeDashoffset = circ - (status.remaining / 90) * circ;
-    gauge.style.stroke = status.remaining >= 50 ? "#22c55e" : (status.remaining >= 20 ? "#f97316" : "#ef4444");
+    if (gauge) {
+        const circ = 439.8;
+        gauge.style.strokeDashoffset = circ - (status.remaining / 90) * circ;
+        gauge.style.stroke = status.remaining >= 50 ? "#22c55e" : (status.remaining >= 20 ? "#f97316" : "#ef4444");
+    }
 
     const recEl = document.getElementById('recovery-tagline');
-    if (status.recovery && status.remaining < 90) {
-        const d = status.recovery.date.split('-');
-        recEl.innerHTML = `${status.recovery.days} DAYS TO BE ADDED <br> BEGINNING ${d[2]}-${d[1]}-${d[0]}`;
-    } else {
-        recEl.innerHTML = "";
+    if (recEl) {
+        if (status.recovery && status.remaining < 90) {
+            const d = status.recovery.date.split('-');
+            recEl.innerHTML = `${status.recovery.days} DAYS TO BE ADDED <br> BEGINNING ${d[2]}-${d[1]}-${d[0]}`;
+        } else {
+            recEl.innerHTML = "";
+        }
     }
 }
 
-db.ref('trips').on('value', (snap) => {
+window.db.ref('trips').on('value', (snap) => {
     const trips = [];
-    snap.forEach(c => { if(c.val().entry) trips.push(c.val()); });
+    snap.forEach(c => { 
+        const val = c.val();
+        if(val.entry) trips.push(val); 
+    });
+    
+    // Fix 1 & 7: Export to global window object for other pages to use
+    window.allTrips = trips;
     
     const now = new Date();
     now.setHours(12, 0, 0, 0);
@@ -50,7 +64,6 @@ db.ref('trips').on('value', (snap) => {
     const recovery = SchengenEngine.getNextIncrease(trips, now);
     const currentTrip = trips.find(t => todayStr >= t.entry && todayStr <= t.exit);
     
-    // Check if today is specifically the arrival or departure date
     const isTravelDay = currentTrip && (todayStr === currentTrip.entry || todayStr === currentTrip.exit);
 
     updateUI({
@@ -59,5 +72,7 @@ db.ref('trips').on('value', (snap) => {
         inSpain: !!currentTrip,
         isTravelDay: isTravelDay
     });
-});
 
+    // Fix 4: Signal to sub-pages that data is now ready
+    window.dispatchEvent(new CustomEvent('tripsUpdated'));
+});
