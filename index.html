@@ -1,89 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Matt's Spain Tracker</title>
-    
-    <!-- iPhone Home Screen Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Schengen Tracker</title>
     <link rel="apple-touch-icon" href="assets/icon.png">
-<!-- Native App Meta Tags -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body id="main-body" class="min-h-screen flex flex-col items-center justify-between py-10 px-6 text-white transition-all duration-1000">
+<body id="main-body" class="text-white">
 
-    <!-- Header & Settings Link -->
-    <div class="w-full max-w-md flex justify-between items-center mb-4">
-        <h1 class="text-2xl font-black italic tracking-tighter">MATT/SPAIN</h1>
-        <a href="log.html" class="glass-button p-3 rounded-full opacity-60">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-        </a>
-    </div>
+    <!-- 1. Centered Header -->
+    <header class="w-full pt-4 flex justify-center">
+        <h1 class="text-xl font-black italic tracking-[0.3em] uppercase opacity-70">Schengen Tracker</h1>
+    </header>
 
-    <!-- Main Status Section -->
-    <div class="flex flex-col items-center justify-center space-y-2">
+    <!-- 2. Main Lifted Section -->
+    <main class="flex-1 flex flex-col items-center justify-start pt-12">
         <div class="relative flex items-center justify-center">
-            <!-- Circular Gauge -->
-            <svg class="w-72 h-72 transform -rotate-90">
-                <circle cx="144" cy="144" r="40" stroke="currentColor" stroke-width="8" fill="transparent" class="text-white/10" />
-                <circle id="gauge-progress" cx="144" cy="144" r="40" stroke="currentColor" stroke-width="8" fill="transparent" 
-                        stroke-dasharray="251.2" stroke-dashoffset="251.2" class="text-white" stroke-linecap="round" />
+            <!-- Enlarged Circular Gauge -->
+            <svg class="w-80 h-80 transform -rotate-90">
+                <circle cx="160" cy="160" r="55" stroke="rgba(255,255,255,0.1)" stroke-width="6" fill="transparent" />
+                <circle id="gauge-progress" cx="160" cy="160" r="55" stroke="white" stroke-width="6" fill="transparent" 
+                        stroke-dasharray="345.5" stroke-dashoffset="345.5" stroke-linecap="round" />
             </svg>
-            <!-- Large Day Count & Recovery Info -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span id="days-count" class="text-8xl font-black leading-none tracking-tighter">--</span>
-                <span class="text-[10px] uppercase tracking-[0.3em] font-bold opacity-60 mt-2">Days Available</span>
+            
+            <!-- Centered Numbers -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center z-10">
+                <span id="days-count" class="text-[9rem] font-black leading-none tracking-tighter">--</span>
+                <span class="text-[11px] uppercase tracking-[0.4em] font-black mt-[-10px] z-20">Days Available</span>
                 
-                <!-- The Recovery Tagline -->
-                <div id="recovery-tagline" class="text-[9px] uppercase tracking-wider opacity-40 mt-4 px-8 leading-tight min-h-[1.5em]">
-                    <!-- Logic will inject: "[x] days to be added from [date]" -->
+                <!-- Improved Recovery Text -->
+                <div id="recovery-tagline" class="text-[10px] font-bold uppercase tracking-widest mt-6 px-10 leading-relaxed text-white drop-shadow-md">
+                    <!-- Logic: 6 DAYS TO BE ADDED <br> BEGINNING 30-04-2026 -->
                 </div>
             </div>
         </div>
-        <p id="status-message" class="text-xs font-bold uppercase tracking-[0.2em] opacity-80 pt-4">Calculating...</p>
-    </div>
 
-    <!-- Navigation Grid -->
-    <div class="w-full max-w-md space-y-4">
-        
+        <p id="status-message" class="text-xs font-black uppercase tracking-[0.2em] opacity-90 mt-4">Calculating...</p>
+    </main>
+
+    <!-- 3. Navigation Grid (Bottom Anchored) -->
+    <footer class="w-full max-w-md px-6 pb-8 space-y-4">
         <div class="grid grid-cols-2 gap-4">
-            <!-- Strategy Link -->
-            <a href="plan.html" class="glass-button p-6 flex flex-col items-center justify-center group">
-                <div class="w-10 h-10 mb-2 rounded-full bg-white/5 flex items-center justify-center group-active:scale-90 transition-transform">
-                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-2.223-5.556L1.222 12.223 6.778 10 9 4.444 11.222 10l5.556 2.223-5.556 2.223L9 20z"/></svg>
-                </div>
-                <span class="text-[10px] font-black uppercase tracking-widest text-center">Plan Ahead</span>
+            <a href="plan.html" class="glass-button py-6 flex flex-col items-center justify-center">
+                <span class="text-[10px] font-black uppercase tracking-widest">Plan Ahead</span>
             </a>
-
-            <!-- Journey Tracker Link -->
-            <a href="journey.html" class="glass-button p-6 flex flex-col items-center justify-center group border-l-2 border-orange-500/30">
-                <div class="w-10 h-10 mb-2 rounded-full bg-white/5 flex items-center justify-center group-active:scale-90 transition-transform">
-                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-                <span class="text-[10px] font-black uppercase tracking-widest text-center">Overview</span>
+            <a href="journey.html" class="glass-button py-6 flex flex-col items-center justify-center">
+                <span class="text-[10px] font-black uppercase tracking-widest">Overview</span>
             </a>
         </div>
-
-        <!-- Primary Add Trip Button -->
-        <a href="add-trip.html" class="w-full flex items-center justify-center py-5 bg-white text-black rounded-[2rem] font-black uppercase tracking-widest shadow-2xl active:scale-95 transition-transform">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
+        <a href="add-trip.html" class="w-full flex items-center justify-center py-5 bg-white text-black rounded-[2rem] font-black uppercase tracking-widest active:scale-95 transition-transform">
             Add New Trip
         </a>
-    </div>
+    </footer>
 
-    <!-- Firebase & Core Engine -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    
     <script src="schengen-engine.js"></script>
     <script src="app.js"></script>
-
 </body>
 </html>
