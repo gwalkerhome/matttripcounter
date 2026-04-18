@@ -1,45 +1,100 @@
-<div class="w-full flex flex-col space-y-4 px-6">
-    <!-- Today's Status Header -->
-    <div class="glass-button p-8 rounded-[2rem] w-full bg-black/20 mb-4">
-        <p class="text-[10px] uppercase tracking-[0.2em] opacity-50 font-bold mb-1">Available Today</p>
-        <div id="plan-days" class="text-7xl font-black">--</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Plan Ahead</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body id="main-body" class="min-h-screen flex flex-col items-center py-10 px-6 text-white transition-all duration-1000">
+
+    <!-- Header -->
+    <div class="w-full max-w-md flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-black italic tracking-tighter">STRATEGY</h1>
+        <a href="index.html" class="glass-button px-5 py-2 text-[10px] font-black uppercase tracking-widest">Done</a>
     </div>
 
-    <!-- Navigation Options -->
-    <div class="grid grid-cols-1 gap-4">
-        <!-- 1. Manual Entry -->
-        <a href="plan-manual.html" class="glass-button p-5 flex items-center space-x-4">
-            <div class="text-left">
-                <p class="font-bold text-lg leading-tight">Input Trip Manually</p>
-                <p class="text-[10px] opacity-60">Check specific dates in the future.</p>
-            </div>
-        </a>
+    <div class="w-full max-w-md flex flex-col space-y-4">
+        
+        <!-- Today's Status Header -->
+        <div class="glass-button p-8 rounded-[2rem] w-full bg-black/40 border-b-2 border-white/10 mb-2">
+            <p class="text-[10px] uppercase tracking-[0.2em] opacity-50 font-black mb-1">Baseline Available Today</p>
+            <div id="plan-days" class="text-7xl font-black tracking-tighter">--</div>
+            <p id="baseline-status" class="text-[10px] opacity-40 uppercase tracking-widest mt-2 font-bold italic">Loading data...</p>
+        </div>
 
-        <!-- 2. Suggestion -->
-        <a href="plan-suggest.html" class="glass-button p-5 flex items-center space-x-4 border-l-4 border-orange-500">
-            <div class="text-left">
-                <p class="font-bold text-lg leading-tight">Make a Suggestion</p>
-                <p class="text-[10px] opacity-60">Find the earliest date you can head back.</p>
-            </div>
-        </a>
-
-        <!-- 3. How Long? -->
-        <a href="plan-max.html" class="glass-button p-5 flex items-center space-x-4">
-            <div class="text-left">
-                <p class="font-bold text-lg leading-tight">How long can I stay?</p>
-                <p class="text-[10px] opacity-60">Pick an entry date, we'll find the exit.</p>
-            </div>
-        </a>
-
-        <!-- 4. AI Strategic -->
-        <a href="ai-planner.html" class="glass-button p-6 bg-orange-500/20 border border-orange-500/30">
-            <div class="text-left flex justify-between items-center w-full">
-                <div>
-                    <p class="font-black text-lg leading-tight text-orange-400 uppercase tracking-tighter">Plan with AI</p>
-                    <p class="text-[10px] opacity-80">Strategic planning & complex questions.</p>
+        <!-- Navigation Options -->
+        <div class="grid grid-cols-1 gap-4">
+            
+            <!-- 1. Manual Entry -->
+            <a href="plan-manual.html" class="glass-button p-6 flex items-center justify-between group active:scale-95 transition-transform">
+                <div class="text-left">
+                    <p class="font-black text-lg leading-tight uppercase tracking-tight">Manual Check</p>
+                    <p class="text-[10px] opacity-50 font-bold uppercase tracking-wider">Test specific future dates</p>
                 </div>
-                <svg class="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L14.5 9H22L16 14L18.5 21L12 17L5.5 21L8 14L2 9H9.5L12 2Z"/></svg>
-            </div>
-        </a>
+                <svg class="w-5 h-5 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
+            </a>
+
+            <!-- 2. Suggestion -->
+            <a href="plan-suggest.html" class="glass-button p-6 flex items-center justify-between border-l-4 border-orange-500 group active:scale-95 transition-transform bg-orange-500/5">
+                <div class="text-left">
+                    <p class="font-black text-lg leading-tight uppercase tracking-tight">Earliest Return</p>
+                    <p class="text-[10px] opacity-60 font-bold uppercase tracking-wider text-orange-200/70">When is the soonest I can go?</p>
+                </div>
+                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </a>
+
+            <!-- 3. How Long? -->
+            <a href="plan-max.html" class="glass-button p-6 flex items-center justify-between group active:scale-95 transition-transform">
+                <div class="text-left">
+                    <p class="font-black text-lg leading-tight uppercase tracking-tight">Max Stay</p>
+                    <p class="text-[10px] opacity-50 font-bold uppercase tracking-wider">Find my legal exit date</p>
+                </div>
+                <svg class="w-5 h-5 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </a>
+
+            <!-- 4. AI Strategic -->
+            <a href="ai-planner.html" class="glass-button p-6 bg-orange-500/20 border border-orange-500/30 active:scale-95 transition-transform">
+                <div class="text-left flex justify-between items-center w-full">
+                    <div>
+                        <p class="font-black text-lg leading-tight text-orange-400 uppercase tracking-tighter">Plan with AI</p>
+                        <p class="text-[10px] text-orange-200/60 font-bold uppercase tracking-widest">Complex trip scenarios</p>
+                    </div>
+                    <div class="bg-orange-500 p-2 rounded-lg shadow-lg shadow-orange-500/20">
+                        <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L14.5 9H22L16 14L18.5 21L12 17L5.5 21L8 14L2 9H9.5L12 2Z"/></svg>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
-</div>
+
+    <!-- Firebase & Core Engine -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="schengen-engine.js"></script>
+    <script src="app.js"></script>
+
+    <script>
+        // Use the existing logic in app.js/schengen-engine.js to populate the baseline
+        function updatePlanBaseline() {
+            if (window.db) {
+                window.db.ref('trips').on('value', snap => {
+                    const trips = [];
+                    snap.forEach(c => trips.push(c.val()));
+                    const status = SchengenEngine.calculateStatus(trips);
+                    
+                    const daysEl = document.getElementById('plan-days');
+                    const statusEl = document.getElementById('baseline-status');
+                    
+                    if (daysEl) daysEl.innerText = status.remaining;
+                    if (statusEl) statusEl.innerText = `As of ${new Date().toLocaleDateString('en-GB')}`;
+                });
+            }
+        }
+        // Small delay to ensure firebase/app.js is initialized
+        setTimeout(updatePlanBaseline, 500);
+    </script>
+
+</body>
+</html>
