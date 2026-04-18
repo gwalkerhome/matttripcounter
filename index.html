@@ -12,15 +12,15 @@
 </head>
 <body id="main-body" class="text-white overflow-hidden bg-black flex flex-col items-center">
 
-    <!-- Centered Header -->
-    <header class="w-full pt-10 flex justify-center z-50">
-        <h1 class="text-xl font-black italic tracking-[0.3em] uppercase opacity-90 text-shadow text-center">Schengen Tracker</h1>
+    <!-- 1. HEADER: Pinned at the top -->
+    <header class="w-full absolute top-[5vh] flex justify-center z-50">
+        <h1 class="text-xl font-black italic tracking-[0.3em] uppercase opacity-90 text-shadow">Schengen Tracker</h1>
     </header>
 
-    <!-- Pinned at 15% from top to ensure it sits in the upper third -->
+    <!-- 2. MAIN UNIT: Pinned at V30 (15-20% depending on screen) -->
     <main class="w-full flex flex-col items-center absolute top-[15vh]"> 
         <div class="relative flex items-center justify-center">
-            <!-- Gauge centered on the number -->
+            <!-- Gauge centered on the 53 -->
             <svg class="w-80 h-80 transform -rotate-90 absolute">
                 <circle cx="160" cy="160" r="70" stroke="rgba(255,255,255,0.15)" stroke-width="14" fill="transparent" />
                 <circle id="gauge-progress" cx="160" cy="160" r="70" stroke="white" stroke-width="14" fill="transparent" 
@@ -30,15 +30,18 @@
             <div class="flex flex-col items-center justify-center text-center z-10">
                 <span id="days-count" class="text-[9.5rem] font-black leading-[0.8] tracking-tighter text-shadow">--</span>
                 <span class="text-[11px] uppercase tracking-[0.4em] font-black mt-2 text-shadow">Days Available</span>
-                <!-- Tagline moves with the number -->
-                <div id="recovery-tagline" class="text-[10px] font-bold uppercase tracking-widest mt-12 px-10 leading-relaxed text-shadow min-h-[30px]"></div>
             </div>
         </div>
-        <p id="status-message" class="text-sm font-black uppercase tracking-[0.2em] opacity-90 mt-4 text-shadow">Calculating...</p>
     </main>
 
-    <!-- Footer Pinned to Bottom -->
-    <footer class="fixed bottom-0 w-full max-w-md px-6 pb-12 space-y-4 z-50">
+    <!-- 3. RECOVERY INFO: Pinned at 52% (Just below the gauge) -->
+    <div id="recovery-tagline" class="absolute top-[52vh] w-full text-center text-[10px] font-bold uppercase tracking-widest px-10 leading-relaxed text-shadow z-20"></div>
+
+    <!-- 4. TRAVEL STATUS: Pinned at 60% -->
+    <p id="status-message" class="absolute top-[60vh] w-full text-center text-sm font-black uppercase tracking-[0.2em] opacity-90 text-shadow z-20">Calculating...</p>
+
+    <!-- 5. FOOTER: Pinned to the very bottom -->
+    <footer class="fixed bottom-0 w-full max-w-md px-6 pb-12 space-y-4 z-50 left-1/2 -translate-x-1/2">
         <div class="grid grid-cols-2 gap-4">
             <a href="plan.html" class="glass-button py-6 flex flex-col items-center justify-center">
                 <span class="text-[10px] font-black uppercase tracking-widest text-shadow">Plan Ahead</span>
