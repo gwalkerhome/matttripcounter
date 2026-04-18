@@ -12,7 +12,7 @@
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
         .day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; border-radius: 4px; }
         .day-past { background: #ef4444; color: white; font-weight: bold; }
-        .day-current { background: #f97316; color: white; font-weight: bold; }
+        .day-current { background: #f97316; color: white; font-weight: bold; border: 2px solid white; }
         .day-future { background: #22c55e; color: white; font-weight: bold; }
         .day-empty { background: rgba(255,255,255,0.05); opacity: 0.3; }
         .month-name { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; margin-top: 16px; }
@@ -34,16 +34,22 @@
 
     <script>
         const container = document.getElementById('calendar-container');
-        const today = new Date();
-        today.setHours(0,0,0,0);
+        
+        // Use consistent "Today" logic matching app.js
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
         function renderYear() {
             if (!window.allTrips) return;
             container.innerHTML = '';
+
+            // Render 6 months back and 6 months forward
             for (let i = -6; i <= 6; i++) {
-                const monthDate = new Date(today.getFullYear(), today.getMonth() + i, 1);
+                const monthDate = new Date(now.getFullYear(), now.getMonth() + i, 1);
                 renderMonth(monthDate);
             }
+            
+            // Scroll to current month
             setTimeout(() => {
                 const currentMonthEl = document.getElementById('current-month');
                 if (currentMonthEl) currentMonthEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -54,44 +60,52 @@
             const month = date.getMonth();
             const year = date.getFullYear();
             const monthName = date.toLocaleString('default', { month: 'long' });
+
             const monthWrapper = document.createElement('div');
-            if (month === today.getMonth() && year === today.getFullYear()) {
+            if (month === now.getMonth() && year === now.getFullYear()) {
                 monthWrapper.id = 'current-month';
                 monthWrapper.className = "border-l-4 border-orange-500 pl-4 py-2 bg-white/5 rounded-r-xl";
             }
+
             const title = document.createElement('div');
             title.className = 'month-name';
             title.innerText = `${monthName} ${year}`;
             monthWrapper.appendChild(title);
+
             const grid = document.createElement('div');
             grid.className = 'calendar-grid';
+
             const firstDay = new Date(year, month, 1).getDay();
             for (let p = 0; p < firstDay; p++) grid.appendChild(document.createElement('div'));
+
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             for (let d = 1; d <= daysInMonth; d++) {
-                const currentDay = new Date(year, month, d);
-                currentDay.setHours(0,0,0,0);
+                const dayDate = new Date(year, month, d);
+                const dateStr = `${dayDate.getFullYear()}-${String(dayDate.getMonth() + 1).padStart(2, '0')}-${String(dayDate.getDate()).padStart(2, '0')}`;
+                
                 const dayEl = document.createElement('div');
-                dayEl.className = 'day';
+                dayEl.className = 'day ' + getDayStatus(dateStr);
                 dayEl.innerText = d;
-                dayEl.classList.add(getDayStatus(currentDay));
                 grid.appendChild(dayEl);
             }
             monthWrapper.appendChild(grid);
             container.appendChild(monthWrapper);
         }
 
-        function getDayStatus(date) {
-            const dateStr = date.toISOString().split('T')[0];
-            const isToday = date.getTime() === today.getTime();
-            let status = 'day-empty';
-            window.allTrips.forEach(trip => {
+        function getDayStatus(dateStr) {
+            // 1. Priority: Today
+            if (dateStr === todayStr) return 'day-current';
+
+            // 2. Check trips
+            for (const trip of window.allTrips) {
                 if (dateStr >= trip.entry && dateStr <= trip.exit) {
-                    status = (dateStr >= trip.entry && dateStr <= trip.exit && isToday) ? 'day-current' : (date < today ? 'day-past' : 'day-future');
+                    // Past trip vs Future trip
+                    return dateStr < todayStr ? 'day-past' : 'day-future';
                 }
-            });
-            if (isToday && status === 'day-empty') status = 'day-current';
-            return status;
+            }
+
+            // 3. Default
+            return 'day-empty';
         }
 
         window.addEventListener('tripsUpdated', renderYear);
