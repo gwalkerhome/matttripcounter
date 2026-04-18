@@ -9,6 +9,13 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 window.db = db;
 
+// Utility: Format YYYY-MM-DD to DD-MM-YYYY
+function formatUKDate(dateStr) {
+    if (!dateStr) return "";
+    const [y, m, d] = dateStr.split('-');
+    return `${d}-${m}-${y}`;
+}
+
 function initializeApp() {
     db.ref('trips').on('value', (snapshot) => {
         const trips = [];
@@ -32,36 +39,30 @@ function calculateStatus(trips) {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
+    // Sort for the UI and global use
     const sorted = trips.sort((a, b) => new Date(a.entry) - new Date(b.entry));
     window.allTrips = sorted;
 
+    // Use Engine for core numbers
+    const engineStatus = SchengenEngine.calculateStatus(sorted, now);
+    const recovery = SchengenEngine.getNextIncrease(sorted, now);
+
+    // Identify current and next trips for mood logic
     let currentTrip = null; 
     let nextTrip = null;    
-    let daysUsed90 = 0;
-    
-    const windowStart = new Date(now);
-    windowStart.setDate(windowStart.getDate() - 179);
 
     sorted.forEach(t => {
-        const entryDate = new Date(t.entry + 'T12:00:00');
-        const exitDate = new Date(t.exit + 'T12:00:00');
-
         if (todayStr >= t.entry && todayStr <= t.exit) {
             currentTrip = t;
         } 
-        else if (entryDate > now && !nextTrip) {
+        else if (new Date(t.entry + 'T12:00:00') > now && !nextTrip) {
             nextTrip = t;
-        }
-
-        if (exitDate >= windowStart) {
-            const start = entryDate < windowStart ? windowStart : entryDate;
-            const diff = Math.ceil(Math.abs(exitDate - start) / (1000 * 60 * 60 * 24)) + 1;
-            daysUsed90 += diff;
         }
     });
 
     return {
-        remaining: Math.max(0, 90 - daysUsed90),
+        remaining: engineStatus.remaining,
+        recovery: recovery, // { days, date }
         inSpain: !!currentTrip,
         currentTrip,
         nextTrip,
@@ -74,19 +75,13 @@ function getMattMoodImage(status) {
     const { inSpain, currentTrip, nextTrip, todayStr, tomorrowStr } = status;
     const prefix = inSpain ? "sp" : "uk";
 
-    // 1. TRAVEL DAYS (Prioritized)
-    // Arrival in Spain TODAY
     if (currentTrip && todayStr === currentTrip.entry) return "assets/uk-sp.jpg";
-    // Departure from Spain TODAY
     if (currentTrip && todayStr === currentTrip.exit) return "assets/sp-uk.jpg";
-    // Arrival in Spain TODAY (if not yet marked as current)
     if (nextTrip && todayStr === nextTrip.entry) return "assets/uk-sp.jpg";
 
-    // 2. THE DAY BEFORE (Anticipation)
     if (nextTrip && tomorrowStr === nextTrip.entry) return "assets/uk4.jpg";
     if (currentTrip && tomorrowStr === currentTrip.exit) return "assets/sp4.jpg";
 
-    // 3. PROGRESSION (1, 2, 3)
     if (currentTrip) {
         const start = new Date(currentTrip.entry + 'T12:00:00');
         const end = new Date(currentTrip.exit + 'T12:00:00');
@@ -101,32 +96,40 @@ function getMattMoodImage(status) {
         return `assets/${prefix}3.jpg`;
     }
 
-    // 4. FALLBACK (UK Default)
     return "assets/uk2.jpg"; 
 }
 
 function updateUI(status) {
     const imgPath = getMattMoodImage(status);
     
-    // This part sets the background for WHATEVER page you are on
     document.body.style.backgroundImage = `url('${imgPath}')`;
     document.body.style.backgroundSize = "cover";
     document.body.style.backgroundPosition = "center center";
     document.body.style.backgroundAttachment = "fixed";
 
-    // This part only updates the numbers/gauge IF they exist on the page
     const countEl = document.getElementById('days-count');
     const msgEl = document.getElementById('status-message');
     const gauge = document.getElementById('gauge-progress');
+    const recoveryEl = document.getElementById('recovery-tagline');
 
     if (countEl) countEl.innerText = status.remaining;
     if (msgEl) msgEl.innerText = status.inSpain ? "Matt is in Spain!" : "Matt is in the UK.";
+    
     if (gauge) {
         const circumference = 251.2;
         const offset = circumference - (status.remaining / 90) * circumference;
         gauge.style.strokeDashoffset = offset;
     }
-}
 
+    // Handle the new Recovery Tagline
+    if (recoveryEl) {
+        if (status.recovery && status.remaining < 90) {
+            const formattedDate = formatUKDate(status.recovery.date);
+            recoveryEl.innerText = `${status.recovery.days} days to be added beginning ${formattedDate}`;
+        } else {
+            recoveryEl.innerText = ""; // Hide if allowance is full
+        }
+    }
+}
 
 window.onload = initializeApp;
