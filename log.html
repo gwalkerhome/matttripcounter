@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Native App Meta Tags -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Trip Log</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -54,65 +51,68 @@
         </div>
     </div>
 
-    <!-- Firebase & Engine -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <!-- Master Logic (Handles Initialization) -->
     <script src="schengen-engine.js"></script> 
     <script src="app.js"></script>
 
     <script>
-        // Utility to match our DD-MM-YYYY format
         function toUK(dateStr) {
             if (!dateStr) return "";
             const [y, m, d] = dateStr.split('-');
             return `${d}-${m}-${y}`;
         }
 
-        function loadTrips() {
-            if (!window.db) return;
+        function renderTripList() {
+            const list = document.getElementById('trip-list');
+            if (!window.allTrips) return;
 
-            window.db.ref('trips').on('value', snap => {
-                const list = document.getElementById('trip-list');
-                list.innerHTML = '';
+            list.innerHTML = '';
 
-                if (!snap.exists()) { 
-                    list.innerHTML = '<p class="text-center opacity-30 py-20 italic text-sm">No trips recorded yet.</p>'; 
-                    return; 
-                }
+            if (window.allTrips.length === 0) { 
+                list.innerHTML = '<p class="text-center opacity-30 py-20 italic text-sm">No trips recorded yet.</p>'; 
+                return; 
+            }
 
-                let data = [];
-                snap.forEach(c => { data.push({key: c.key, ...c.val()}); });
+            // Create a local copy to sort without affecting the global array
+            let data = [...window.allTrips];
+            data.sort((a,b) => new Date(b.entry) - new Date(a.entry));
 
-                // Sort: Newest trips at the top
-                data.sort((a,b) => new Date(b.entry) - new Date(a.entry));
-
-                data.forEach(t => {
-                    const div = document.createElement('div');
-                    div.className = 'trip-row';
-                    div.innerHTML = `
-                        <div>
-                            <div class="text-[9px] opacity-40 font-black uppercase tracking-widest mb-1">Dates</div>
-                            <div class="font-bold text-sm tracking-tight">
-                                ${toUK(t.entry)} <span class="opacity-30 mx-1">—</span> ${toUK(t.exit)}
-                            </div>
+            data.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'trip-row';
+                // We use the unique key from Firebase if available, otherwise fallback
+                const tripId = t.id || Object.keys(window.allTrips).find(key => window.allTrips[key] === t);
+                
+                div.innerHTML = `
+                    <div>
+                        <div class="text-[9px] opacity-40 font-black uppercase tracking-widest mb-1">Dates</div>
+                        <div class="font-bold text-sm tracking-tight">
+                            ${toUK(t.entry)} <span class="opacity-30 mx-1">—</span> ${toUK(t.exit)}
                         </div>
-                        <button onclick="deleteTrip('${t.key}')" class="text-red-400 text-[10px] font-black uppercase tracking-tighter px-4 py-2 bg-red-500/10 rounded-full border border-red-500/20 active:bg-red-500/30 transition-colors">
-                            Delete
-                        </button>
-                    `;
-                    list.appendChild(div);
-                });
+                    </div>
+                    <button onclick="deleteTrip('${t.id}')" class="text-red-400 text-[10px] font-black uppercase tracking-tighter px-4 py-2 bg-red-500/10 rounded-full border border-red-500/20 active:bg-red-500/30 transition-colors">
+                        Delete
+                    </button>
+                `;
+                list.appendChild(div);
             });
         }
 
-        function deleteTrip(key) { 
-            if(confirm("Permanently delete this trip from your history?")) {
-                window.db.ref('trips').child(key).remove(); 
+        function deleteTrip(tripId) { 
+            if(!tripId || tripId === 'undefined') {
+                alert("Error: Trip ID missing. Try refreshing.");
+                return;
+            }
+            if(confirm("Permanently delete this trip?")) {
+                window.db.ref('trips').child(tripId).remove(); 
             }
         }
 
-        // Initialize when app.js is ready
-        setTimeout(loadTrips, 500);
+        // FIX: React to the master data update
+        window.addEventListener('tripsUpdated', renderTripList);
     </script>
 </body>
 </html>
