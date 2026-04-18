@@ -5,13 +5,15 @@ const firebaseConfig = {
     databaseURL: "https://matttrip-56a17-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+// Fix Bug 2: Prevent multiple initializations
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-// Fix 7: Explicitly attach db to window so all pages see it
 window.db = firebase.database();
 
 function updateUI(status) {
-    // Determine Image
+    // Determine Background Image
     let img = "assets/uk2.jpg";
     if (status.isTravelDay) {
         img = "assets/sp-uk.jpg"; 
@@ -19,7 +21,6 @@ function updateUI(status) {
         img = "assets/sp2.jpg";
     }
 
-    // Ensure elements exist before updating (prevents errors on sub-pages)
     if (document.body) document.body.style.backgroundImage = `url('${img}')`;
     
     const daysCountEl = document.getElementById('days-count');
@@ -50,22 +51,30 @@ window.db.ref('trips').on('value', (snap) => {
     const trips = [];
     snap.forEach(c => { 
         const val = c.val();
-        if(val.entry) trips.push(val); 
+        // Fix Bug 2 (Log): Attach the Firebase ID to the trip object for deletion
+        if(val.entry) {
+            trips.push({
+                ...val,
+                id: c.key
+            });
+        }
     });
     
-    // Fix 1 & 7: Export to global window object for other pages to use
+    // Fix Bug 1: Export to global window object
     window.allTrips = trips;
     
+    // Fix Bug 3: Timezone Armor - Calculate "Today" in Local Time YYYY-MM-DD
     const now = new Date();
-// Get YYYY-MM-DD in local time, not UTC
-const year = now.getFullYear();
-const month = String(now.getMonth() + 1).padStart(2, '0');
-const day = String(now.getDate()).padStart(2, '0');
-const todayStr = `${year}-${month}-${day}`; 
-
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`; 
     
-    const res = SchengenEngine.calculateStatus(trips, now);
-    const recovery = SchengenEngine.getNextIncrease(trips, now);
+    // Create a local noon date for the engine calculation
+    const calcDate = new Date(`${todayStr}T12:00:00`);
+    
+    const res = SchengenEngine.calculateStatus(trips, calcDate);
+    const recovery = SchengenEngine.getNextIncrease(trips, calcDate);
     const currentTrip = trips.find(t => todayStr >= t.entry && todayStr <= t.exit);
     
     const isTravelDay = currentTrip && (todayStr === currentTrip.entry || todayStr === currentTrip.exit);
@@ -77,6 +86,6 @@ const todayStr = `${year}-${month}-${day}`;
         isTravelDay: isTravelDay
     });
 
-    // Fix 4: Signal to sub-pages that data is now ready
+    // Fix Bug 4: Dispatch event for sub-pages
     window.dispatchEvent(new CustomEvent('tripsUpdated'));
 });
