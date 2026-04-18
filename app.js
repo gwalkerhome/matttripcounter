@@ -31,29 +31,57 @@ function calculateStatus(trips) {
     const now = new Date();
     now.setHours(12, 0, 0, 0);
     const todayStr = now.toISOString().split('T')[0];
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
     const sorted = trips.sort((a, b) => new Date(a.entry) - new Date(b.entry));
-    
     const engineStatus = SchengenEngine.calculateStatus(sorted, now);
     const recovery = SchengenEngine.getNextIncrease(sorted, now);
 
     let currentTrip = null; 
+    let nextTrip = null;
     sorted.forEach(t => {
         if (todayStr >= t.entry && todayStr <= t.exit) currentTrip = t;
+        else if (new Date(t.entry + 'T12:00:00') > now && !nextTrip) nextTrip = t;
     });
 
-    return {
-        remaining: engineStatus.remaining,
-        recovery: recovery,
-        inSpain: !!currentTrip,
-        currentTrip: currentTrip,
-        todayStr: todayStr
+    return { 
+        remaining: engineStatus.remaining, 
+        recovery, 
+        inSpain: !!currentTrip, 
+        currentTrip, 
+        nextTrip, 
+        todayStr, 
+        tomorrowStr 
     };
 }
 
+function getMattMoodImage(status) {
+    const { inSpain, currentTrip, nextTrip, todayStr, tomorrowStr } = status;
+    const prefix = inSpain ? "sp" : "uk";
+    if (currentTrip && todayStr === currentTrip.entry) return "assets/uk-sp.jpg";
+    if (currentTrip && todayStr === currentTrip.exit) return "assets/sp-uk.jpg";
+    if (nextTrip && todayStr === nextTrip.entry) return "assets/uk-sp.jpg";
+    if (nextTrip && tomorrowStr === nextTrip.entry) return "assets/uk4.jpg";
+    if (currentTrip && tomorrowStr === currentTrip.exit) return "assets/sp4.jpg";
+    
+    if (currentTrip) {
+        const start = new Date(currentTrip.entry + 'T12:00:00');
+        const end = new Date(currentTrip.exit + 'T12:00:00');
+        const today = new Date(todayStr + 'T12:00:00');
+        const total = Math.ceil(Math.abs(end - start) / 86400000) + 1;
+        const spent = Math.ceil(Math.abs(today - start) / 86400000) + 1;
+        const percent = (spent / total) * 100;
+        if (percent <= 33) return `assets/${prefix}1.jpg`;
+        if (percent <= 66) return `assets/${prefix}2.jpg`;
+        return `assets/${prefix}3.jpg`;
+    }
+    return "assets/uk2.jpg"; 
+}
+
 function updateUI(status) {
-    // 1. Background Image Logic
-    // (Note: getMattMoodImage function remains the same as your previous version)
-    const imgPath = getMattMoodImage(status); 
+    const imgPath = getMattMoodImage(status);
     document.body.style.backgroundImage = `url('${imgPath}')`;
 
     const countEl = document.getElementById('days-count');
@@ -61,40 +89,28 @@ function updateUI(status) {
     const gauge = document.getElementById('gauge-progress');
     const recoveryEl = document.getElementById('recovery-tagline');
 
-    // 2. Numeric Counter
     if (countEl) countEl.innerText = status.remaining;
 
-    // 3. Travel Day & Status Message
     if (msgEl) {
         const isTravelDay = status.currentTrip && (status.todayStr === status.currentTrip.entry || status.todayStr === status.currentTrip.exit);
-        if (isTravelDay) {
-            msgEl.innerText = "Travel Day!";
-        } else {
-            msgEl.innerText = status.inSpain ? "Matt is in Spain!" : "Matt is in the UK.";
-        }
+        msgEl.innerText = isTravelDay ? "Travel Day!" : (status.inSpain ? "Matt is in Spain!" : "Matt is in the UK.");
     }
-    
-    // 4. Gauge Color & Progress
+
     if (gauge) {
         const circumference = 345.5; 
         const offset = circumference - (status.remaining / 90) * circumference;
         gauge.style.strokeDashoffset = offset;
-
-        // Traffic Light Logic
-        if (status.remaining >= 50) gauge.style.stroke = "#22c55e"; // Green
-        else if (status.remaining >= 20) gauge.style.stroke = "#f97316"; // Orange
-        else gauge.style.stroke = "#ef4444"; // Red
+        if (status.remaining >= 50) gauge.style.stroke = "#22c55e"; 
+        else if (status.remaining >= 20) gauge.style.stroke = "#f97316"; 
+        else gauge.style.stroke = "#ef4444"; 
     }
 
-    // 5. Recovery Text with Line Break
     if (recoveryEl) {
         if (status.recovery && status.remaining < 90) {
-            const date = formatUKDate(status.recovery.date);
-            recoveryEl.innerHTML = `${status.recovery.days} DAYS TO BE ADDED <br> BEGINNING ${date}`;
+            recoveryEl.innerHTML = `${status.recovery.days} DAYS TO BE ADDED <br> BEGINNING ${formatUKDate(status.recovery.date)}`;
         } else {
             recoveryEl.innerHTML = "";
         }
     }
 }
-
 window.onload = initializeApp;
