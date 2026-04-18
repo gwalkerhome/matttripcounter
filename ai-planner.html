@@ -1,135 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Native App Meta Tags -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Gemini AI Assistant</title>
+    <meta charset="UTF-8">
+    <title>AI Planner - Coming Soon</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body id="main-body" class="min-h-screen text-white">
-
-
-    <div class="w-full flex justify-between items-center pt-10 mb-4">
-        <h1 class="text-2xl font-black">AI Strategist</h1>
-        <a href="plan.html" class="text-xs font-bold uppercase opacity-50">Close</a>
-    </div>
-
-    <div id="chat-box" class="flex-grow w-full overflow-y-auto space-y-4 p-2" style="-webkit-overflow-scrolling: touch;">
-        <div class="bg-white/10 p-5 rounded-2xl rounded-tl-none max-w-[90%] border border-white/10 text-sm">
-            Hola Matt! I'm scanning your 180-day history. Ask me anything about future dates or how many days you'll have in a specific month.
+<body id="main-body" class="flex flex-col items-center justify-center p-8 text-white bg-black">
+    <div class="glass-card p-10 rounded-[3rem] text-center max-w-sm border-orange-500/20">
+        <div class="mb-6 inline-block bg-orange-500 p-4 rounded-2xl shadow-lg shadow-orange-500/20">
+            <svg class="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L14.5 9H22L16 14L18.5 21L12 17L5.5 21L8 14L2 9H9.5L12 2Z"/>
+            </svg>
         </div>
+        <h1 class="text-3xl font-black italic tracking-tighter mb-2 uppercase">AI Strategic<br>Planning</h1>
+        <p class="text-[10px] font-bold text-orange-400 uppercase tracking-[0.3em] mb-8">Coming Soon</p>
+        <p class="text-sm opacity-60 leading-relaxed font-medium mb-10">
+            Advanced scenario mapping and recovery optimization powered by Gemini 3 Flash.
+        </p>
+        <a href="plan.html" class="block w-full py-4 bg-white text-black font-black rounded-2xl uppercase tracking-widest text-xs active:scale-95 transition-transform">
+            Go Back
+        </a>
     </div>
 
-    <div id="typing" class="hidden text-[10px] uppercase tracking-widest opacity-40 font-black p-4 animate-pulse">Gemini is thinking...</div>
-
-    <div class="w-full pb-8 pt-4">
-        <div class="relative flex items-center">
-            <input id="user-input" type="text" placeholder="Can I stay 3 weeks in July?" 
-                   class="w-full py-5 px-6 bg-black/60 border border-white/10 rounded-3xl text-sm focus:outline-none focus:border-orange-500">
-            <button onclick="chatWithGemini()" class="absolute right-2 p-4 bg-orange-500 rounded-full">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-        </div>
-    </div>
-
+    <!-- We still load app.js so the background image stays synced -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="schengen-engine.js"></script>
     <script src="app.js"></script>
-    <script>
-        let GEMINI_API_KEY = null;
-        let localTrips = [];
-
-        // 1. Fetch Key and Trips from Firebase
-        const checkData = setInterval(() => {
-            if (window.db) {
-                clearInterval(checkData);
-                
-                // Get Key
-                window.db.ref('gemini-config/apiKey').once('value', snap => {
-                    GEMINI_API_KEY = snap.val();
-                });
-
-                // Get Trips for Context
-                window.db.ref('trips').on('value', snap => {
-                    localTrips = [];
-                    snap.forEach(child => { localTrips.push(child.val()); });
-                });
-            }
-        }, 100);
-
-        async function chatWithGemini() {
-            const input = document.getElementById('user-input');
-            const chatBox = document.getElementById('chat-box');
-            const typing = document.getElementById('typing');
-
-            if (!input.value) return;
-            if (!GEMINI_API_KEY) {
-                alert("AI service not ready. Please wait a moment.");
-                return;
-            }
-
-            const userText = input.value;
-            input.value = '';
-            
-            // Add User Message UI
-            const uDiv = document.createElement('div');
-            uDiv.className = "bg-orange-500/20 p-4 rounded-2xl rounded-tr-none max-w-[85%] ml-auto border border-orange-500/20 text-sm";
-            uDiv.innerText = userText;
-            chatBox.appendChild(uDiv);
-            
-            typing.classList.remove('hidden');
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            // Prepare context for Gemini
-            const history = localTrips.map(t => `${t.entry} to ${t.exit}`).join(', ');
-            const context = `You are a Schengen Visa assistant for Matt. His trip history is: ${history}. The current date is ${new Date().toLocaleDateString('en-GB')}. Answer his questions accurately based on the 90/180 rule. Be concise and friendly.`;
-
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        contents: [{ parts: [{ text: `${context}\n\nUser: ${userText}` }] }] 
-                    })
-                });
-
-                const data = await response.json();
-                const aiText = data.candidates[0].content.parts[0].text;
-
-                typing.classList.add('hidden');
-                const aDiv = document.createElement('div');
-                aDiv.className = "bg-white/10 p-5 rounded-2xl rounded-tl-none max-w-[90%] border border-white/10 text-sm";
-                aDiv.innerText = aiText;
-                chatBox.appendChild(aDiv);
-            } catch (e) {
-                typing.classList.add('hidden');
-                console.error(e);
-                alert("Connection error. Check console for details.");
-            }
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        // Allow "Enter" key to send message
-        document.getElementById('user-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') chatWithGemini();
-        });
-    </script>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-
-<!-- The Brains (Order matters!) -->
-<script src="schengen-engine.js"></script> 
-<script src="app.js"></script>
-
-
-    
 </body>
 </html>
