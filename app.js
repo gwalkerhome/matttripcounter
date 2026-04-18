@@ -57,8 +57,12 @@ window.db.ref('trips').on('value', (snap) => {
     window.allTrips = trips;
     
     const now = new Date();
-    now.setHours(12, 0, 0, 0);
-    const todayStr = now.toISOString().split('T')[0];
+// Get YYYY-MM-DD in local time, not UTC
+const year = now.getFullYear();
+const month = String(now.getMonth() + 1).padStart(2, '0');
+const day = String(now.getDate()).padStart(2, '0');
+const todayStr = `${year}-${month}-${day}`; 
+
     
     const res = SchengenEngine.calculateStatus(trips, now);
     const recovery = SchengenEngine.getNextIncrease(trips, now);
