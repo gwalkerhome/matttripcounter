@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Trip Log</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,69 +11,103 @@
             background: transparent;
             width: 100vw;
             margin-left: calc(-50vw + 50%);
-            max-height: 55vh; 
+            max-height: 60vh; 
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
         #history-window::-webkit-scrollbar { display: none; }
         .trip-row {
-            background: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 1.25rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
-<body id="main-body" class="min-h-screen text-white">
+<body id="main-body" class="min-h-screen text-white bg-black">
 
-    <div class="w-full max-w-md flex justify-between items-center mb-8 mt-4">
-        <h1 class="text-3xl font-black">Trip Log</h1>
-        <a href="index.html" class="glass-button px-6 py-2 text-sm font-bold">DONE</a>
+    <div class="px-6">
+        <div class="w-full max-w-md flex justify-between items-center mb-8 mt-6">
+            <h1 class="text-3xl font-black italic tracking-tighter">TRIP LOG</h1>
+            <a href="index.html" class="glass-button px-5 py-2 text-[10px] font-black uppercase tracking-widest">Done</a>
+        </div>
+
+        <div class="w-full max-w-md mb-10">
+            <a href="add-trip.html" class="block w-full py-5 bg-white text-black font-black text-center uppercase tracking-widest rounded-[2rem] shadow-xl active:scale-95 transition-transform">
+                + Add New Trip
+            </a>
+        </div>
+
+        <div class="w-full max-w-md">
+            <h2 class="text-[10px] font-black mb-4 opacity-40 uppercase tracking-[0.2em]">Saved History</h2>
+            <div id="history-window">
+                <div id="trip-list"></div>
+            </div>
+        </div>
     </div>
-    <div class="w-full max-w-md mb-8">
-        <a href="add-trip.html" class="block w-full py-5 glass-button font-black text-lg text-center uppercase tracking-widest">+ LOG A TRIP</a>
-    </div>
-    <div class="w-full max-w-md">
-        <h2 class="text-sm font-bold mb-4 px-6 opacity-50 uppercase tracking-widest">Saved History</h2>
-        <div id="history-window"><div id="trip-list"></div></div>
-    </div>
+
+    <!-- Firebase & Engine -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="schengen-engine.js"></script> 
     <script src="app.js"></script>
+
     <script>
-        const checkDb = setInterval(() => {
-            if (window.db) {
-                clearInterval(checkDb);
-                window.db.ref('trips').on('value', snap => {
-                    const list = document.getElementById('trip-list');
-                    list.innerHTML = '';
-                    if (!snap.exists()) { list.innerHTML = '<p class="text-center opacity-30 py-10 italic">No trips recorded.</p>'; return; }
-                    let data = [];
-                    snap.forEach(c => { data.push({key: c.key, ...c.val()}); });
-                    data.sort((a,b) => new Date(b.entry) - new Date(a.entry));
-                    data.forEach(t => {
-                        const div = document.createElement('div');
-                        div.className = 'trip-row';
-                        div.innerHTML = `<div><div class="text-[10px] opacity-40 font-bold uppercase mb-1">Dates</div><div class="font-bold text-sm">${t.entry} — ${t.exit}</div></div><button onclick="deleteTrip('${t.key}')" class="text-red-400 text-xs font-bold px-4 py-2 bg-red-500/10 rounded-full border border-red-500/20">Delete</button>`;
-                        list.appendChild(div);
-                    });
+        // Utility to match our DD-MM-YYYY format
+        function toUK(dateStr) {
+            if (!dateStr) return "";
+            const [y, m, d] = dateStr.split('-');
+            return `${d}-${m}-${y}`;
+        }
+
+        function loadTrips() {
+            if (!window.db) return;
+
+            window.db.ref('trips').on('value', snap => {
+                const list = document.getElementById('trip-list');
+                list.innerHTML = '';
+
+                if (!snap.exists()) { 
+                    list.innerHTML = '<p class="text-center opacity-30 py-20 italic text-sm">No trips recorded yet.</p>'; 
+                    return; 
+                }
+
+                let data = [];
+                snap.forEach(c => { data.push({key: c.key, ...c.val()}); });
+
+                // Sort: Newest trips at the top
+                data.sort((a,b) => new Date(b.entry) - new Date(a.entry));
+
+                data.forEach(t => {
+                    const div = document.createElement('div');
+                    div.className = 'trip-row';
+                    div.innerHTML = `
+                        <div>
+                            <div class="text-[9px] opacity-40 font-black uppercase tracking-widest mb-1">Dates</div>
+                            <div class="font-bold text-sm tracking-tight">
+                                ${toUK(t.entry)} <span class="opacity-30 mx-1">—</span> ${toUK(t.exit)}
+                            </div>
+                        </div>
+                        <button onclick="deleteTrip('${t.key}')" class="text-red-400 text-[10px] font-black uppercase tracking-tighter px-4 py-2 bg-red-500/10 rounded-full border border-red-500/20 active:bg-red-500/30 transition-colors">
+                            Delete
+                        </button>
+                    `;
+                    list.appendChild(div);
                 });
+            });
+        }
+
+        function deleteTrip(key) { 
+            if(confirm("Permanently delete this trip from your history?")) {
+                window.db.ref('trips').child(key).remove(); 
             }
-        }, 100);
-        function deleteTrip(key) { if(confirm("Delete trip?")) window.db.ref('trips').child(key).remove(); }
+        }
+
+        // Initialize when app.js is ready
+        setTimeout(loadTrips, 500);
     </script>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-
-<!-- The Brains (Order matters!) -->
-<script src="schengen-engine.js"></script> 
-<script src="app.js"></script>
-
-
-    
 </body>
 </html>
