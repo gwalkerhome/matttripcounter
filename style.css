@@ -5,17 +5,18 @@
 
 :root {
     /* Dimensions */
-    --btn-w-large: 240px;
-    --btn-h-large: 60px;
-    --btn-size-small: 60px;
+    --btn-w-l: 240px;
+    --btn-h-l: 60px;
+    --btn-s: 60px;
 
-    /* Brutalist Palette */
+    /* The Master Palette - We add new colors here */
     --black: #000000;
     --white: #FFFFFF;
     --yellow: #FFDE03;
     --blue: #00A8FF;
     --pink: #FF4DFF;
     --green: #2ED573;
+    /* Future colors like --lilac go here */
 }
 
 /* --- BASE & BACKGROUND --- */
@@ -29,20 +30,18 @@ body {
     background-position: center top;
     background-repeat: no-repeat;
     background-size: cover;
-    /* Native iOS Rounded Font */
     font-family: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
     transition: background-image 0.8s ease-in-out;
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Fix for iOS Safari Height */
 #main-body {
     height: 100vh;
     height: -webkit-fill-available; 
 }
 
-/* --- BUTTON STAGE 1 (THE CORE COMPONENT) --- */
+/* --- BUTTON STAGE 1 CORE --- */
 
 .brutalist-btn {
     display: flex;
@@ -61,7 +60,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Glossy 'Sticker' Overlay */
 .brutalist-btn::before {
     content: '';
     position: absolute;
@@ -71,26 +69,25 @@ body {
     pointer-events: none;
 }
 
-/* Tactile Click */
 .brutalist-btn:active {
     transform: translate(3px, 3px);
     box-shadow: 2px 2px 0px var(--black);
 }
 
-/* Sizing Helpers */
-.btn-l { width: var(--btn-w-large); height: var(--btn-h-large); font-size: 1.1rem; letter-spacing: 0.05em; }
-.btn-s { width: var(--btn-size-small); height: var(--btn-size-small); font-size: 0.7rem; }
+/* Sizing */
+.btn-l { width: var(--btn-w-l); height: var(--btn-h-l); font-size: 1.1rem; letter-spacing: 0.05em; }
+.btn-s { width: var(--btn-s); height: var(--btn-s); font-size: 0.7rem; }
 
-/* Dynamic Background Colors */
+/* --- COLOR UTILITIES (The Crayola Section) --- */
+
 .bg-yellow { background-color: var(--yellow); color: var(--black); }
 .bg-blue   { background-color: var(--blue); color: var(--white); }
 .bg-pink   { background-color: var(--pink); color: var(--white); }
 .bg-green  { background-color: var(--green); color: var(--white); }
 .bg-white  { background-color: var(--white); color: var(--black); }
 
-/* --- GAUGE & HUD ELEMENTS --- */
+/* --- HUD & TEXT --- */
 
-/* High-Contrast Text for Dashboard */
 .text-shadow {
     text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.8);
 }
@@ -102,4 +99,3 @@ body {
 #gauge-progress {
     transition: stroke-dashoffset 1s ease-in-out;
 }
-
