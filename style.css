@@ -4,22 +4,16 @@
 */
 
 :root {
-    /* Dimensions */
     --btn-w-l: 240px;
     --btn-h-l: 60px;
     --btn-s: 60px;
-
-    /* The Master Palette - We add new colors here */
     --black: #000000;
     --white: #FFFFFF;
     --yellow: #FFDE03;
     --blue: #00A8FF;
     --pink: #FF4DFF;
     --green: #2ED573;
-    /* Future colors like --lilac go here */
 }
-
-/* --- BASE & BACKGROUND --- */
 
 body {
     margin: 0;
@@ -74,11 +68,10 @@ body {
     box-shadow: 2px 2px 0px var(--black);
 }
 
-/* Sizing */
 .btn-l { width: var(--btn-w-l); height: var(--btn-h-l); font-size: 1.1rem; letter-spacing: 0.05em; }
 .btn-s { width: var(--btn-s); height: var(--btn-s); font-size: 0.7rem; }
 
-/* --- COLOR UTILITIES (The Crayola Section) --- */
+/* --- COLOR UTILITIES --- */
 
 .bg-yellow { background-color: var(--yellow); color: var(--black); }
 .bg-blue   { background-color: var(--blue); color: var(--white); }
@@ -86,16 +79,41 @@ body {
 .bg-green  { background-color: var(--green); color: var(--white); }
 .bg-white  { background-color: var(--white); color: var(--black); }
 
-/* --- HUD & TEXT --- */
+/* --- TWEAK 1: ON-SCREEN WRITING --- */
 
-.text-shadow {
-    text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.8);
+.text-brutal {
+    color: var(--white);
+    text-shadow: 
+        2px 2px 0px var(--black),
+        -1px -1px 0px var(--black),  
+         1px -1px 0px var(--black),
+        -1px  1px 0px var(--black),
+         1px  1px 0px var(--black);
+    /* This creates a "hard" sticker-style outline for text */
 }
 
+/* --- TWEAK 2: GAUGE & NUMBERS --- */
+
 #days-count {
-    text-shadow: 0px 4px 15px rgba(0, 0, 0, 1);
+    /* Large shadow to lift number off page */
+    filter: drop-shadow(6px 6px 0px var(--black));
+    /* Black border for the text itself */
+    paint-order: stroke fill;
+    -webkit-text-stroke: 4px var(--black);
+}
+
+.gauge-ring {
+    /* Applying black border to the SVG ring */
+    stroke: var(--black);
+    stroke-width: 18px; /* The outer "border" width */
+}
+
+.gauge-progress-top {
+    /* The colored part of the ring */
+    stroke-width: 10px; 
 }
 
 #gauge-progress {
     transition: stroke-dashoffset 1s ease-in-out;
 }
+
