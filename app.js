@@ -11,40 +11,108 @@ if (!firebase.apps.length) {
 
 window.db = firebase.database();
 
-function updateUI(status) {
-    // Determine Image - Updated to .png
-    let img = "assets/uk2.png"; 
-    if (status.isTravelDay) {
-        img = "assets/sp-uk.png"; 
-    } else if (status.inSpain) {
-        img = "assets/sp2.png";
+function resolveBackgroundImage(trips, todayStr) {
+    const now = new Date(`${todayStr}T12:00:00`);
+
+    // Sort all trips by entry date
+    const sorted = [...trips].sort((a, b) => new Date(a.entry) - new Date(b.entry));
+
+    // Find current trip (today is inside a trip)
+    const currentTrip = sorted.find(t => todayStr >= t.entry && todayStr <= t.exit);
+
+    // Find next future trip (starts after today)
+    const nextTrip = sorted.find(t => t.entry > todayStr);
+
+    // Find yesterday's string to detect "day before travel"
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const tomorrowStr = new Date(now);
+    tomorrowStr.setDate(tomorrowStr.getDate() + 1);
+    const tomorrowDate = `${tomorrowStr.getFullYear()}-${String(tomorrowStr.getMonth()+1).padStart(2,'0')}-${String(tomorrowStr.getDate()).padStart(2,'0')}`;
+
+    // Travel day: today is the entry or exit of a trip
+    if (currentTrip) {
+        if (todayStr === currentTrip.entry) {
+            // Travelling TO Spain today
+            return "assets/uk-sp.png";
+        }
+        if (todayStr === currentTrip.exit) {
+            // Travelling BACK to UK today
+            return "assets/sp-uk.png";
+        }
+
+        // Mid-trip in Spain: calculate % through stay
+        const entryDate = new Date(`${currentTrip.entry}T12:00:00`);
+        const exitDate = new Date(`${currentTrip.exit}T12:00:00`);
+        const totalDays = Math.ceil((exitDate - entryDate) / (1000 * 60 * 60 * 24));
+        const daysSoFar = Math.ceil((now - entryDate) / (1000 * 60 * 60 * 24));
+
+        // Day before last day of trip = sp4 (packing to leave)
+        const dayBeforeExit = new Date(exitDate);
+        dayBeforeExit.setDate(dayBeforeExit.getDate() - 1);
+        const dayBeforeExitStr = `${dayBeforeExit.getFullYear()}-${String(dayBeforeExit.getMonth()+1).padStart(2,'0')}-${String(dayBeforeExit.getDate()).padStart(2,'0')}`;
+        if (todayStr === dayBeforeExitStr) return "assets/sp4.png";
+
+        const pct = totalDays > 0 ? daysSoFar / totalDays : 0;
+        if (pct < 0.34) return "assets/sp1.png";
+        if (pct < 0.67) return "assets/sp2.png";
+        return "assets/sp3.png";
     }
 
-    if (document.body) {
-        document.body.style.backgroundImage = `url('${img}')`;
+    // Not in Spain — in UK
+    // Day before next trip to Spain
+    if (nextTrip && tomorrowDate === nextTrip.entry) {
+        return "assets/uk4.png";
     }
-    
+
+    // Find last completed trip to calculate % through UK stay
+    const pastTrips = sorted.filter(t => t.exit < todayStr);
+    if (pastTrips.length > 0) {
+        const lastTrip = pastTrips[pastTrips.length - 1];
+        const lastExitDate = new Date(`${lastTrip.exit}T12:00:00`);
+        const nextEntryDate = nextTrip ? new Date(`${nextTrip.entry}T12:00:00`) : null;
+
+        if (nextEntryDate) {
+            const totalUKDays = Math.ceil((nextEntryDate - lastExitDate) / (1000 * 60 * 60 * 24));
+            const ukDaysSoFar = Math.ceil((now - lastExitDate) / (1000 * 60 * 60 * 24));
+            const pct = totalUKDays > 0 ? ukDaysSoFar / totalUKDays : 0;
+            if (pct < 0.34) return "assets/uk1.png";
+            if (pct < 0.67) return "assets/uk2.png";
+            return "assets/uk3.png";
+        }
+    }
+
+    // Default: no trip data or no context available
+    return "assets/uk2.png";
+}
+
+function updateUI(status, bgImage) {
+    // Update background via #bg-layer (not body) to prevent flicker
+    const bgLayer = document.getElementById('bg-layer');
+    if (bgLayer) {
+        bgLayer.style.backgroundImage = `url('${bgImage}')`;
+    }
+
     const daysCountEl = document.getElementById('days-count');
     if (daysCountEl) daysCountEl.innerText = status.remaining;
-    
+
     const msgEl = document.getElementById('status-message');
-    if (msgEl) msgEl.innerText = status.isTravelDay ? "Travel Day!" : (status.inSpain ? "Matt is in Spain!" : "Matt is in the UK.");
+    if (msgEl) {
+        if (status.isTravelDay === 'entry') msgEl.innerText = "Travel Day! ✈️ Spain";
+        else if (status.isTravelDay === 'exit') msgEl.innerText = "Travel Day! ✈️ UK";
+        else if (status.inSpain) msgEl.innerText = "Matt is in Spain!";
+        else msgEl.innerText = "Matt is in the UK.";
+    }
 
     const gauge = document.getElementById('gauge-progress');
     const gaugeBorder = document.getElementById('gauge-progress-border');
-    
+
     if (gauge) {
         const circ = 439.8;
         const offset = circ - (status.remaining / 90) * circ;
-        
-        // Update Green Ring
         gauge.style.strokeDashoffset = offset;
         gauge.style.stroke = status.remaining >= 50 ? "#22c55e" : (status.remaining >= 20 ? "#f97316" : "#ef4444");
-        
-        // Update Black Border Ring to match progress
-        if (gaugeBorder) {
-            gaugeBorder.style.strokeDashoffset = offset;
-        }
+        if (gaugeBorder) gaugeBorder.style.strokeDashoffset = offset;
     }
 
     const recEl = document.getElementById('recovery-tagline');
@@ -60,35 +128,32 @@ function updateUI(status) {
 
 window.db.ref('trips').on('value', (snap) => {
     const trips = [];
-    snap.forEach(c => { 
+    snap.forEach(c => {
         const val = c.val();
-        if(val.entry) {
-            trips.push({ ...val, id: c.key });
-        }
+        if (val.entry) trips.push({ ...val, id: c.key });
     });
-    
+
     window.allTrips = trips;
-    
+
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const todayStr = `${year}-${month}-${day}`; 
-    
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const calcDate = new Date(`${todayStr}T12:00:00`);
-    
+
     const res = SchengenEngine.calculateStatus(trips, calcDate);
     const recovery = SchengenEngine.getNextIncrease(trips, calcDate);
     const currentTrip = trips.find(t => todayStr >= t.entry && todayStr <= t.exit);
-    
-    const isTravelDay = currentTrip && (todayStr === currentTrip.entry || todayStr === currentTrip.exit);
+    const isTravelDay = currentTrip
+        ? (todayStr === currentTrip.entry ? 'entry' : todayStr === currentTrip.exit ? 'exit' : false)
+        : false;
+
+    const bgImage = resolveBackgroundImage(trips, todayStr);
 
     updateUI({
         remaining: res.remaining,
         recovery: recovery,
         inSpain: !!currentTrip,
         isTravelDay: isTravelDay
-    });
+    }, bgImage);
 
     window.dispatchEvent(new CustomEvent('tripsUpdated'));
 });
