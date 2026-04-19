@@ -29,17 +29,31 @@
             </a>
         </div>
 
-        <div class="relative flex items-center justify-center">
-            <svg class="w-72 h-72 transform -rotate-90">
-                <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
-                <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="white" stroke-width="12" fill="transparent" 
-                    stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
-            </svg>
-            <div class="absolute text-center">
-                <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter">--</div>
-                <div class="text-[10px] font-bold text-white uppercase tracking-[0.3em] mt-2 opacity-60">Days Left</div>
-            </div>
+        <!-- GAUGE SECTION: Ring Border only, Number Border + Shadow -->
+<div class="relative flex items-center justify-center">
+    <svg class="w-72 h-72 transform -rotate-90">
+        <!-- 1. Background Track -->
+        <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
+        
+        <!-- 2. The Black Border Ring (No Shadow) -->
+        <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="18" fill="transparent" 
+            stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+            
+        <!-- 3. The Green Progress Bar (Sitting inside the black border) -->
+        <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="10" fill="transparent" 
+            stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+    </svg>
+    
+    <div class="absolute text-center">
+        <!-- Tweak 2a: Number has BOTH Border & Shadow -->
+        <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter" 
+             style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
+             53
         </div>
+        <div class="text-[10px] font-bold text-white uppercase tracking-[0.3em] mt-2 opacity-60">Days Left</div>
+    </div>
+</div>
+
 
         <div class="w-full max-w-xs space-y-4 mb-8 flex flex-col items-center">
             <!-- Tweak 1: Tagline Visibility -->
