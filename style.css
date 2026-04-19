@@ -1,18 +1,106 @@
+/* 
+    MATT'S JOURNEY - STYLE.CSS
+    VERSION: Stage 1 (Retro Brutalist)
+*/
+
+:root {
+    /* Button Stage 1 Dimensions */
+    --btn-w-large: 240px;
+    --btn-h-large: 60px;
+    --btn-size-small: 60px;
+
+    /* Brutalist Colors */
+    --brutalist-black: #000000;
+    --btn-yellow: #FFDE03;
+    --btn-blue: #00A8FF;
+    --btn-pink: #FF4DFF;
+    --btn-green: #2ED573;
+    --btn-white: #FFFFFF;
+}
+
 body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    /* Use 'fixed' to keep the background stationary while content scrolls */
     background-attachment: fixed;
     background-position: center top;
     background-repeat: no-repeat;
     background-size: cover;
     background-color: #000;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* Native iOS Rounded Font Stack */
+    font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     transition: background-image 0.8s ease-in-out;
+    overflow-x: hidden;
 }
 
-/* Ensure glass elements look good over the new detailed art */
+#main-body {
+    height: 100vh;
+    height: -webkit-fill-available; 
+}
+
+/* --- RETRO BRUTALIST BUTTONS (STAGE 1) --- */
+
+.brutalist-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    font-weight: 800;
+    border: 3.5px solid var(--brutalist-black);
+    box-shadow: 6px 6px 0px var(--brutalist-black);
+    border-radius: 18px;
+    transition: all 0.1s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+/* Sticker highlight overlay */
+.brutalist-btn::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    height: 30%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px 12px 4px 4px;
+    pointer-events: none;
+}
+
+/* Mechanical Click Animation */
+.brutalist-btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 2px 2px 0px var(--brutalist-black);
+}
+
+/* Sizing Classes */
+.btn-large {
+    width: var(--btn-w-large);
+    height: var(--btn-h-large);
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+}
+
+.btn-small {
+    width: var(--btn-size-small);
+    height: var(--btn-size-small);
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+/* Color Classes */
+.bg-yellow { background-color: var(--btn-yellow); color: #000; }
+.bg-blue   { background-color: var(--btn-blue); color: #fff; }
+.bg-pink   { background-color: var(--btn-pink); color: #fff; }
+.bg-green  { background-color: var(--btn-green); color: #fff; }
+.bg-white  { background-color: var(--btn-white); color: #000; }
+
+
+/* --- LEGACY GLASS ELEMENTS (KEEPING FOR CARDS/OVERLAYS) --- */
+
 .glass-button, .glass-card {
     backdrop-filter: blur(12px) saturate(160%);
     -webkit-backdrop-filter: blur(12px) saturate(160%);
@@ -21,16 +109,11 @@ body {
 }
 
 
-#main-body {
-    height: 100vh;
-    height: -webkit-fill-available; 
-}
+/* --- TEXT & UI UTILITIES --- */
 
 .text-shadow {
     text-shadow: 0px 2px 10px rgba(0, 0, 0, 0.9), 0px 1px 3px rgba(0, 0, 0, 0.7);
 }
-
-
 
 #days-count {
     text-shadow: 0px 4px 20px rgba(0, 0, 0, 1);
