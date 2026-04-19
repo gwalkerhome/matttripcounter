@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Button Style Experiment</title>
+    <title>Retro Brutalist Rounded</title>
     <style>
         body {
             margin: 0;
@@ -16,116 +16,99 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 25px;
-            font-family: -apple-system, system-ui, sans-serif;
-            color: white;
+            justify-content: center;
+            gap: 20px;
+            /* Native iOS Rounded Font Stack */
+            font-family: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
         }
 
-        .section-label {
-            font-size: 0.7rem;
-            font-weight: 800;
+        .brutalist-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-transform: uppercase;
-            letter-spacing: 0.2em;
-            opacity: 0.8;
-            margin-top: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .btn-l { width: 240px; height: 60px; display: flex; align-items: center; justify-content: center; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.1s; border: none; }
-        .btn-s { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.6rem; cursor: pointer; transition: 0.1s; border: none; }
-        .row { display: flex; gap: 12px; }
-
-        /* 1. NEUMORPHIC / SOFT UI */
-        .neu {
-            background: #e0e0e0;
-            color: #444;
-            border-radius: 15px;
-            box-shadow: 7px 7px 15px #bebebe, -7px -7px 15px #ffffff;
-        }
-
-        /* 2. SKEUOMORPHIC (3D Plastic) */
-        .skeuo {
-            background: linear-gradient(145deg, #3a86ff, #2b64bf);
-            border-radius: 50px;
-            box-shadow: 0 6px 0 #1a4a94, 0 8px 15px rgba(0,0,0,0.4);
-            border-top: 2px solid rgba(255,255,255,0.3);
-            text-shadow: 0 -1px 1px rgba(0,0,0,0.5);
-        }
-        .skeuo:active { transform: translateY(4px); box-shadow: 0 2px 0 #1a4a94; }
-
-        /* 3. SOLID & STATIC (High Contrast) */
-        .solid {
-            background: #000;
-            color: #fff;
-            border: 3px solid #fff;
-            border-radius: 0px; /* Sharp corners */
-            letter-spacing: 0.2em;
-        }
-
-        /* 4. GLOSSY / 3D EFFECT */
-        .glossy {
-            background: linear-gradient(to bottom, #ff5f6d, #ffc371);
-            border-radius: 12px;
+            font-weight: 800; /* Heavy weight for cartoon feel */
+            border: 3.5px solid #000;
+            box-shadow: 6px 6px 0px #000;
+            border-radius: 18px; /* Rounded corners for the 'sticker' look */
+            transition: all 0.1s;
+            cursor: pointer;
+            box-sizing: border-box;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(255, 95, 109, 0.4);
         }
-        .glossy::after {
+
+        /* The 'Highlight' - makes it look more like a cartoon sticker */
+        .brutalist-btn::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 50%;
-            background: rgba(255,255,255,0.2);
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            height: 30%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px 12px 4px 4px;
+            pointer-events: none;
         }
 
-        /* 5. OUTLINE WITH HEAVY DROP SHADOW */
-        .retro {
-            background: #fff;
-            color: #000;
-            border: 2px solid #000;
-            box-shadow: 6px 6px 0px #000;
+        .brutalist-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        .btn-l {
+            width: 240px;
+            height: 60px;
+            font-size: 1.1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-s {
+            width: 60px;
+            height: 60px;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Vibrant Cartoon Colors */
+        .yellow { background-color: #FFDE03; color: #000; }
+        .blue   { background-color: #00A8FF; color: #fff; }
+        .pink   { background-color: #FF4DFF; color: #fff; }
+        .green  { background-color: #2ED573; color: #fff; }
+        .white  { background-color: #FFFFFF; color: #000; }
+
+        .label {
+            color: white;
+            background: black;
+            padding: 2px 12px;
+            font-size: 0.65rem;
+            font-weight: 900;
             border-radius: 4px;
+            margin-bottom: -12px;
+            z-index: 10;
+            text-transform: uppercase;
         }
-        .retro:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; }
-
-        /* 6. NEON VAPOR */
-        .neon {
-            background: transparent;
-            border: 2px solid #00f2ff;
-            color: #00f2ff;
-            border-radius: 30px;
-            box-shadow: 0 0 10px #00f2ff, inset 0 0 5px #00f2ff;
-            text-shadow: 0 0 5px #00f2ff;
-        }
-
     </style>
 </head>
 <body>
 
-    <div class="section-label">3D Skeuomorphic</div>
-    <div class="btn-l skeuo">Book Flight</div>
+    <div class="label">Primary</div>
+    <div class="brutalist-btn btn-l yellow">Plan a Trip</div>
+
+    <div class="label">Secondary</div>
+    <div class="brutalist-btn btn-l white">Log History</div>
+    
     <div class="row">
-        <div class="btn-s skeuo">MAP</div>
-        <div class="btn-s skeuo" style="background: #ff006e; box-shadow: 0 6px 0 #9e0045;">SOS</div>
+        <div class="brutalist-btn btn-s blue">Map</div>
+        <div class="brutalist-btn btn-s pink">Docs</div>
+        <div class="brutalist-btn btn-s green">Stats</div>
     </div>
-
-    <div class="section-label">Glossy Gradient</div>
-    <div class="btn-l glossy">Start Journey</div>
-
-    <div class="section-label">Retro / Brutalist</div>
-    <div class="btn-l retro">Manual Entry</div>
-    <div class="row">
-        <div class="btn-s retro">LOG</div>
-        <div class="btn-s retro">EDIT</div>
-    </div>
-
-    <div class="section-label">Solid Static</div>
-    <div class="btn-l solid">Settings</div>
-
-    <div class="section-label">Neon Glow</div>
-    <div class="btn-l neon">View Stats</div>
-
-    <div class="section-label">Neumorphic (Soft)</div>
-    <div class="btn-l neu">Profile</div>
 
 </body>
 </html>
+
