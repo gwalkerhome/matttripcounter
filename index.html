@@ -16,7 +16,7 @@
 
     <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8">
         
-        <!-- TOP SECTION: Status Centered -->
+        <!-- TOP SECTION -->
         <div class="w-full flex justify-center items-center mt-4">
             <div class="text-center">
                 <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
@@ -24,14 +24,18 @@
         </div>
 
         <!-- GAUGE & TAGLINE SECTION -->
+        <!-- The relative parent ensures the absolute tagline stays anchored here -->
         <div class="relative flex flex-col items-center justify-center">
             
-            <!-- The Gauge Container -->
             <div class="relative flex items-center justify-center">
                 <svg class="w-72 h-72 transform -rotate-90">
                     <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
+                    
+                    <!-- Black Border Ring -->
                     <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="22" fill="transparent" 
                         stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                        
+                    <!-- Green Progress Bar -->
                     <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent" 
                         stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
                 </svg>
@@ -45,26 +49,30 @@
                 </div>
             </div>
 
-            <!-- Absolute Positioned Tagline -->
+            <!-- TAGLINE: Positioned specifically below the circle -->
             <div id="recovery-tagline" 
-                 class="absolute bottom-[-30px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal">
+                 class="absolute bottom-[-30px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
+                 <!-- JavaScript populates this -->
             </div>
         </div>
 
-        <!-- BOTTOM ACTIONS: Now with modular buttons -->
-        <div class="w-full max-w-xs flex flex-col items-center mb-8 space-y-4">
+        <!-- BOTTOM ACTIONS: Modular 240px Layout -->
+        <div class="w-full flex flex-col items-center mb-12 space-y-3">
             
-            <!-- Full Width Button (White) -->
+            <!-- Full Width (240px) -->
             <a href="plan.html" class="brutalist-btn btn-full bg-white">
                 Plan Ahead
             </a>
 
-            <!-- Two Half Buttons Row -->
-            <div class="flex gap-4">
-    <a href="log.html" class="brutalist-btn btn-half bg-blue">Log/View Trips</a>
-    <a href="journey.html" class="brutalist-btn btn-half bg-pink">Calendar View</a>
-</div>
-
+            <!-- Two Halves (Total 240px) -->
+            <div class="flex gap-3">
+                <a href="log.html" class="brutalist-btn btn-half bg-blue">
+                    Log/View Trips
+                </a>
+                <a href="journey.html" class="brutalist-btn btn-half bg-pink">
+                    Calendar View
+                </a>
+            </div>
 
         </div>
     </div>
