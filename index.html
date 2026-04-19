@@ -12,19 +12,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body id="main-body" class="transition-all duration-1000">
+<body id="main-body" class="transition-all duration-1000 overflow-hidden">
 
-    <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8">
+    <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8 overflow-hidden">
         
-        <!-- TOP SECTION -->
-        <div class="w-full flex justify-center items-center mt-4">
+        <div class="w-full flex justify-center items-center mt-4 z-20">
             <div class="text-center">
                 <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
             </div>
         </div>
 
-        <!-- GAUGE & TAGLINE SECTION -->
-        <div class="relative flex flex-col items-center justify-center">
+        <div class="relative flex flex-col items-center justify-center z-10">
             
             <div class="relative flex items-center justify-center">
                 <svg class="w-72 h-72 transform -rotate-90">
@@ -44,21 +42,17 @@
                 </div>
             </div>
 
-            <!-- 1) TAGLINE: Moved 100px higher (from -30px to 70px) -->
             <div id="recovery-tagline" 
-                 class="absolute bottom-[70px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
-            </div>
+                 class="absolute bottom-[0px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
+                 </div>
         </div>
 
-        <!-- 2) BOTTOM ACTIONS: Shifted 100px lower -->
-        <div class="relative top-[100px] w-full flex flex-col items-center mb-4 space-y-3">
+        <div class="relative top-[40px] w-full flex flex-col items-center mb-4 space-y-3 z-20">
             
-            <!-- Full Width (240px) -->
             <a href="plan.html" class="brutalist-btn btn-full bg-white">
                 Plan Ahead
             </a>
 
-            <!-- Two Halves (Total 240px) -->
             <div class="flex gap-3">
                 <a href="log.html" class="brutalist-btn btn-half bg-blue">
                     Log/View Trips
@@ -71,7 +65,6 @@
         </div>
     </div>
 
-    <!-- Firebase & Core Logic -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="schengen-engine.js"></script>
