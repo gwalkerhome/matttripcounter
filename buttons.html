@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Fixed Button Sandbox</title>
+    <title>Sleek Button Sandbox</title>
     <style>
         body {
             margin: 0;
@@ -17,7 +17,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             font-family: -apple-system, system-ui, sans-serif;
             overflow-x: hidden;
         }
@@ -27,53 +27,53 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 20px; 
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(18px) saturate(160%);
-            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            border-radius: 16px; /* Slightly tighter radius for shorter height */
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
             color: white;
-            font-weight: 800;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            transition: transform 0.1s ease;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 0.08em;
+            transition: transform 0.1s ease, background 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
             box-sizing: border-box;
             cursor: pointer;
         }
 
         .glass-btn:active {
-            transform: scale(0.96);
-            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.25);
         }
 
-        /* Precise Fixed Dimensions */
+        /* New Locked Dimensions */
         .btn-large {
             width: 240px;
-            height: 80px;
-            font-size: 1rem;
+            height: 60px;
+            font-size: 0.9rem;
         }
 
         .btn-small {
-            width: 80px;
-            height: 80px;
-            font-size: 0.7rem;
+            width: 60px;
+            height: 60px;
+            font-size: 0.6rem;
             text-align: center;
-            padding: 5px;
+            padding: 4px;
         }
 
         .button-row {
             display: flex;
-            gap: 15px;
-            width: 240px; /* Match large button width for alignment */
-            justify-content: space-between;
+            gap: 12px;
+            width: 240px; 
+            justify-content: center;
         }
 
         /* Colors */
-        .blue   { background: rgba(0, 122, 255, 0.25); }
-        .orange { background: rgba(255, 149, 0, 0.25); }
-        .green  { background: rgba(52, 199, 89, 0.25); }
-        .white  { background: rgba(255, 255, 255, 0.12); }
+        .blue   { background: rgba(0, 122, 255, 0.28); }
+        .orange { background: rgba(255, 149, 0, 0.28); }
+        .green  { background: rgba(52, 199, 89, 0.28); }
+        .white  { background: rgba(255, 255, 255, 0.15); }
 
     </style>
 </head>
@@ -84,8 +84,9 @@
     
     <div class="button-row">
         <div class="glass-btn btn-small green">Profile</div>
-        <div class="glass-btn btn-small white">Settings</div>
+        <div class="glass-btn btn-small white">Docs</div>
         <div class="glass-btn btn-small white">Help</div>
+        <div class="glass-btn btn-small white">Set</div>
     </div>
 
     <div class="glass-btn btn-large white">Manual Entry</div>
