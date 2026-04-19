@@ -14,24 +14,18 @@
     --gap: 12px;
 }
 
+/* Base Body - Minimalist to prevent conflicts */
 body {
     margin: 0;
     padding: 0;
-    min-height: 100vh;
     background-color: var(--black);
-    background-attachment: fixed;
+    /* Background settings optimized for JS injection */
     background-position: center top;
     background-repeat: no-repeat;
     background-size: cover;
+    background-attachment: fixed;
     font-family: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
-    transition: background-image 0.8s ease-in-out;
-    overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
-}
-
-#main-body {
-    height: 100vh;
-    height: -webkit-fill-available; 
 }
 
 /* --- BRUTALIST BUTTON CORE --- */
@@ -68,35 +62,13 @@ body {
     box-shadow: 2px 2px 0px var(--black);
 }
 
-/* --- BUTTON DIMENSIONS (Derived from 240px) --- */
-
-/* Single Column */
-.btn-full { 
-    width: var(--master-width); 
-    height: 60px; 
-    font-size: 1rem; 
-    letter-spacing: 0.05em; 
-}
-
-/* Double Column (Calculated: (240 - 12) / 2) */
-.btn-half { 
-    width: 114px; 
-    height: 60px; 
-    font-size: 0.75rem; 
-    letter-spacing: 0.02em; 
-}
-
-/* Triple Column (Calculated: (240 - 24) / 3) */
-.btn-third { 
-    width: 72px; 
-    height: 60px; 
-    font-size: 0.65rem; 
-}
-
+/* --- BUTTON DIMENSIONS --- */
+.btn-full { width: var(--master-width); height: 60px; font-size: 1rem; letter-spacing: 0.05em; }
+.btn-half { width: 114px; height: 60px; font-size: 0.75rem; letter-spacing: 0.02em; }
+.btn-third { width: 72px; height: 60px; font-size: 0.65rem; }
 .btn-sq { width: 60px; height: 60px; }
 
 /* --- TEXT & GAUGE EFFECTS --- */
-
 .text-brutal {
     color: var(--white);
     text-shadow: 
