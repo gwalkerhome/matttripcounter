@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Date Range Picker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f2027; /* replace with your background image */
+      padding: 24px 16px;
+    }
+
+    .picker-shell {
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 28px;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 24px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      max-width: 360px;
+      margin-bottom: 16px;
+    }
+
+    .action-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 16px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: transform 0.15s, opacity 0.15s;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .action-btn:active { transform: scale(0.97); opacity: 0.85; }
+
+    .btn-pencil {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-commit {
+      background: rgba(255,255,255,0.92);
+      color: #1a3a5c;
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 20px 18px 16px;
+      width: 100%;
+      max-width: 360px;
+      position: relative;
+    }
+
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .month-label {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: #fff;
+      letter-spacing: 0.01em;
+      user-select: none;
+    }
+
+    .nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: background 0.15s;
+      line-height: 1;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .nav-btn:hover { background: rgba(255,255,255,0.25); }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      margin-bottom: 6px;
+    }
+
+    .wd {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.07em;
+      padding-bottom: 4px;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+
+    .day-cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.85);
+      cursor: pointer;
+      transition: background 0.1s, transform 0.1s;
+      position: relative;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .day-cell:hover:not(.empty) {
+      background: rgba(255,255,255,0.2);
+      transform: scale(1.08);
+    }
+
+    .day-cell.empty { cursor: default; pointer-events: none; }
+
+    .day-cell.past { color: rgba(255,255,255,0.45); }
+
+    .day-cell.today { font-weight: 600; color: #fff; }
+
+    .day-cell.today::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.65);
+    }
+
+    .day-cell.in-range {
+      background: rgba(255,255,255,0.15);
+      border-radius: 0;
+    }
+
+    .day-cell.range-start,
+    .day-cell.range-end {
+      background: rgba(255,255,255,0.92) !important;
+      color: #1a3a5c !important;
+      font-weight: 600;
+      z-index: 1;
+    }
+
+    .day-cell.range-start { border-radius: 10px 0 0 10px !important; }
+    .day-cell.range-end   { border-radius: 0 10px 10px 0 !important; }
+    .day-cell.range-start.range-end { border-radius: 10px !important; }
+
+    .day-cell.hover-range {
+      background: rgba(255,255,255,0.1);
+      border-radius: 0;
+    }
+
+    .result-strip {
+      margin-top: 16px;
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .result-box {
+      flex: 1;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 14px;
+      padding: 12px 14px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      min-height: 68px;
+    }
+
+    .result-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .result-date {
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      line-height: 1.3;
+    }
+
+    .result-time {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 3px;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      margin-top: 12px;
+      letter-spacing: 0.02em;
+      min-height: 18px;
+    }
+
+    .toast {
+      position: absolute;
+      top: -44px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.95);
+      color: #1a3a5c;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 20px;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.25s;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <div class="picker-shell">
+
+    <div class="action-buttons">
+      <button class="action-btn btn-pencil" onclick="handleAction('pencil')">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M11 2l3 3-8 8H3v-3l8-8z"/>
+        </svg>
+        Pencil in
+      </button>
+      <button class="action-btn btn-commit" onclick="handleAction('commit')">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M2 8l4 4 8-8"/>
+        </svg>
+        Commit
+      </button>
+    </div>
+
+    <div class="glass-card">
+      <div id="toast" class="toast"></div>
+
+      <div class="cal-header">
+        <button class="nav-btn" onclick="changeMonth(-1)">&#8249;</button>
+        <div class="month-label" id="month-label"></div>
+        <button class="nav-btn" onclick="changeMonth(1)">&#8250;</button>
+      </div>
+
+      <div class="weekdays">
+        <div class="wd">Mo</div><div class="wd">Tu</div><div class="wd">We</div>
+        <div class="wd">Th</div><div class="wd">Fr</div><div class="wd">Sa</div>
+        <div class="wd">Su</div>
+      </div>
+
+      <div class="days-grid" id="days-grid"></div>
+    </div>
+
+    <div class="result-strip">
+      <div class="result-box">
+        <div class="result-label">From</div>
+        <div class="result-date" id="from-date">—</div>
+        <div class="result-time" id="from-time"></div>
+      </div>
+      <div class="result-box">
+        <div class="result-label">To</div>
+        <div class="result-date" id="to-date">—</div>
+        <div class="result-time" id="to-time"></div>
+      </div>
+    </div>
+
+    <div class="hint" id="hint">Tap a start date</div>
+
+  </div>
+
+  <script>
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    let viewYear = today.getFullYear();
+    let viewMonth = today.getMonth();
+    let startDate = null;
+    let endDate = null;
+    let hoverDate = null;
+    let selecting = false;
+
+    function sameDay(a, b) {
+      return a && b &&
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate();
+    }
+
+    function fmt(d) {
+      if (!d) return '—';
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      return days[d.getDay()] + ', ' + d.getDate() + ' ' + MONTHS[d.getMonth()].slice(0,3) + ' ' + d.getFullYear();
+    }
+
+    function toNoon(d) {
+      const c = new Date(d);
+      c.setHours(12,0,0,0);
+      return c;
+    }
+
+    function changeMonth(dir) {
+      viewMonth += dir;
+      if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+      if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
+      render();
+    }
+
+    function render() {
+      document.getElementById('month-label').textContent = MONTHS[viewMonth] + ' ' + viewYear;
+      const grid = document.getElementById('days-grid');
+      grid.innerHTML = '';
+
+      const first = new Date(viewYear, viewMonth, 1);
+      let startDay = first.getDay();
+      startDay = startDay === 0 ? 6 : startDay - 1;
+
+      const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+      const effectiveEnd = (selecting && hoverDate) ? hoverDate : endDate;
+
+      for (let i = 0; i < startDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'day-cell empty';
+        grid.appendChild(empty);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(viewYear, viewMonth, d);
+        const cell = document.createElement('div');
+        cell.className = 'day-cell';
+        cell.textContent = d;
+
+        const isToday = sameDay(date, today);
+        const isPast = date < today && !isToday;
+        const isStart = startDate && sameDay(date, startDate);
+        const isEnd = endDate && sameDay(date, endDate);
+        const isHoverEnd = selecting && hoverDate && sameDay(date, hoverDate);
+
+        if (isPast) cell.classList.add('past');
+        if (isToday) cell.classList.add('today');
+        if (isStart) cell.classList.add('range-start');
+        if (isEnd)   cell.classList.add('range-end');
+        if (isHoverEnd && !isEnd) cell.classList.add('range-end');
+
+        if (startDate && effectiveEnd) {
+          const lo = startDate < effectiveEnd ? startDate : effectiveEnd;
+          const hi = startDate < effectiveEnd ? effectiveEnd : startDate;
+          if (date > lo && date < hi) {
+            cell.classList.add(endDate ? 'in-range' : 'hover-range');
+          }
+        }
+
+        cell.addEventListener('click', () => selectDate(date));
+        cell.addEventListener('mouseenter', () => {
+          if (selecting) { hoverDate = date; render(); }
+        });
+
+        grid.appendChild(cell);
+      }
+
+      updateResult();
+      updateHint();
+    }
+
+    function selectDate(date) {
+      if (!startDate || (startDate && endDate)) {
+        startDate = new Date(date);
+        endDate = null;
+        selecting = true;
+        hoverDate = null;
+      } else {
+        if (sameDay(date, startDate)) {
+          startDate = null;
+          selecting = false;
+          hoverDate = null;
+        } else if (date < startDate) {
+          endDate = new Date(startDate);
+          startDate = new Date(date);
+          selecting = false;
+          hoverDate = null;
+        } else {
+          endDate = new Date(date);
+          selecting = false;
+          hoverDate = null;
+        }
+      }
+      render();
+    }
+
+    function updateResult() {
+      document.getElementById('from-date').textContent = startDate ? fmt(startDate) : '—';
+      document.getElementById('from-time').textContent = startDate ? '12:00 noon' : '';
+
+      const displayEnd = endDate ? endDate : (selecting && hoverDate ? hoverDate : null);
+      document.getElementById('to-date').textContent = displayEnd ? fmt(displayEnd) : '—';
+      document.getElementById('to-time').textContent = displayEnd ? '12:00 noon' : '';
+    }
+
+    function updateHint() {
+      const hint = document.getElementById('hint');
+      if (!startDate) hint.textContent = 'Tap a start date';
+      else if (selecting) hint.textContent = 'Now tap an end date';
+      else hint.textContent = 'Tap any date to start over';
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function handleAction(type) {
+      if (!startDate || !endDate) {
+        showToast('Please select a date range first');
+        return;
+      }
+      const payload = {
+        start: toNoon(startDate).toISOString(),
+        end:   toNoon(endDate).toISOString(),
+        type:  type
+      };
+
+      // -------------------------------------------
+      // Wire up your Firebase call here, e.g.:
+      // firebase.database().ref('bookings').push(payload);
+      // -------------------------------------------
+      console.log('Firebase payload:', JSON.stringify(payload, null, 2));
+      showToast(type === 'pencil' ? 'Pencilled in ✓' : 'Committed ✓');
+    }
+
+    render();
+  </script>
+
+</body>
+</html>
