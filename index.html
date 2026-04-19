@@ -16,24 +16,32 @@
 
     <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8">
         
-        <!-- TOP SECTION: Buttons removed, status centered -->
+        <!-- TOP SECTION: Status Centered -->
         <div class="w-full flex justify-center items-center mt-4">
             <div class="text-center">
                 <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
             </div>
         </div>
 
-        <!-- GAUGE & TAGLINE SECTION -->
-        <div class="flex flex-col items-center">
+        <!-- GAUGE & TAGLINE SECTION (Using Absolute Positioning) -->
+        <div class="relative flex flex-col items-center justify-center">
+            
+            <!-- The Gauge Container -->
             <div class="relative flex items-center justify-center">
                 <svg class="w-72 h-72 transform -rotate-90">
+                    <!-- Background Track -->
                     <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
+                    
+                    <!-- Black Border Ring -->
                     <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="22" fill="transparent" 
                         stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                        
+                    <!-- Green Progress Bar -->
                     <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent" 
                         stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
                 </svg>
                 
+                <!-- Central Counter -->
                 <div class="absolute text-center">
                     <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter" 
                          style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
@@ -43,16 +51,18 @@
                 </div>
             </div>
 
-            <!-- Tweak 2: Tagline moved up to sit just below the circle -->
-            <div id="recovery-tagline" class="text-center text-[11px] font-black tracking-widest uppercase leading-relaxed mt-4 text-brutal min-h-[40px]"></div>
+            <!-- Absolute Positioned Tagline (Pinned below the circle) -->
+            <div id="recovery-tagline" 
+                 class="absolute bottom-[-30px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal">
+            </div>
         </div>
 
-        <!-- BOTTOM ACTIONS: Shifted up for future second button -->
-        <div class="w-full max-w-xs flex flex-col items-center mb-16">
+        <!-- BOTTOM ACTIONS: Lifted for second button space -->
+        <div class="w-full max-w-xs flex flex-col items-center mb-16 space-y-4">
             <a href="plan.html" class="brutalist-btn btn-l bg-white">
                 Plan Ahead
             </a>
-            <!-- Slot for second button is now available here -->
+            <!-- Ready for the next button here -->
         </div>
     </div>
 
@@ -63,4 +73,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-
