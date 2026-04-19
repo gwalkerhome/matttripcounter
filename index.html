@@ -28,23 +28,24 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-size: 100% 100%;
+            background-size: cover;
+            background-position: center top;
             background-repeat: no-repeat;
             z-index: -1;
         }
 
-        #bottom-actions {
+        #app-shell {
             position: fixed;
-            bottom: 0;
+            top: 0;
             left: 0;
             right: 0;
-            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            bottom: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-            padding-top: 12px;
-            z-index: 20;
+            justify-content: space-between;
+            padding: 48px 32px calc(20px + env(safe-area-inset-bottom));
+            overflow: hidden;
         }
     </style>
 </head>
@@ -53,13 +54,11 @@
 
     <div id="bg-layer"></div>
 
-    <div style="height: 100dvh;" class="w-full flex flex-col items-center justify-between pt-12 px-8 overflow-hidden relative">
+    <div id="app-shell">
 
         <!-- TOP SECTION -->
-        <div class="w-full flex justify-center items-center mt-4 z-20">
-            <div class="text-center">
-                <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
-            </div>
+        <div class="w-full flex justify-center items-center z-20">
+            <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
         </div>
 
         <!-- GAUGE & TAGLINE SECTION -->
@@ -86,22 +85,19 @@
 
             <!-- TAGLINE -->
             <div id="recovery-tagline"
-                 class="absolute bottom-[0px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
+                 class="absolute bottom-[-40px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
             </div>
         </div>
 
-        <!-- SPACER so gauge doesn't hide behind buttons -->
-        <div style="height: 160px;"></div>
-
-    </div>
-
-    <!-- BOTTOM ACTIONS: fixed overlay, never affects layout height -->
-    <div id="bottom-actions">
-        <a href="plan.html" class="brutalist-btn btn-full bg-white">Plan Ahead</a>
-        <div class="flex gap-3">
-            <a href="log.html" class="brutalist-btn btn-half bg-blue">View past trips</a>
-            <a href="journey.html" class="brutalist-btn btn-half bg-pink">Calendar View</a>
+        <!-- BOTTOM ACTIONS -->
+        <div class="w-full flex flex-col items-center space-y-3 z-20">
+            <a href="plan.html" class="brutalist-btn btn-full bg-white">Plan Ahead</a>
+            <div class="flex gap-3">
+                <a href="log.html" class="brutalist-btn btn-half bg-blue">View past trips</a>
+                <a href="journey.html" class="brutalist-btn btn-half bg-pink">Calendar View</a>
+            </div>
         </div>
+
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
