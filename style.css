@@ -1,6 +1,6 @@
 /* 
     MATT'S JOURNEY - CORE STYLESHEET
-    THEME: RETRO BRUTALIST
+    THEME: RETRO BRUTALIST (240px Base)
 */
 
 :root {
@@ -10,6 +10,8 @@
     --blue: #00A8FF;
     --pink: #FF4DFF;
     --green: #2ED573;
+    --master-width: 240px;
+    --gap: 12px;
 }
 
 body {
@@ -52,7 +54,6 @@ body {
     text-align: center;
 }
 
-/* Glossy highlight at the top of buttons */
 .brutalist-btn::before {
     content: '';
     position: absolute;
@@ -67,37 +68,32 @@ body {
     box-shadow: 2px 2px 0px var(--black);
 }
 
-/* --- BUTTON DIMENSIONS --- */
+/* --- BUTTON DIMENSIONS (Derived from 240px) --- */
 
-/* Triple Column (3 per row) */
-.btn-third { 
-    width: 100px; 
-    height: 60px; 
-    font-size: 0.7rem; 
-    letter-spacing: 0.01em;
-}
-
-/* Double Column (2 per row) */
-.btn-half { 
-    width: 152px; 
-    height: 60px; 
-    font-size: 0.85rem; 
-    letter-spacing: 0.02em; 
-}
-
-/* Single Column (Full Width) */
+/* Single Column */
 .btn-full { 
-    width: 320px; 
+    width: var(--master-width); 
     height: 60px; 
-    font-size: 1.1rem; 
+    font-size: 1rem; 
     letter-spacing: 0.05em; 
 }
 
-/* Square Utility Button */
-.btn-sq { 
-    width: 60px; 
+/* Double Column (Calculated: (240 - 12) / 2) */
+.btn-half { 
+    width: 114px; 
     height: 60px; 
+    font-size: 0.75rem; 
+    letter-spacing: 0.02em; 
 }
+
+/* Triple Column (Calculated: (240 - 24) / 3) */
+.btn-third { 
+    width: 72px; 
+    height: 60px; 
+    font-size: 0.65rem; 
+}
+
+.btn-sq { width: 60px; height: 60px; }
 
 /* --- TEXT & GAUGE EFFECTS --- */
 
@@ -113,7 +109,6 @@ body {
 
 #days-count {
     paint-order: stroke fill;
-    /* Extra thick outline for the large number */
     -webkit-text-stroke: 4px var(--black);
 }
 
