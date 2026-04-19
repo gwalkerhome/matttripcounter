@@ -10,60 +10,65 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Lock the viewport and prevent all browser scrolling */
+        /* Lock the viewport and prevent browser scrolling/tools */
         html, body {
             height: 100dvh;
+            width: 100%;
+            margin: 0;
+            padding: 0;
             overflow: hidden;
             position: fixed;
-            width: 100%;
+            /* Re-asserting the background image properties here to ensure visibility */
+            background-color: black;
+            background-image: url('assets/bg.jpg'); /* Ensure this path is correct */
+            background-size: cover;
+            background-position: center top;
+            background-attachment: fixed;
         }
 
-        /* The scrollable list container */
         #history-window {
-            height: 50vh; /* Bottom half of the screen */
+            height: 50vh;
             width: 100%;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
-        #history-window::-webkit-scrollbar {
-            display: none; /* Safari/Chrome */
-        }
+        #history-window::-webkit-scrollbar { display: none; }
 
-        /* Positioning the center button right above the 50% line */
         .center-action-area {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -100%); /* Pulls it exactly above the midline */
-            margin-top: -20px; /* Slight buffer from the divider */
+            transform: translate(-50%, -100%);
             z-index: 30;
+            /* Adding a small margin-top to separate it slightly from the imaginary divider */
+            margin-top: -15px; 
         }
     </style>
 </head>
 
-<body id="main-body" class="bg-black">
+<body id="main-body">
 
     <div class="relative h-full w-full flex flex-col">
         
-        <!-- TOP HALF: Header and Layout Padding -->
+        <!-- TOP HALF -->
         <div class="h-1/2 w-full flex flex-col items-center pt-16 px-8">
             <h1 class="text-4xl font-black uppercase tracking-tighter text-brutal text-center">
                 Trip Log
             </h1>
         </div>
 
-        <!-- CENTER BUTTON: Anchored just above the midline -->
+        <!-- CENTER BUTTON -->
         <div class="center-action-area">
             <a href="add-trip.html" class="brutalist-btn btn-full bg-white">
                 Log a past trip
             </a>
         </div>
 
-        <!-- BOTTOM HALF: Transparent Scrollable Window -->
+        <!-- BOTTOM HALF: The List -->
         <div class="h-1/2 w-full flex flex-col items-center">
             <div id="history-window">
-                <div id="trip-list" class="flex flex-col items-center w-full px-8 pb-20">
+                <div id="trip-list" class="flex flex-col items-center w-full px-8 pb-32">
                     <!-- JavaScript will inject trips here -->
                 </div>
             </div>
@@ -91,7 +96,7 @@
             list.innerHTML = '';
 
             if (window.allTrips.length === 0) { 
-                list.innerHTML = '<p class="text-white font-bold opacity-30 mt-10 uppercase tracking-widest text-[10px]">No History Found</p>'; 
+                list.innerHTML = '<p class="text-white font-black opacity-30 mt-12 uppercase tracking-[0.2em] text-[10px] text-brutal">No History Found</p>'; 
                 return; 
             }
 
@@ -100,14 +105,13 @@
 
             data.forEach(t => {
                 const div = document.createElement('div');
-                // Creating a basic container for positioning - visual styling to be added next
-                div.className = "w-full max-w-[240px] py-4 border-b border-white/10 flex justify-between items-center text-white";
+                div.className = "w-full max-w-[240px] py-5 border-b border-white/20 flex justify-between items-center text-white";
                 
                 div.innerHTML = `
                     <div class="flex flex-col">
-                        <span class="font-black text-sm tracking-tighter">${toUK(t.entry)} — ${toUK(t.exit)}</span>
+                        <span class="font-black text-sm tracking-tighter text-brutal">${toUK(t.entry)} — ${toUK(t.exit)}</span>
                     </div>
-                    <button onclick="deleteTrip('${t.id}')" class="text-[9px] font-black uppercase text-red-500 underline">Del</button>
+                    <button onclick="deleteTrip('${t.id}')" class="text-[10px] font-black uppercase text-red-500 tracking-tighter hover:scale-110 transition-transform">Delete</button>
                 `;
                 list.appendChild(div);
             });
@@ -125,3 +129,4 @@
     </script>
 </body>
 </html>
+
