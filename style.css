@@ -1,44 +1,48 @@
 /* 
-    MATT'S JOURNEY - STYLE.CSS
-    VERSION: Stage 1 (Retro Brutalist)
+    MATT'S JOURNEY - CORE STYLESHEET
+    THEME: RETRO BRUTALIST (STAGE 1)
 */
 
 :root {
-    /* Button Stage 1 Dimensions */
+    /* Dimensions */
     --btn-w-large: 240px;
     --btn-h-large: 60px;
     --btn-size-small: 60px;
 
-    /* Brutalist Colors */
-    --brutalist-black: #000000;
-    --btn-yellow: #FFDE03;
-    --btn-blue: #00A8FF;
-    --btn-pink: #FF4DFF;
-    --btn-green: #2ED573;
-    --btn-white: #FFFFFF;
+    /* Brutalist Palette */
+    --black: #000000;
+    --white: #FFFFFF;
+    --yellow: #FFDE03;
+    --blue: #00A8FF;
+    --pink: #FF4DFF;
+    --green: #2ED573;
 }
+
+/* --- BASE & BACKGROUND --- */
 
 body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    background-color: var(--black);
     background-attachment: fixed;
     background-position: center top;
     background-repeat: no-repeat;
     background-size: cover;
-    background-color: #000;
-    /* Native iOS Rounded Font Stack */
-    font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* Native iOS Rounded Font */
+    font-family: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
     transition: background-image 0.8s ease-in-out;
     overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
 }
 
+/* Fix for iOS Safari Height */
 #main-body {
     height: 100vh;
     height: -webkit-fill-available; 
 }
 
-/* --- RETRO BRUTALIST BUTTONS (STAGE 1) --- */
+/* --- BUTTON STAGE 1 (THE CORE COMPONENT) --- */
 
 .brutalist-btn {
     display: flex;
@@ -46,8 +50,8 @@ body {
     justify-content: center;
     text-transform: uppercase;
     font-weight: 800;
-    border: 3.5px solid var(--brutalist-black);
-    box-shadow: 6px 6px 0px var(--brutalist-black);
+    border: 3.5px solid var(--black);
+    box-shadow: 6px 6px 0px var(--black);
     border-radius: 18px;
     transition: all 0.1s;
     cursor: pointer;
@@ -57,68 +61,45 @@ body {
     box-sizing: border-box;
 }
 
-/* Sticker highlight overlay */
+/* Glossy 'Sticker' Overlay */
 .brutalist-btn::before {
     content: '';
     position: absolute;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    height: 30%;
+    top: 4px; left: 4px; right: 4px; height: 30%;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 12px 12px 4px 4px;
     pointer-events: none;
 }
 
-/* Mechanical Click Animation */
+/* Tactile Click */
 .brutalist-btn:active {
     transform: translate(3px, 3px);
-    box-shadow: 2px 2px 0px var(--brutalist-black);
+    box-shadow: 2px 2px 0px var(--black);
 }
 
-/* Sizing Classes */
-.btn-large {
-    width: var(--btn-w-large);
-    height: var(--btn-h-large);
-    font-size: 1.1rem;
-    letter-spacing: 0.05em;
-}
+/* Sizing Helpers */
+.btn-l { width: var(--btn-w-large); height: var(--btn-h-large); font-size: 1.1rem; letter-spacing: 0.05em; }
+.btn-s { width: var(--btn-size-small); height: var(--btn-size-small); font-size: 0.7rem; }
 
-.btn-small {
-    width: var(--btn-size-small);
-    height: var(--btn-size-small);
-    font-size: 0.7rem;
-    text-align: center;
-}
+/* Dynamic Background Colors */
+.bg-yellow { background-color: var(--yellow); color: var(--black); }
+.bg-blue   { background-color: var(--blue); color: var(--white); }
+.bg-pink   { background-color: var(--pink); color: var(--white); }
+.bg-green  { background-color: var(--green); color: var(--white); }
+.bg-white  { background-color: var(--white); color: var(--black); }
 
-/* Color Classes */
-.bg-yellow { background-color: var(--btn-yellow); color: #000; }
-.bg-blue   { background-color: var(--btn-blue); color: #fff; }
-.bg-pink   { background-color: var(--btn-pink); color: #fff; }
-.bg-green  { background-color: var(--btn-green); color: #fff; }
-.bg-white  { background-color: var(--btn-white); color: #000; }
+/* --- GAUGE & HUD ELEMENTS --- */
 
-
-/* --- LEGACY GLASS ELEMENTS (KEEPING FOR CARDS/OVERLAYS) --- */
-
-.glass-button, .glass-card {
-    backdrop-filter: blur(12px) saturate(160%);
-    -webkit-backdrop-filter: blur(12px) saturate(160%);
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-
-/* --- TEXT & UI UTILITIES --- */
-
+/* High-Contrast Text for Dashboard */
 .text-shadow {
-    text-shadow: 0px 2px 10px rgba(0, 0, 0, 0.9), 0px 1px 3px rgba(0, 0, 0, 0.7);
+    text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.8);
 }
 
 #days-count {
-    text-shadow: 0px 4px 20px rgba(0, 0, 0, 1);
+    text-shadow: 0px 4px 15px rgba(0, 0, 0, 1);
 }
 
 #gauge-progress {
     transition: stroke-dashoffset 1s ease-in-out;
 }
+
