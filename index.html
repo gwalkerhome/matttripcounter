@@ -16,50 +16,43 @@
 
     <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8">
         
-        <!-- TOP NAVIGATION -->
-        <div class="w-full flex justify-between items-center mt-4">
-            <a href="journey.html" class="brutalist-btn btn-s bg-white">
-                <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            </a>
+        <!-- TOP SECTION: Buttons removed, status centered -->
+        <div class="w-full flex justify-center items-center mt-4">
             <div class="text-center">
                 <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
             </div>
-            <a href="log.html" class="brutalist-btn btn-s bg-white">
-                <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-            </a>
         </div>
 
-        <!-- GAUGE SECTION -->
-        <div class="relative flex items-center justify-center">
-            <svg class="w-72 h-72 transform -rotate-90">
-                <!-- Background Track -->
-                <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
+        <!-- GAUGE & TAGLINE SECTION -->
+        <div class="flex flex-col items-center">
+            <div class="relative flex items-center justify-center">
+                <svg class="w-72 h-72 transform -rotate-90">
+                    <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
+                    <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="22" fill="transparent" 
+                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                    <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent" 
+                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                </svg>
                 
-                <!-- Black Border Ring -->
-                <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="22" fill="transparent" 
-                    stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
-                    
-                <!-- Green Progress Bar -->
-                <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent" 
-                    stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
-            </svg>
-            
-            <div class="absolute text-center">
-                <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter" 
-                     style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
-                     --
+                <div class="absolute text-center">
+                    <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter" 
+                         style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
+                         --
+                    </div>
+                    <div class="text-[10px] font-bold text-white uppercase tracking-[0.3em] mt-2 text-brutal">Days Left</div>
                 </div>
-                <div class="text-[10px] font-bold text-white uppercase tracking-[0.3em] mt-2 text-brutal">Days Left</div>
             </div>
+
+            <!-- Tweak 2: Tagline moved up to sit just below the circle -->
+            <div id="recovery-tagline" class="text-center text-[11px] font-black tracking-widest uppercase leading-relaxed mt-4 text-brutal min-h-[40px]"></div>
         </div>
 
-        <!-- BOTTOM ACTIONS -->
-        <div class="w-full max-w-xs space-y-4 mb-8 flex flex-col items-center">
-            <div id="recovery-tagline" class="text-center text-[11px] font-black tracking-widest uppercase leading-relaxed mb-6 text-brutal"></div>
-            
+        <!-- BOTTOM ACTIONS: Shifted up for future second button -->
+        <div class="w-full max-w-xs flex flex-col items-center mb-16">
             <a href="plan.html" class="brutalist-btn btn-l bg-white">
                 Plan Ahead
             </a>
+            <!-- Slot for second button is now available here -->
         </div>
     </div>
 
