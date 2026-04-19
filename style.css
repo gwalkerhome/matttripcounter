@@ -1,122 +1,31 @@
-/* 
-    MATT'S JOURNEY - CORE STYLESHEET
-    THEME: RETRO BRUTALIST (MODULAR GRID)
-*/
+/* --- RESTORED BUTTON DIMENSIONS --- */
 
-:root {
-    /* Base width for the button stack */
-    --stack-width: 280px; 
-    --black: #000000;
-    --white: #FFFFFF;
-    --yellow: #FFDE03;
-    --blue: #00A8FF;
-    --pink: #FF4DFF;
-    --green: #2ED573;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    background-color: var(--black);
-    background-attachment: fixed;
-    background-position: center top;
-    background-repeat: no-repeat;
-    background-size: cover;
-    font-family: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
-    transition: background-image 0.8s ease-in-out;
-    overflow-x: hidden;
-    -webkit-tap-highlight-color: transparent;
-}
-
-#main-body {
-    height: 100vh;
-    height: -webkit-fill-available; 
-}
-
-/* --- BRUTALIST BUTTON CORE --- */
-
-.brutalist-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-transform: uppercase;
-    font-weight: 800;
-    border: 3.5px solid var(--black);
-    box-shadow: 6px 6px 0px var(--black);
-    border-radius: 18px;
-    transition: all 0.1s;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    text-decoration: none;
-    box-sizing: border-box;
-    text-align: center;
-}
-
-.brutalist-btn::before {
-    content: '';
-    position: absolute;
-    top: 4px; left: 4px; right: 4px; height: 30%;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 12px 12px 4px 4px;
-    pointer-events: none;
-}
-
-.brutalist-btn:active {
-    transform: translate(3px, 3px);
-    box-shadow: 2px 2px 0px var(--black);
-}
-
-/* --- NEW MODULAR SIZES --- */
-
-/* 1 Column (Triple) */
-.btn-third { 
-    width: 88px; 
-    height: 60px; 
-    font-size: 0.7rem; 
-    letter-spacing: 0.01em;
-}
-
-/* 2 Columns (Half) */
-.btn-half { 
-    width: 135px; 
-    height: 60px; 
-    font-size: 0.85rem; 
-    letter-spacing: 0.02em; 
-}
-
-/* 3 Columns (Full Width) */
+/* This is your original 'Large' button width (btn-l) */
 .btn-full { 
-    width: var(--stack-width); 
+    width: 320px; 
     height: 60px; 
     font-size: 1.1rem; 
     letter-spacing: 0.05em; 
 }
 
-/* Icon / Utility Square */
-.btn-sq { width: 60px; height: 60px; }
-
-/* --- TEXT & GAUGE EFFECTS --- */
-
-.text-brutal {
-    color: var(--white);
-    text-shadow: 
-        2px 2px 0px var(--black),
-        -1px -1px 0px var(--black),  
-         1px -1px 0px var(--black),
-        -1px  1px 0px var(--black),
-         1px  1px 0px var(--black);
+/* Half buttons: Calculated to fit perfectly inside that 320px width including the gap */
+.btn-half { 
+    width: 152px; 
+    height: 60px; 
+    font-size: 0.85rem; 
+    letter-spacing: 0.02em; 
 }
 
-#days-count {
-    paint-order: stroke fill;
-    -webkit-text-stroke: 4px var(--black);
+/* Third buttons: Calculated for a 3-column row inside the 320px width */
+.btn-third { 
+    width: 100px; 
+    height: 60px; 
+    font-size: 0.7rem; 
+    letter-spacing: 0.01em;
 }
 
-/* --- COLOR UTILITIES --- */
-.bg-yellow { background-color: var(--yellow); color: var(--black); }
-.bg-blue   { background-color: var(--blue); color: var(--white); }
-.bg-pink   { background-color: var(--pink); color: var(--white); }
-.bg-green  { background-color: var(--green); color: var(--white); }
-.bg-white  { background-color: var(--white); color: var(--black); }
+/* Square utility button */
+.btn-sq { 
+    width: 60px; 
+    height: 60px; 
+}
