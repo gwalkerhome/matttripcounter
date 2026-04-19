@@ -6,55 +6,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta charset="UTF-8">
     <title>Trip Log</title>
+    
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Lock the viewport and prevent all browser scrolling */
+        html, body {
+            height: 100dvh;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        /* The scrollable list container */
         #history-window {
-            background: transparent;
-            width: 100vw;
-            margin-left: calc(-50vw + 50%);
-            max-height: 60vh; 
+            height: 50vh; /* Bottom half of the screen */
+            width: 100%;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
         }
-        #history-window::-webkit-scrollbar { display: none; }
-        .trip-row {
-            background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 1.25rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
+        #history-window::-webkit-scrollbar {
+            display: none; /* Safari/Chrome */
+        }
+
+        /* Positioning the center button right above the 50% line */
+        .center-action-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%); /* Pulls it exactly above the midline */
+            margin-top: -20px; /* Slight buffer from the divider */
+            z-index: 30;
         }
     </style>
 </head>
-<body id="main-body" class="min-h-screen text-white bg-black">
 
-    <div class="px-6">
-        <div class="w-full max-w-md flex justify-between items-center mb-8 mt-6">
-            <h1 class="text-3xl font-black italic tracking-tighter">TRIP LOG</h1>
-            <a href="index.html" class="glass-button px-5 py-2 text-[10px] font-black uppercase tracking-widest">Done</a>
+<body id="main-body" class="bg-black">
+
+    <div class="relative h-full w-full flex flex-col">
+        
+        <!-- TOP HALF: Header and Layout Padding -->
+        <div class="h-1/2 w-full flex flex-col items-center pt-16 px-8">
+            <h1 class="text-4xl font-black uppercase tracking-tighter text-brutal text-center">
+                Trip Log
+            </h1>
         </div>
 
-        <div class="w-full max-w-md mb-10">
-            <a href="add-trip.html" class="block w-full py-5 bg-white text-black font-black text-center uppercase tracking-widest rounded-[2rem] shadow-xl active:scale-95 transition-transform">
-                + Add New Trip
+        <!-- CENTER BUTTON: Anchored just above the midline -->
+        <div class="center-action-area">
+            <a href="add-trip.html" class="brutalist-btn btn-full bg-white">
+                Log a past trip
             </a>
         </div>
 
-        <div class="w-full max-w-md">
-            <h2 class="text-[10px] font-black mb-4 opacity-40 uppercase tracking-[0.2em]">Saved History</h2>
+        <!-- BOTTOM HALF: Transparent Scrollable Window -->
+        <div class="h-1/2 w-full flex flex-col items-center">
             <div id="history-window">
-                <div id="trip-list"></div>
+                <div id="trip-list" class="flex flex-col items-center w-full px-8 pb-20">
+                    <!-- JavaScript will inject trips here -->
+                </div>
             </div>
         </div>
+
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase & Logic -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    <!-- Master Logic (Handles Initialization) -->
     <script src="schengen-engine.js"></script> 
     <script src="app.js"></script>
 
@@ -62,7 +81,7 @@
         function toUK(dateStr) {
             if (!dateStr) return "";
             const [y, m, d] = dateStr.split('-');
-            return `${d}-${m}-${y}`;
+            return `${d}.${m}.${y}`;
         }
 
         function renderTripList() {
@@ -72,47 +91,37 @@
             list.innerHTML = '';
 
             if (window.allTrips.length === 0) { 
-                list.innerHTML = '<p class="text-center opacity-30 py-20 italic text-sm">No trips recorded yet.</p>'; 
+                list.innerHTML = '<p class="text-white font-bold opacity-30 mt-10 uppercase tracking-widest text-[10px]">No History Found</p>'; 
                 return; 
             }
 
-            // Create a local copy to sort without affecting the global array
             let data = [...window.allTrips];
             data.sort((a,b) => new Date(b.entry) - new Date(a.entry));
 
             data.forEach(t => {
                 const div = document.createElement('div');
-                div.className = 'trip-row';
-                // We use the unique key from Firebase if available, otherwise fallback
-                const tripId = t.id || Object.keys(window.allTrips).find(key => window.allTrips[key] === t);
+                // Creating a basic container for positioning - visual styling to be added next
+                div.className = "w-full max-w-[240px] py-4 border-b border-white/10 flex justify-between items-center text-white";
                 
                 div.innerHTML = `
-                    <div>
-                        <div class="text-[9px] opacity-40 font-black uppercase tracking-widest mb-1">Dates</div>
-                        <div class="font-bold text-sm tracking-tight">
-                            ${toUK(t.entry)} <span class="opacity-30 mx-1">—</span> ${toUK(t.exit)}
-                        </div>
+                    <div class="flex flex-col">
+                        <span class="font-black text-sm tracking-tighter">${toUK(t.entry)} — ${toUK(t.exit)}</span>
                     </div>
-                    <button onclick="deleteTrip('${t.id}')" class="text-red-400 text-[10px] font-black uppercase tracking-tighter px-4 py-2 bg-red-500/10 rounded-full border border-red-500/20 active:bg-red-500/30 transition-colors">
-                        Delete
-                    </button>
+                    <button onclick="deleteTrip('${t.id}')" class="text-[9px] font-black uppercase text-red-500 underline">Del</button>
                 `;
                 list.appendChild(div);
             });
         }
 
         function deleteTrip(tripId) { 
-            if(!tripId || tripId === 'undefined') {
-                alert("Error: Trip ID missing. Try refreshing.");
-                return;
-            }
+            if(!tripId || tripId === 'undefined') return;
             if(confirm("Permanently delete this trip?")) {
                 window.db.ref('trips').child(tripId).remove(); 
             }
         }
 
-        // FIX: React to the master data update
         window.addEventListener('tripsUpdated', renderTripList);
+        renderTripList();
     </script>
 </body>
 </html>
