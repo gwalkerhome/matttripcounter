@@ -13,7 +13,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html, body {
-            height: 100dvh;
+            height: 100%;
             width: 100%;
             overflow: hidden;
             position: fixed;
@@ -26,8 +26,8 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100dvh;
+            right: 0;
+            bottom: 0;
             background-size: cover;
             background-position: center top;
             background-repeat: no-repeat;
@@ -35,7 +35,7 @@
         }
 
         #bottom-actions {
-            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
         }
     </style>
 </head>
@@ -44,7 +44,7 @@
 
     <div id="bg-layer"></div>
 
-    <div class="h-full w-full flex flex-col items-center justify-between pt-12 px-8 overflow-hidden relative">
+    <div style="height: 100dvh;" class="w-full flex flex-col items-center justify-between pt-12 px-8 overflow-hidden relative">
 
         <!-- TOP SECTION -->
         <div class="w-full flex justify-center items-center mt-4 z-20">
