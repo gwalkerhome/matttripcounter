@@ -10,11 +10,39 @@
     <link rel="apple-touch-icon" href="assets/icon.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Locking the App Shell at the page level */
+        html, body {
+            height: 100dvh;
+            width: 100%;
+            overflow: hidden;
+            position: fixed;
+            margin: 0;
+            background-color: black;
+        }
+
+        /* Dedicated layer to prevent the black bar and flicker */
+        #bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100dvh; /* Dynamic height accounts for hidden toolbars */
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            z-index: -1;
+            /* Remove the 0.8s transition here to stop the 'lazy' load appearance */
+        }
+    </style>
 </head>
 
-<body id="main-body" class="transition-all duration-1000 overflow-hidden">
+<body id="main-body">
 
-    <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8 overflow-hidden">
+    <!-- Pre-emptive Background Layer -->
+    <div id="bg-layer"></div>
+
+    <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8 overflow-hidden relative">
         
         <!-- TOP SECTION -->
         <div class="w-full flex justify-center items-center mt-4 z-20">
@@ -25,7 +53,6 @@
 
         <!-- GAUGE & TAGLINE SECTION -->
         <div class="relative flex flex-col items-center justify-center z-10">
-            
             <div class="relative flex items-center justify-center">
                 <svg class="w-72 h-72 transform -rotate-90">
                     <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
@@ -40,7 +67,6 @@
                          style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
                          --
                     </div>
-                    <!-- Tweak 1: Updated Schengen Label -->
                     <div class="text-[8px] font-bold text-white uppercase tracking-[0.2em] mt-2 text-brutal max-w-[120px] mx-auto">
                         Schengen Allowance days remaining
                     </div>
@@ -55,21 +81,11 @@
 
         <!-- BOTTOM ACTIONS -->
         <div class="relative top-[40px] w-full flex flex-col items-center mb-4 space-y-3 z-20">
-            
-            <a href="plan.html" class="brutalist-btn btn-full bg-white">
-                Plan Ahead
-            </a>
-
+            <a href="plan.html" class="brutalist-btn btn-full bg-white">Plan Ahead</a>
             <div class="flex gap-3">
-                <!-- Tweak 2: Updated Button Text -->
-                <a href="log.html" class="brutalist-btn btn-half bg-blue">
-                    View past trips
-                </a>
-                <a href="journey.html" class="brutalist-btn btn-half bg-pink">
-                    Calendar View
-                </a>
+                <a href="log.html" class="brutalist-btn btn-half bg-blue">View past trips</a>
+                <a href="journey.html" class="brutalist-btn btn-half bg-pink">Calendar View</a>
             </div>
-
         </div>
     </div>
 
@@ -78,5 +94,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="schengen-engine.js"></script>
     <script src="app.js"></script>
+    
+    <script>
+        /** 
+         * CUSTODIAN NOTE: Ensure app.js updates #bg-layer 
+         * instead of document.body for the background image.
+         */
+    </script>
 </body>
 </html>
