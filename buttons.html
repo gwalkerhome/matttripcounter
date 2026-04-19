@@ -2,15 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Button Sandbox - Matt's Journey</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Fixed Button Sandbox</title>
     <style>
-        /* Standalone Styling */
         body {
             margin: 0;
-            padding: 40px 20px;
+            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
             min-height: 100vh;
-            /* Using the requested background */
             background-image: url('assets/uk2.png');
             background-size: cover;
             background-position: center;
@@ -18,88 +16,79 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            justify-content: center;
+            gap: 15px;
             font-family: -apple-system, system-ui, sans-serif;
+            overflow-x: hidden;
         }
 
-        h1 {
-            color: white;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-        }
-
-        /* Base Frosted Glass Style */
+        /* Frosted Glass Effect */
         .glass-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 40px; /* Highly rounded for the pill look */
+            border-radius: 20px; 
             border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(15px) saturate(180%);
-            -webkit-backdrop-filter: blur(15px) saturate(180%);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
             color: white;
-            font-weight: 900;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            text-decoration: none;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            box-sizing: border-box;
             cursor: pointer;
         }
 
         .glass-btn:active {
             transform: scale(0.96);
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Dimensions as specified */
+        /* Precise Fixed Dimensions */
         .btn-large {
-            width: 600px;
-            height: 180px;
-            font-size: 2.5rem;
+            width: 240px;
+            height: 80px;
+            font-size: 1rem;
         }
 
         .btn-small {
-            width: 180px;
-            height: 180px;
-            font-size: 1rem;
+            width: 80px;
+            height: 80px;
+            font-size: 0.7rem;
             text-align: center;
-            border-radius: 50px; /* Slightly different radius for squares */
+            padding: 5px;
         }
 
-        /* Random Color Sets */
-        .bg-blue   { background: rgba(59, 130, 246, 0.2); }
-        .bg-orange { background: rgba(249, 115, 22, 0.25); }
-        .bg-green  { background: rgba(34, 197, 94, 0.2); }
-        .bg-red    { background: rgba(239, 68, 68, 0.2); }
-        .bg-white  { background: rgba(255, 255, 255, 0.1); }
-
-        /* Container for small buttons to show them side-by-side */
         .button-row {
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
+            gap: 15px;
+            width: 240px; /* Match large button width for alignment */
+            justify-content: space-between;
         }
+
+        /* Colors */
+        .blue   { background: rgba(0, 122, 255, 0.25); }
+        .orange { background: rgba(255, 149, 0, 0.25); }
+        .green  { background: rgba(52, 199, 89, 0.25); }
+        .white  { background: rgba(255, 255, 255, 0.12); }
+
     </style>
 </head>
 <body>
 
-    <h1>Button Test Sandbox</h1>
-
-    <div class="glass-btn btn-large bg-blue">Plan a Trip</div>
-    <div class="glass-btn btn-large bg-orange">Log a Past Trip</div>
+    <div class="glass-btn btn-large blue">Plan a Trip</div>
+    <div class="glass-btn btn-large orange">Log a Past Trip</div>
     
     <div class="button-row">
-        <div class="glass-btn btn-small bg-green">Profile</div>
-        <div class="glass-btn btn-small bg-white">Cancel</div>
-        <div class="glass-btn btn-small bg-red">Alert</div>
+        <div class="glass-btn btn-small green">Profile</div>
+        <div class="glass-btn btn-small white">Settings</div>
+        <div class="glass-btn btn-small white">Help</div>
     </div>
 
-    <div class="glass-btn btn-large bg-white">Manually Enter Trip</div>
+    <div class="glass-btn btn-large white">Manual Entry</div>
 
 </body>
 </html>
