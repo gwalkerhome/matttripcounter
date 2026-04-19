@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta charset="UTF-8">
+    <title>Matt's Journey</title>
+    
+    <link rel="apple-touch-icon" href="assets/icon.png">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body id="main-body" class="transition-all duration-1000 overflow-hidden">
+
+    <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8 overflow-hidden">
+        
+        <!-- TOP SECTION -->
+        <div class="w-full flex justify-center items-center mt-4 z-20">
+            <div class="text-center">
+                <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
+            </div>
+        </div>
+
+        <!-- GAUGE & TAGLINE SECTION -->
+        <div class="relative flex flex-col items-center justify-center z-10">
+            
+            <div class="relative flex items-center justify-center">
+                <svg class="w-72 h-72 transform -rotate-90">
+                    <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
+                    <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="22" fill="transparent" 
+                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                    <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent" 
+                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                </svg>
+                
+                <div class="absolute text-center">
+                    <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter" 
+                         style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
+                         --
+                    </div>
+                    <!-- Tweak 1: Updated Schengen Label -->
+                    <div class="text-[8px] font-bold text-white uppercase tracking-[0.2em] mt-2 text-brutal max-w-[120px] mx-auto">
+                        Schengen Allowance days remaining
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAGLINE -->
+            <div id="recovery-tagline" 
+                 class="absolute bottom-[0px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
+            </div>
+        </div>
+
+        <!-- BOTTOM ACTIONS -->
+        <div class="relative top-[40px] w-full flex flex-col items-center mb-4 space-y-3 z-20">
+            
+            <a href="plan.html" class="brutalist-btn btn-full bg-white">
+                Plan Ahead
+            </a>
+
+            <div class="flex gap-3">
+                <!-- Tweak 2: Updated Button Text -->
+                <a href="log.html" class="brutalist-btn btn-half bg-blue">
+                    View past trips
+                </a>
+                <a href="journey.html" class="brutalist-btn btn-half bg-pink">
+                    Calendar View
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Firebase & Core Logic -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="schengen-engine.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
