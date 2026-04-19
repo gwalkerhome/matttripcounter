@@ -29,9 +29,22 @@
             right: 0;
             bottom: 0;
             background-size: 100% 100%;
-            background-position: center top;
             background-repeat: no-repeat;
             z-index: -1;
+        }
+
+        #bottom-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding-top: 12px;
+            z-index: 20;
         }
     </style>
 </head>
@@ -77,6 +90,18 @@
             </div>
         </div>
 
+        <!-- SPACER so gauge doesn't hide behind buttons -->
+        <div style="height: 160px;"></div>
+
+    </div>
+
+    <!-- BOTTOM ACTIONS: fixed overlay, never affects layout height -->
+    <div id="bottom-actions">
+        <a href="plan.html" class="brutalist-btn btn-full bg-white">Plan Ahead</a>
+        <div class="flex gap-3">
+            <a href="log.html" class="brutalist-btn btn-half bg-blue">View past trips</a>
+            <a href="journey.html" class="brutalist-btn btn-half bg-pink">Calendar View</a>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
