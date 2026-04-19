@@ -31,10 +31,20 @@ function updateUI(status) {
     if (msgEl) msgEl.innerText = status.isTravelDay ? "Travel Day!" : (status.inSpain ? "Matt is in Spain!" : "Matt is in the UK.");
 
     const gauge = document.getElementById('gauge-progress');
+    const gaugeBorder = document.getElementById('gauge-progress-border');
+    
     if (gauge) {
         const circ = 439.8;
-        gauge.style.strokeDashoffset = circ - (status.remaining / 90) * circ;
+        const offset = circ - (status.remaining / 90) * circ;
+        
+        // Update Green Ring
+        gauge.style.strokeDashoffset = offset;
         gauge.style.stroke = status.remaining >= 50 ? "#22c55e" : (status.remaining >= 20 ? "#f97316" : "#ef4444");
+        
+        // Update Black Border Ring to match progress
+        if (gaugeBorder) {
+            gaugeBorder.style.strokeDashoffset = offset;
+        }
     }
 
     const recEl = document.getElementById('recovery-tagline');
