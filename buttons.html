@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta charset="UTF-8">
+    <title>Matt's Journey</title>
+    
+    <!-- Restore the Home Screen Icon -->
+    <link rel="apple-touch-icon" href="assets/icon.png">
+    
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body id="main-body" class="transition-all duration-1000">
+
+    <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8">
+        
+        <div class="w-full flex justify-between items-center mt-4">
+            <a href="journey.html" class="glass-button p-3">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </a>
+            <div class="text-center">
+                <h1 id="status-message" class="text-[10px] font-black uppercase tracking-[0.4em] text-white text-shadow opacity-70">Syncing...</h1>
+            </div>
+            <a href="log.html" class="glass-button p-3">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            </a>
+        </div>
+
+        <div class="relative flex items-center justify-center">
+            <svg class="w-72 h-72 transform -rotate-90">
+                <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
+                <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="white" stroke-width="12" fill="transparent" 
+                    stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+            </svg>
+            <div class="absolute text-center">
+                <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter">--</div>
+                <div class="text-[10px] font-bold text-white uppercase tracking-[0.3em] mt-2 opacity-60">Days Left</div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-xs space-y-4 mb-8">
+            <div id="recovery-tagline" class="text-center text-[10px] font-black text-white tracking-widest uppercase opacity-60 leading-relaxed mb-6"></div>
+            <a href="plan.html" class="block w-full py-5 bg-white text-black font-black text-center uppercase tracking-[0.2em] rounded-[2rem] shadow-2xl active:scale-95 transition-transform">
+                Plan Ahead
+            </a>
+        </div>
+    </div>
+
+    <!-- Firebase & Core Logic (Handles Initialization) -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="schengen-engine.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
