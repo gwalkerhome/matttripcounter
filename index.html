@@ -6,19 +6,18 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta charset="UTF-8">
-    <title>Matt's Journey</title>
+    <title>Trip Log</title>
 
-    <link rel="apple-touch-icon" href="assets/icon.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html, body {
             height: 100dvh;
             width: 100%;
-            overflow: hidden;
-            position: fixed;
             margin: 0;
             padding: 0;
+            overflow: hidden;
+            position: fixed;
             background-color: black;
         }
 
@@ -33,6 +32,24 @@
             background-repeat: no-repeat;
             z-index: -1;
         }
+
+        #history-window {
+            height: 50vh;
+            width: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        #history-window::-webkit-scrollbar { display: none; }
+
+        .center-action-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            z-index: 30;
+            margin-top: -15px;
+        }
     </style>
 </head>
 
@@ -40,51 +57,31 @@
 
     <div id="bg-layer"></div>
 
-    <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8 overflow-hidden relative">
+    <div class="relative h-full w-full flex flex-col">
 
-        <!-- TOP SECTION -->
-        <div class="w-full flex justify-center items-center mt-4 z-20">
-            <div class="text-center">
-                <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
-            </div>
+        <!-- TOP HALF -->
+        <div class="h-1/2 w-full flex flex-col items-center pt-16 px-8">
+            <h1 class="text-4xl font-black uppercase tracking-tighter text-brutal text-center">
+                Trip Log
+            </h1>
         </div>
 
-        <!-- GAUGE & TAGLINE SECTION -->
-        <div class="relative flex flex-col items-center justify-center z-10">
-            <div class="relative flex items-center justify-center">
-                <svg class="w-72 h-72 transform -rotate-90">
-                    <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
-                    <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="22" fill="transparent"
-                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
-                    <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent"
-                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
-                </svg>
+        <!-- CENTER BUTTON -->
+        <div class="center-action-area">
+            <a href="add-trip.html" class="brutalist-btn btn-full bg-white">
+                Log a past trip
+            </a>
+        </div>
 
-                <div class="absolute text-center">
-                    <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter"
-                         style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
-                        --
-                    </div>
-                    <div class="text-[8px] font-bold text-white uppercase tracking-[0.2em] mt-2 text-brutal max-w-[120px] mx-auto">
-                        Schengen Allowance days remaining
-                    </div>
+        <!-- BOTTOM HALF: The List -->
+        <div class="h-1/2 w-full flex flex-col items-center">
+            <div id="history-window">
+                <div id="trip-list" class="flex flex-col items-center w-full px-8 pb-32">
+                    <!-- Trips injected here -->
                 </div>
             </div>
-
-            <!-- TAGLINE -->
-            <div id="recovery-tagline"
-                 class="absolute bottom-[0px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
-            </div>
         </div>
 
-        <!-- BOTTOM ACTIONS -->
-        <div class="relative top-[40px] w-full flex flex-col items-center mb-4 space-y-3 z-20">
-            <a href="plan.html" class="brutalist-btn btn-full bg-white">Plan Ahead</a>
-            <div class="flex gap-3">
-                <a href="log.html" class="brutalist-btn btn-half bg-blue">View past trips</a>
-                <a href="journey.html" class="brutalist-btn btn-half bg-pink">Calendar View</a>
-            </div>
-        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
@@ -92,5 +89,49 @@
     <script src="schengen-engine.js"></script>
     <script src="app.js"></script>
 
+    <script>
+        function toUK(dateStr) {
+            if (!dateStr) return "";
+            const [y, m, d] = dateStr.split('-');
+            return `${d}.${m}.${y}`;
+        }
+
+        function renderTripList() {
+            const list = document.getElementById('trip-list');
+            if (!window.allTrips) return;
+
+            list.innerHTML = '';
+
+            if (window.allTrips.length === 0) {
+                list.innerHTML = '<p class="text-white font-black opacity-30 mt-12 uppercase tracking-[0.2em] text-[10px] text-brutal">No History Found</p>';
+                return;
+            }
+
+            let data = [...window.allTrips];
+            data.sort((a, b) => new Date(b.entry) - new Date(a.entry));
+
+            data.forEach(t => {
+                const div = document.createElement('div');
+                div.className = "w-full max-w-[240px] py-5 border-b border-white/20 flex justify-between items-center text-white";
+                div.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="font-black text-sm tracking-tighter text-brutal">${toUK(t.entry)} — ${toUK(t.exit)}</span>
+                    </div>
+                    <button onclick="deleteTrip('${t.id}')" class="text-[10px] font-black uppercase text-red-500 tracking-tighter">Delete</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function deleteTrip(tripId) {
+            if (!tripId || tripId === 'undefined') return;
+            if (confirm("Permanently delete this trip?")) {
+                window.db.ref('trips').child(tripId).remove();
+            }
+        }
+
+        window.addEventListener('tripsUpdated', renderTripList);
+        renderTripList();
+    </script>
 </body>
 </html>
