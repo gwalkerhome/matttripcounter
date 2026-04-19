@@ -62,3 +62,39 @@
                         stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
                     <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent"
                         stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                </svg>
+
+                <div class="absolute text-center">
+                    <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter"
+                         style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
+                        --
+                    </div>
+                    <div class="text-[8px] font-bold text-white uppercase tracking-[0.2em] mt-2 text-brutal max-w-[120px] mx-auto">
+                        Schengen Allowance days remaining
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAGLINE -->
+            <div id="recovery-tagline"
+                 class="absolute bottom-[0px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
+            </div>
+        </div>
+
+        <!-- BOTTOM ACTIONS -->
+        <div id="bottom-actions" class="w-full flex flex-col items-center space-y-3 z-20">
+            <a href="plan.html" class="brutalist-btn btn-full bg-white">Plan Ahead</a>
+            <div class="flex gap-3">
+                <a href="log.html" class="brutalist-btn btn-half bg-blue">View past trips</a>
+                <a href="journey.html" class="brutalist-btn btn-half bg-pink">Calendar View</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="schengen-engine.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>
