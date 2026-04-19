@@ -16,12 +16,14 @@
 
     <div class="h-full w-full flex flex-col items-center justify-between py-12 px-8 overflow-hidden">
         
+        <!-- TOP SECTION -->
         <div class="w-full flex justify-center items-center mt-4 z-20">
             <div class="text-center">
                 <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
             </div>
         </div>
 
+        <!-- GAUGE & TAGLINE SECTION -->
         <div class="relative flex flex-col items-center justify-center z-10">
             
             <div class="relative flex items-center justify-center">
@@ -38,15 +40,20 @@
                          style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
                          --
                     </div>
-                    <div class="text-[10px] font-bold text-white uppercase tracking-[0.3em] mt-2 text-brutal">Days Left</div>
+                    <!-- Tweak 1: Updated Schengen Label -->
+                    <div class="text-[8px] font-bold text-white uppercase tracking-[0.2em] mt-2 text-brutal max-w-[120px] mx-auto">
+                        Schengen Allowance days remaining
+                    </div>
                 </div>
             </div>
 
+            <!-- TAGLINE -->
             <div id="recovery-tagline" 
                  class="absolute bottom-[0px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
-                 </div>
+            </div>
         </div>
 
+        <!-- BOTTOM ACTIONS -->
         <div class="relative top-[40px] w-full flex flex-col items-center mb-4 space-y-3 z-20">
             
             <a href="plan.html" class="brutalist-btn btn-full bg-white">
@@ -54,8 +61,9 @@
             </a>
 
             <div class="flex gap-3">
+                <!-- Tweak 2: Updated Button Text -->
                 <a href="log.html" class="brutalist-btn btn-half bg-blue">
-                    Log/View Trips
+                    View past trips
                 </a>
                 <a href="journey.html" class="brutalist-btn btn-half bg-pink">
                     Calendar View
@@ -65,6 +73,7 @@
         </div>
     </div>
 
+    <!-- Firebase & Core Logic -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="schengen-engine.js"></script>
