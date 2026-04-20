@@ -64,9 +64,7 @@ function resolveBackgroundImage(trips, todayStr) {
 
 function updateUI(status, bgImage) {
     const bgLayer = document.getElementById('bg-layer');
-    if (bgLayer) {
-        bgLayer.style.backgroundImage = `url('${bgImage}')`;
-    }
+    if (bgLayer) bgLayer.style.backgroundImage = `url('${bgImage}')`;
 
     const daysCountEl = document.getElementById('days-count');
     if (daysCountEl) daysCountEl.innerText = status.remaining;
