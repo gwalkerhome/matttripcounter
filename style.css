@@ -33,31 +33,28 @@ html, body {
 
 #bg-layer {
     position: fixed;
-    /* The 'Over-scan': Start 10% above the screen */
-    top: -10vh; 
+    top: 0;
     left: 0;
     right: 0;
-    /* Total height is 120% of the viewport, covering all shifts */
-    height: 120vh; 
+    bottom: 0;
     background-size: cover;
-    background-position: center center;
+    background-position: center top;
     background-repeat: no-repeat;
-    z-index: -1;
-    pointer-events: none;
-    /* We use 'vh' here intentionally instead of 'dvh' to stay static */
+    z-index: 0;
 }
 
-
-
-#ui-layer {
+#ui-layer, #app-shell {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 10;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
 }
+
 
 /* --- NAV BUTTONS --- */
 .nav-btn {
