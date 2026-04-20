@@ -7,80 +7,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta charset="UTF-8">
     <title>Trip Log</title>
-
+    <link rel="apple-touch-icon" href="assets/icon.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        html, body {
-            height: 100dvh;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            position: fixed;
-            background-color: black;
-        }
-
-        #bg-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100dvh;
-            background-size: cover;
-            background-position: center top;
-            background-repeat: no-repeat;
-            z-index: -1;
-        }
-
-        #history-window {
-            height: 50vh;
-            width: 100%;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-        #history-window::-webkit-scrollbar { display: none; }
-
-        .center-action-area {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -100%);
-            z-index: 30;
-            margin-top: -15px;
-        }
-    </style>
 </head>
 
-<body id="main-body">
+<body>
 
+    <!-- LAYER 1: Background -->
     <div id="bg-layer"></div>
 
-    <div class="relative h-full w-full flex flex-col">
+    <!-- LAYER 2: UI -->
+    <div id="ui-layer">
 
-        <!-- TOP HALF -->
-        <div class="h-1/2 w-full flex flex-col items-center pt-16 px-8">
-            <h1 class="text-4xl font-black uppercase tracking-tighter text-brutal text-center">
-                Trip Log
-            </h1>
-        </div>
+        <!-- NAV -->
+        <a class="nav-btn nav-back" onclick="history.back()">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
+        <a class="nav-btn nav-home" href="index.html">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </a>
 
-        <!-- CENTER BUTTON -->
-        <div class="center-action-area">
-            <a href="add-trip.html" class="brutalist-btn btn-full bg-white">
-                Log a past trip
-            </a>
-        </div>
-
-        <!-- BOTTOM HALF: The List -->
-        <div class="h-1/2 w-full flex flex-col items-center">
-            <div id="history-window">
-                <div id="trip-list" class="flex flex-col items-center w-full px-8 pb-32">
-                    <!-- Trips injected here -->
-                </div>
-            </div>
-        </div>
+        <!-- PAGE CONTENT GOES HERE -->
 
     </div>
 
@@ -89,49 +37,5 @@
     <script src="schengen-engine.js"></script>
     <script src="app.js"></script>
 
-    <script>
-        function toUK(dateStr) {
-            if (!dateStr) return "";
-            const [y, m, d] = dateStr.split('-');
-            return `${d}.${m}.${y}`;
-        }
-
-        function renderTripList() {
-            const list = document.getElementById('trip-list');
-            if (!window.allTrips) return;
-
-            list.innerHTML = '';
-
-            if (window.allTrips.length === 0) {
-                list.innerHTML = '<p class="text-white font-black opacity-30 mt-12 uppercase tracking-[0.2em] text-[10px] text-brutal">No History Found</p>';
-                return;
-            }
-
-            let data = [...window.allTrips];
-            data.sort((a, b) => new Date(b.entry) - new Date(a.entry));
-
-            data.forEach(t => {
-                const div = document.createElement('div');
-                div.className = "w-full max-w-[240px] py-5 border-b border-white/20 flex justify-between items-center text-white";
-                div.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="font-black text-sm tracking-tighter text-brutal">${toUK(t.entry)} — ${toUK(t.exit)}</span>
-                    </div>
-                    <button onclick="deleteTrip('${t.id}')" class="text-[10px] font-black uppercase text-red-500 tracking-tighter">Delete</button>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        function deleteTrip(tripId) {
-            if (!tripId || tripId === 'undefined') return;
-            if (confirm("Permanently delete this trip?")) {
-                window.db.ref('trips').child(tripId).remove();
-            }
-        }
-
-        window.addEventListener('tripsUpdated', renderTripList);
-        renderTripList();
-    </script>
 </body>
 </html>
