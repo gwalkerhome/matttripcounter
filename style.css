@@ -22,8 +22,6 @@ html, body {
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
-    position: fixed;
     background-color: var(--black);
     font-family: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
     -webkit-tap-highlight-color: transparent;
@@ -31,7 +29,6 @@ html, body {
 
 /* --- TWO-LAYER TEMPLATE SYSTEM --- */
 
-/* Layer 1: Background image. Completely isolated. Nothing touches this. */
 #bg-layer {
     position: fixed;
     top: 0;
@@ -44,7 +41,6 @@ html, body {
     z-index: 0;
 }
 
-/* Layer 2: UI canvas. Transparent. All content lives here. */
 #ui-layer {
     position: fixed;
     top: 0;
@@ -76,9 +72,7 @@ html, body {
     backdrop-filter: blur(8px);
 }
 
-.nav-btn:active {
-    transform: scale(0.92);
-}
+.nav-btn:active { transform: scale(0.92); }
 
 .nav-btn svg {
     width: 18px;
