@@ -7,92 +7,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta charset="UTF-8">
     <title>Matt's Journey</title>
-
     <link rel="apple-touch-icon" href="assets/icon.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            position: fixed;
-            margin: 0;
-            padding: 0;
-            background-color: black;
-        }
-
-        #bg-layer {
-            position: fixed;
-            top: 0;
+        #bottom-actions {
+            position: absolute;
+            bottom: calc(16px + env(safe-area-inset-bottom));
             left: 0;
             right: 0;
-            bottom: 0;
-            background-size: cover;
-            background-position: center top;
-            background-repeat: no-repeat;
-            z-index: -1;
-        }
-
-        #app-shell {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 48px 32px calc(20px + env(safe-area-inset-bottom));
-            overflow: hidden;
+            gap: 12px;
         }
     </style>
 </head>
 
-<body id="main-body">
-
+<body>
     <div id="bg-layer"></div>
 
-    <div id="app-shell">
+    <div id="ui-layer">
 
-        <!-- TOP SECTION -->
-        <div class="w-full flex justify-center items-center z-20">
-            <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
+        <!-- NAV -->
+        <a class="nav-btn nav-back" onclick="history.back()">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
+        <a class="nav-btn nav-home" href="index.html">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </a>
+
+        <!-- TOP STATUS -->
+        <div style="position:absolute; top: calc(20px + env(safe-area-inset-top)); left:0; right:0; text-align:center;">
+            <h1 id="status-message" class="text-brutal" style="font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:0.4em; margin:0;">Syncing...</h1>
         </div>
 
-        <!-- GAUGE & TAGLINE SECTION -->
-        <div class="relative flex flex-col items-center justify-center z-10">
-            <div class="relative flex items-center justify-center">
-                <svg class="w-72 h-72 transform -rotate-90">
-                    <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
+        <!-- GAUGE -->
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -58%);">
+            <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+                <svg class="w-72 h-72 transform -rotate-90" style="width:288px; height:288px;">
+                    <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent"/>
                     <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="22" fill="transparent"
-                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round"/>
                     <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent"
-                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round"/>
                 </svg>
-
-                <div class="absolute text-center">
-                    <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter"
-                         style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
-                        --
-                    </div>
-                    <div class="text-[8px] font-bold text-white uppercase tracking-[0.2em] mt-2 text-brutal max-w-[120px] mx-auto">
-                        Schengen Allowance days remaining
-                    </div>
+                <div style="position:absolute; text-align:center;">
+                    <div id="days-count" class="text-brutal" style="font-size:5rem; font-weight:900; line-height:1; letter-spacing:-0.05em; -webkit-text-stroke:3px black;">--</div>
+                    <div class="text-brutal" style="font-size:0.5rem; font-weight:700; text-transform:uppercase; letter-spacing:0.2em; margin-top:8px; max-width:120px;">Schengen Allowance Days Remaining</div>
                 </div>
             </div>
 
-            <!-- TAGLINE -->
-            <div id="recovery-tagline"
-                 class="absolute bottom-[-40px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
-            </div>
+            <!-- RECOVERY TAGLINE -->
+            <div id="recovery-tagline" class="text-brutal" style="text-align:center; font-size:0.7rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; line-height:1.6; margin-top:16px;"></div>
         </div>
 
         <!-- BOTTOM ACTIONS -->
-        <div class="w-full flex flex-col items-center space-y-3 z-20">
+        <div id="bottom-actions">
             <a href="plan.html" class="brutalist-btn btn-full bg-white">Plan Ahead</a>
-            <div class="flex gap-3">
+            <div style="display:flex; gap:12px;">
                 <a href="log.html" class="brutalist-btn btn-half bg-blue">View past trips</a>
                 <a href="journey.html" class="brutalist-btn btn-half bg-pink">Calendar View</a>
             </div>
@@ -104,6 +77,5 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="schengen-engine.js"></script>
     <script src="app.js"></script>
-
 </body>
 </html>
