@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta charset="UTF-8">
+    <title>Trip Calendar</title>
+    <link rel="apple-touch-icon" href="assets/icon.png">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* CALENDAR SCROLL AREA */
+        #calendar-scroll {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding: calc(env(safe-area-inset-top) + 140px) 20px calc(env(safe-area-inset-bottom) + 100px);
+        }
+        #calendar-scroll::-webkit-scrollbar { display: none; }
+
+        /* MONTH BLOCK */
+        .month-block { margin-bottom: 28px; }
+
+        .month-label {
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
+            padding-left: 2px;
+        }
+
+        /* DAY GRID */
+        .day-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-size: 0.55rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255,255,255,0.3);
+            padding-bottom: 4px;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 900;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .day-cell:active { transform: scale(0.88); }
+
+        .day-empty   { background: transparent; cursor: default; }
+        .day-blank   { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.2); }
+        .day-past    { background: #FF4DFF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-current { background: #2ED573; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-future  { background: #00A8FF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-today   { border-color: #fff !important; border-width: 2.5px; }
+
+        /* FIXED HEADER */
+        #page-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 70%, transparent);
+            padding: calc(env(safe-area-inset-top) + 14px) 20px 20px;
+        }
+
+        .info-strip {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .info-pill {
+            flex: 1;
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 6px 10px;
+            text-align: center;
+        }
+
+        .info-pill-label {
+            font-size: 0.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.4);
+            display: block;
+        }
+
+        .info-pill-value {
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: #fff;
+            display: block;
+            margin-top: 1px;
+        }
+
+        /* FIXED FOOTER */
+        #page-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 70%, transparent);
+            padding: 20px 20px calc(env(safe-area-inset-bottom) + 16px);
+            display: flex;
+            justify-content: center;
+        }
+
+        /* OVERLAY BACKDROP */
+        #overlay-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 50;
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+        }
+
+        /* TRIP ACTION SHEET */
+        #action-sheet {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 60;
+            background: #1a1a1a;
+            border-top: 2.5px solid #fff;
+            border-radius: 24px 24px 0 0;
+            padding: 20px 24px calc(env(safe-area-inset-bottom) + 20px);
+        }
+
+        /* ADD TRIP PICKER */
+        #add-sheet {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 60;
+            background: #1a1a1a;
+            border-top: 2.5px solid #fff;
+            border-radius: 24px 24px 0 0;
+            padding: 24px 24px calc(env(safe-area-inset-bottom) + 20px);
+        }
+
+        .sheet-title {
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .date-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .date-input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .date-input-group label {
+            font-size: 0.55rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .date-input-group input[type="date"] {
+            width: 100%;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 800;
+            padding: 8px 10px;
+            font-family: inherit;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .date-input-group input[type="date"]:focus {
+            outline: none;
+            border-color: #00A8FF;
+        }
+
+        .sheet-btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="bg-layer"></div>
+
+    <div id="ui-layer">
+
+        <!-- FIXED HEADER -->
+        <div id="page-header">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <a class="nav-btn nav-back" onclick="history.back()" style="position:relative; top:auto; left:auto; right:auto;">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                </a>
+                <h1 class="text-brutal" style="font-size:1rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; margin:0;">Trip Calendar</h1>
+                <a class="nav-btn nav-home" href="index.html" style="position:relative; top:auto; left:auto; right:auto;">
+                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </a>
+            </div>
+            <div class="info-strip">
+                <div class="info-pill">
+                    <span class="info-pill-label">Days Remaining</span>
+                    <span class="info-pill-value" id="info-remaining" style="color:#2ED573;">--</span>
+                </div>
+                <div class="info-pill">
+                    <span class="info-pill-label">Next Recovery</span>
+                    <span class="info-pill-value" id="info-recovery">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CALENDAR SCROLL -->
+        <div id="calendar-scroll">
+            <div id="calendar-container"></div>
+        </div>
+
+        <!-- FIXED FOOTER -->
+        <div id="page-footer">
+            <button onclick="openAddSheet()" class="brutalist-btn btn-full bg-green" style="font-size:0.85rem;">+ Add Trip</button>
+        </div>
+
+    </div>
+
+    <!-- OVERLAY BACKDROP -->
+    <div id="overlay-backdrop" onclick="closeAll()"></div>
+
+    <!-- TRIP ACTION SHEET -->
+    <div id="action-sheet">
+        <p class="sheet-title" id="action-sheet-title">Trip Options</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <button onclick="editSelectedTrip()" class="brutalist-btn btn-full bg-blue" style="width:100%;">Edit Trip</button>
+            <button onclick="deleteSelectedTrip()" class="brutalist-btn btn-full" style="width:100%; background:#ef4444; color:#fff; border-color:#000;">Delete Trip</button>
+            <button onclick="closeAll()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.7rem; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; margin-top:4px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ADD / EDIT TRIP SHEET -->
+    <div id="add-sheet">
+        <p class="sheet-title" id="add-sheet-title">Add New Trip</p>
+        <div class="date-input-row">
+            <div class="date-input-group">
+                <label>Entry Date</label>
+                <input type="date" id="input-entry">
+            </div>
+            <div class="date-input-group">
+                <label>Exit Date</label>
+                <input type="date" id="input-exit">
+            </div>
+        </div>
+        <div class="sheet-btn-row">
+            <button onclick="closeAll()" class="brutalist-btn btn-half" style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.3); box-shadow:none;">Cancel</button>
+            <button onclick="saveTrip()" class="brutalist-btn" style="flex:1; height:60px; background:#2ED573; color:#000; border-color:#000; font-size:0.85rem;">Save Trip</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="schengen-engine.js"></script>
+    <script src="app.js"></script>
+
+    <script>
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        let selectedTripId = null;
+        let editingTripId = null;
+
+        // ---- INFO STRIP ----
+        function updateInfoStrip(trips) {
+            const res = SchengenEngine.calculateStatus(trips);
+            const rec = SchengenEngine.getNextIncrease(trips);
+
+            const remEl = document.getElementById('info-remaining');
+            if (remEl) {
+                remEl.innerText = res.remaining;
+                remEl.style.color = res.remaining >= 50 ? '#2ED573' : res.remaining >= 20 ? '#f97316' : '#ef4444';
+            }
+
+            const recEl = document.getElementById('info-recovery');
+            if (recEl) {
+                if (rec && res.remaining < 90) {
+                    const d = rec.date.split('-');
+                    recEl.innerText = `+${rec.days} on ${d[2]}/${d[1]}`;
+                } else {
+                    recEl.innerText = 'Full';
+                }
+            }
+        }
+
+        // ---- CALENDAR RENDER ----
+        function renderCalendar(trips) {
+            const container = document.getElementById('calendar-container');
+            container.innerHTML = '';
+
+            const DAY_HEADERS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+            for (let offset = -6; offset <= 12; offset++) {
+                const monthDate = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+                const year = monthDate.getFullYear();
+                const month = monthDate.getMonth();
+                const monthName = monthDate.toLocaleString('default', { month: 'long' });
+
+                const block = document.createElement('div');
+                block.className = 'month-block';
+
+                // Month label
+                const label = document.createElement('div');
+                label.className = 'month-label';
+                label.innerText = `${monthName} ${year}`;
+                block.appendChild(label);
+
+                // Grid
+                const grid = document.createElement('div');
+                grid.className = 'day-grid';
+
+                // Day headers
+                DAY_HEADERS.forEach(h => {
+                    const hEl = document.createElement('div');
+                    hEl.className = 'day-header';
+                    hEl.innerText = h;
+                    grid.appendChild(hEl);
+                });
+
+                // Empty cells before first day
+                const firstDay = new Date(year, month, 1).getDay();
+                for (let i = 0; i < firstDay; i++) {
+                    const empty = document.createElement('div');
+                    empty.className = 'day-cell day-empty';
+                    grid.appendChild(empty);
+                }
+
+                // Day cells
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                    const cell = document.createElement('div');
+
+                    const tripOnDay = trips.find(t => dateStr >= t.entry && dateStr <= t.exit);
+                    let cls = 'day-blank';
+
+                    if (tripOnDay) {
+                        if (dateStr < todayStr) cls = 'day-past';
+                        else if (dateStr === todayStr) cls = 'day-current';
+                        else cls = 'day-future';
+                    }
+
+                    if (dateStr === todayStr) cls += ' day-today';
+
+                    cell.className = `day-cell ${cls}`;
+                    cell.innerText = d;
+
+                    if (tripOnDay) {
+                        cell.onclick = () => openActionSheet(tripOnDay);
+                    }
+
+                    grid.appendChild(cell);
+                }
+
+                block.appendChild(grid);
+                container.appendChild(block);
+
+                // Scroll to current month
+                if (offset === 0) {
+                    setTimeout(() => block.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+                }
+            }
+        }
+
+        // ---- ACTION SHEET (edit/delete) ----
+        function openActionSheet(trip) {
+            selectedTripId = trip.id;
+            const d1 = trip.entry.split('-');
+            const d2 = trip.exit.split('-');
+            document.getElementById('action-sheet-title').innerText =
+                `${d1[2]}.${d1[1]}.${d1[0]} — ${d2[2]}.${d2[1]}.${d2[0]}`;
+            document.getElementById('overlay-backdrop').style.display = 'block';
+            document.getElementById('action-sheet').style.display = 'block';
+        }
+
+        function deleteSelectedTrip() {
+            if (!selectedTripId) return;
+            if (confirm("Permanently delete this trip?")) {
+                window.db.ref('trips').child(selectedTripId).remove();
+                closeAll();
+            }
+        }
+
+        function editSelectedTrip() {
+            const trip = window.allTrips.find(t => t.id === selectedTripId);
+            if (!trip) return;
+            editingTripId = selectedTripId;
+            document.getElementById('action-sheet').style.display = 'none';
+            document.getElementById('add-sheet-title').innerText = 'Edit Trip';
+            document.getElementById('input-entry').value = trip.entry;
+            document.getElementById('input-exit').value = trip.exit;
+            document.getElementById('add-sheet').style.display = 'block';
+        }
+
+        // ---- ADD SHEET ----
+        function openAddSheet() {
+            editingTripId = null;
+            selectedTripId = null;
+            document.getElementById('add-sheet-title').innerText = 'Add New Trip';
+            document.getElementById('input-entry').value = '';
+            document.getElementById('input-exit').value = '';
+            document.getElementById('overlay-backdrop').style.display = 'block';
+            document.getElementById('add-sheet').style.display = 'block';
+        }
+
+        function saveTrip() {
+            const entry = document.getElementById('input-entry').value;
+            const exit = document.getElementById('input-exit').value;
+            if (!entry || !exit) { alert('Please set both entry and exit dates.'); return; }
+            if (exit < entry) { alert('Exit date must be after entry date.'); return; }
+
+            if (editingTripId) {
+                window.db.ref('trips').child(editingTripId).update({ entry, exit });
+            } else {
+                window.db.ref('trips').push({ entry, exit, timestamp: Date.now() });
+            }
+            closeAll();
+        }
+
+        function closeAll() {
+            document.getElementById('overlay-backdrop').style.display = 'none';
+            document.getElementById('action-sheet').style.display = 'none';
+            document.getElementById('add-sheet').style.display = 'none';
+            selectedTripId = null;
+        }
+
+        // ---- DATA ----
+        window.addEventListener('tripsUpdated', () => {
+            updateInfoStrip(window.allTrips);
+            renderCalendar(window.allTrips);
+        });
+    </script>
+</body>
+</html>
