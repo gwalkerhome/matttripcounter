@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* CALENDAR SCROLL AREA */
         #calendar-scroll {
             position: absolute;
             top: 0;
@@ -21,11 +20,10 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
-            padding: calc(env(safe-area-inset-top) + 140px) 20px calc(env(safe-area-inset-bottom) + 100px);
+            padding: calc(env(safe-area-inset-top) + 150px) 20px calc(env(safe-area-inset-bottom) + 100px);
         }
         #calendar-scroll::-webkit-scrollbar { display: none; }
 
-        /* MONTH BLOCK */
         .month-block { margin-bottom: 28px; }
 
         .month-label {
@@ -38,7 +36,6 @@
             padding-left: 2px;
         }
 
-        /* DAY GRID */
         .day-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -71,21 +68,20 @@
 
         .day-cell:active { transform: scale(0.88); }
 
-        .day-empty   { background: transparent; cursor: default; }
-        .day-blank   { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.2); }
-        .day-past    { background: #FF4DFF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
-        .day-current { background: #2ED573; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
-        .day-future  { background: #00A8FF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
-        .day-today   { border-color: #fff !important; border-width: 2.5px; }
+        .day-empty  { background: transparent; cursor: default; }
+        .day-blank  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); cursor: default; }
+        .day-past   { background: #FF4DFF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-current{ background: #2ED573; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-future { background: #00A8FF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-today  { outline: 2.5px solid #fff; outline-offset: 1px; }
 
-        /* FIXED HEADER */
         #page-header {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             z-index: 30;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 70%, transparent);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.88) 75%, transparent);
             padding: calc(env(safe-area-inset-top) + 14px) 20px 20px;
         }
 
@@ -100,41 +96,40 @@
             background: rgba(255,255,255,0.08);
             border: 1.5px solid rgba(255,255,255,0.12);
             border-radius: 10px;
-            padding: 6px 10px;
+            padding: 6px 8px;
             text-align: center;
         }
 
         .info-pill-label {
-            font-size: 0.5rem;
+            font-size: 0.45rem;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.08em;
             color: rgba(255,255,255,0.4);
             display: block;
         }
 
         .info-pill-value {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 900;
             color: #fff;
             display: block;
-            margin-top: 1px;
+            margin-top: 2px;
+            line-height: 1.1;
         }
 
-        /* FIXED FOOTER */
         #page-footer {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
             z-index: 30;
-            background: linear-gradient(to top, rgba(0,0,0,0.85) 70%, transparent);
+            background: linear-gradient(to top, rgba(0,0,0,0.88) 75%, transparent);
             padding: 20px 20px calc(env(safe-area-inset-bottom) + 16px);
             display: flex;
             justify-content: center;
         }
 
-        /* OVERLAY BACKDROP */
         #overlay-backdrop {
             display: none;
             position: fixed;
@@ -145,20 +140,7 @@
             backdrop-filter: blur(4px);
         }
 
-        /* TRIP ACTION SHEET */
-        #action-sheet {
-            display: none;
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            z-index: 60;
-            background: #1a1a1a;
-            border-top: 2.5px solid #fff;
-            border-radius: 24px 24px 0 0;
-            padding: 20px 24px calc(env(safe-area-inset-bottom) + 20px);
-        }
-
-        /* ADD TRIP PICKER */
-        #add-sheet {
+        #action-sheet, #add-sheet {
             display: none;
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -211,7 +193,6 @@
             padding: 8px 10px;
             font-family: inherit;
             -webkit-appearance: none;
-            appearance: none;
         }
 
         .date-input-group input[type="date"]:focus {
@@ -235,22 +216,24 @@
         <!-- FIXED HEADER -->
         <div id="page-header">
             <div style="display:flex; align-items:center; justify-content:space-between;">
-                <a class="nav-btn nav-back" onclick="history.back()" style="position:relative; top:auto; left:auto; right:auto;">
+                <a class="nav-btn nav-back" onclick="history.back()" style="position:relative; top:auto; left:auto; right:auto; flex-shrink:0;">
                     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
                 </a>
-                <h1 class="text-brutal" style="font-size:1rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; margin:0;">Trip Calendar</h1>
-                <a class="nav-btn nav-home" href="index.html" style="position:relative; top:auto; left:auto; right:auto;">
+                <h1 class="text-brutal" style="font-size:1rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; margin:0; text-align:center; flex:1;">Trip Calendar</h1>
+                <a class="nav-btn nav-home" href="index.html" style="position:relative; top:auto; left:auto; right:auto; flex-shrink:0;">
                     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 </a>
             </div>
+
+            <!-- INFO STRIP -->
             <div class="info-strip">
                 <div class="info-pill">
                     <span class="info-pill-label">Days Remaining</span>
                     <span class="info-pill-value" id="info-remaining" style="color:#2ED573;">--</span>
                 </div>
-                <div class="info-pill">
-                    <span class="info-pill-label">Next Recovery</span>
-                    <span class="info-pill-value" id="info-recovery">--</span>
+                <div class="info-pill" id="info-trip-pill">
+                    <span class="info-pill-label" id="info-trip-label">Next Trip</span>
+                    <span class="info-pill-value" id="info-trip-value">--</span>
                 </div>
             </div>
         </div>
@@ -267,10 +250,10 @@
 
     </div>
 
-    <!-- OVERLAY BACKDROP -->
+    <!-- BACKDROP -->
     <div id="overlay-backdrop" onclick="closeAll()"></div>
 
-    <!-- TRIP ACTION SHEET -->
+    <!-- ACTION SHEET -->
     <div id="action-sheet">
         <p class="sheet-title" id="action-sheet-title">Trip Options</p>
         <div style="display:flex; flex-direction:column; gap:10px;">
@@ -280,7 +263,7 @@
         </div>
     </div>
 
-    <!-- ADD / EDIT TRIP SHEET -->
+    <!-- ADD / EDIT SHEET -->
     <div id="add-sheet">
         <p class="sheet-title" id="add-sheet-title">Add New Trip</p>
         <div class="date-input-row">
@@ -310,25 +293,43 @@
         let selectedTripId = null;
         let editingTripId = null;
 
+        function daysBetween(a, b) {
+            return Math.round((b - a) / (1000 * 60 * 60 * 24));
+        }
+
         // ---- INFO STRIP ----
         function updateInfoStrip(trips) {
             const res = SchengenEngine.calculateStatus(trips);
-            const rec = SchengenEngine.getNextIncrease(trips);
-
             const remEl = document.getElementById('info-remaining');
             if (remEl) {
                 remEl.innerText = res.remaining;
                 remEl.style.color = res.remaining >= 50 ? '#2ED573' : res.remaining >= 20 ? '#f97316' : '#ef4444';
             }
 
-            const recEl = document.getElementById('info-recovery');
-            if (recEl) {
-                if (rec && res.remaining < 90) {
-                    const d = rec.date.split('-');
-                    recEl.innerText = `+${rec.days} on ${d[2]}/${d[1]}`;
-                } else {
-                    recEl.innerText = 'Full';
-                }
+            const today = new Date(`${todayStr}T12:00:00`);
+            const sorted = [...trips].sort((a, b) => new Date(a.entry) - new Date(b.entry));
+            const currentTrip = sorted.find(t => todayStr >= t.entry && todayStr <= t.exit);
+            const nextTrip = sorted.find(t => t.entry > todayStr);
+
+            const labelEl = document.getElementById('info-trip-label');
+            const valueEl = document.getElementById('info-trip-value');
+
+            if (currentTrip) {
+                const exitDate = new Date(`${currentTrip.exit}T12:00:00`);
+                const days = daysBetween(today, exitDate);
+                labelEl.innerText = 'Return to UK';
+                valueEl.innerText = days === 0 ? 'Today!' : `${days} day${days !== 1 ? 's' : ''}`;
+                valueEl.style.color = '#FF4DFF';
+            } else if (nextTrip) {
+                const entryDate = new Date(`${nextTrip.entry}T12:00:00`);
+                const days = daysBetween(today, entryDate);
+                labelEl.innerText = 'Next Trip';
+                valueEl.innerText = days === 0 ? 'Today!' : `${days} day${days !== 1 ? 's' : ''}`;
+                valueEl.style.color = '#00A8FF';
+            } else {
+                labelEl.innerText = 'Next Trip';
+                valueEl.innerText = 'None planned';
+                valueEl.style.color = 'rgba(255,255,255,0.35)';
             }
         }
 
@@ -336,7 +337,6 @@
         function renderCalendar(trips) {
             const container = document.getElementById('calendar-container');
             container.innerHTML = '';
-
             const DAY_HEADERS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
             for (let offset = -6; offset <= 12; offset++) {
@@ -347,18 +347,16 @@
 
                 const block = document.createElement('div');
                 block.className = 'month-block';
+                if (offset === 0) block.id = 'current-month';
 
-                // Month label
                 const label = document.createElement('div');
                 label.className = 'month-label';
                 label.innerText = `${monthName} ${year}`;
                 block.appendChild(label);
 
-                // Grid
                 const grid = document.createElement('div');
                 grid.className = 'day-grid';
 
-                // Day headers
                 DAY_HEADERS.forEach(h => {
                     const hEl = document.createElement('div');
                     hEl.className = 'day-header';
@@ -366,7 +364,6 @@
                     grid.appendChild(hEl);
                 });
 
-                // Empty cells before first day
                 const firstDay = new Date(year, month, 1).getDay();
                 for (let i = 0; i < firstDay; i++) {
                     const empty = document.createElement('div');
@@ -374,21 +371,18 @@
                     grid.appendChild(empty);
                 }
 
-                // Day cells
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 for (let d = 1; d <= daysInMonth; d++) {
                     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                     const cell = document.createElement('div');
-
                     const tripOnDay = trips.find(t => dateStr >= t.entry && dateStr <= t.exit);
-                    let cls = 'day-blank';
 
+                    let cls = 'day-blank';
                     if (tripOnDay) {
                         if (dateStr < todayStr) cls = 'day-past';
                         else if (dateStr === todayStr) cls = 'day-current';
                         else cls = 'day-future';
                     }
-
                     if (dateStr === todayStr) cls += ' day-today';
 
                     cell.className = `day-cell ${cls}`;
@@ -403,15 +397,15 @@
 
                 block.appendChild(grid);
                 container.appendChild(block);
-
-                // Scroll to current month
-                if (offset === 0) {
-                    setTimeout(() => block.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
-                }
             }
+
+            setTimeout(() => {
+                const cur = document.getElementById('current-month');
+                if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
         }
 
-        // ---- ACTION SHEET (edit/delete) ----
+        // ---- ACTION SHEET ----
         function openActionSheet(trip) {
             selectedTripId = trip.id;
             const d1 = trip.entry.split('-');
@@ -457,7 +451,6 @@
             const exit = document.getElementById('input-exit').value;
             if (!entry || !exit) { alert('Please set both entry and exit dates.'); return; }
             if (exit < entry) { alert('Exit date must be after entry date.'); return; }
-
             if (editingTripId) {
                 window.db.ref('trips').child(editingTripId).update({ entry, exit });
             } else {
@@ -471,6 +464,7 @@
             document.getElementById('action-sheet').style.display = 'none';
             document.getElementById('add-sheet').style.display = 'none';
             selectedTripId = null;
+            editingTripId = null;
         }
 
         // ---- DATA ----
