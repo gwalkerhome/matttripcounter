@@ -25,7 +25,6 @@
             backdrop-filter: blur(6px);
             margin-bottom: 8px;
         }
-
         .trip-card.past    { border-color: rgba(255,255,255,0.15); }
         .trip-card.current { border-color: #2ED573; box-shadow: 0 0 12px rgba(46,213,115,0.4); }
         .trip-card.future  { border-color: #00A8FF; box-shadow: 0 0 12px rgba(0,168,255,0.3); }
@@ -84,7 +83,7 @@
 
     <div id="ui-layer">
 
-        <!-- NAV BUTTONS -->
+        <!-- NAV -->
         <a class="nav-btn nav-back" onclick="history.back()">
             <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
         </a>
@@ -92,24 +91,22 @@
             <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </a>
 
-        <!-- TOP HALF: Title + Status -->
-        <div style="position: absolute; top: 0; left: 0; right: 0; height: 45%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 24px; text-align: center;">
-            <h1 class="text-brutal" style="font-size: 2.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; margin: 0 0 10px;">Matt's Trips</h1>
-            <p id="status-line" class="text-brutal" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.85; margin: 0 0 20px;">Loading...</p>
-            <div style="display: flex; gap: 12px;">
+        <!-- TOP HALF -->
+        <div style="position:absolute; top:0; left:0; right:0; height:45%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 24px; text-align:center;">
+            <h1 class="text-brutal" style="font-size:2.2rem; font-weight:900; text-transform:uppercase; letter-spacing:-0.02em; margin:0 0 10px;">Matt's Trips</h1>
+            <p id="status-line" class="text-brutal" style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; opacity:0.85; margin:0 0 20px;">Loading...</p>
+            <div style="display:flex; gap:12px;">
                 <a href="add-trip.html" class="brutalist-btn btn-half bg-blue">Log a past trip</a>
                 <a href="plan.html" class="brutalist-btn btn-half bg-pink">Plan a future trip</a>
             </div>
         </div>
 
-        <!-- BOTTOM HALF: Trip list panel -->
+        <!-- BOTTOM PANEL -->
         <div class="bottom-panel">
             <div class="panel-header">
-                <span class="text-brutal" style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.5;">Trip History</span>
+                <span class="text-brutal" style="font-size:0.65rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; opacity:0.5;">Trip History</span>
             </div>
-            <div class="trip-scroll" id="trip-list">
-                <!-- Injected by JS -->
-            </div>
+            <div class="trip-scroll" id="trip-list"></div>
         </div>
 
     </div>
@@ -133,24 +130,19 @@
         function renderStatusLine(trips, todayStr) {
             const today = new Date(`${todayStr}T12:00:00`);
             const sorted = [...trips].sort((a, b) => new Date(a.entry) - new Date(b.entry));
-
             const currentTrip = sorted.find(t => todayStr >= t.entry && todayStr <= t.exit);
             const nextSpain = sorted.find(t => t.entry > todayStr);
-            const lastTrip = [...sorted].reverse().find(t => t.exit < todayStr);
-
             const el = document.getElementById('status-line');
             if (!el) return;
 
             if (currentTrip) {
                 const exitDate = new Date(`${currentTrip.exit}T12:00:00`);
                 const days = daysBetween(today, exitDate);
-                if (days === 0) el.innerText = "You return to England today!";
-                else el.innerText = `${days} day${days !== 1 ? 's' : ''} until you return to England`;
+                el.innerText = days === 0 ? "You return to England today!" : `${days} day${days !== 1 ? 's' : ''} until you return to England`;
             } else if (nextSpain) {
                 const entryDate = new Date(`${nextSpain.entry}T12:00:00`);
                 const days = daysBetween(today, entryDate);
-                if (days === 0) el.innerText = "You head to Spain today!";
-                else el.innerText = `${days} day${days !== 1 ? 's' : ''} until you next go to Spain`;
+                el.innerText = days === 0 ? "You head to Spain today!" : `${days} day${days !== 1 ? 's' : ''} until you next go to Spain`;
             } else {
                 el.innerText = "You have no future trips logged";
             }
@@ -169,8 +161,7 @@
             const sorted = [...trips].sort((a, b) => new Date(b.entry) - new Date(a.entry));
 
             sorted.forEach(t => {
-                let status = 'past';
-                let label = 'Past';
+                let status = 'past', label = 'Past';
                 if (todayStr >= t.entry && todayStr <= t.exit) { status = 'current'; label = 'Now'; }
                 else if (t.entry > todayStr) { status = 'future'; label = 'Upcoming'; }
 
