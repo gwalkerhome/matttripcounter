@@ -19,18 +19,17 @@
         position: fixed;
         margin: 0;
         padding: 0;
-        background-color: #1a1a1a; /* Dark charcoal fallback if image fails */
+        background-color: black;
     }
 
     #bg-layer {
         position: fixed;
-        bottom: 0;
+        top: -10vh;
         left: 0;
         right: 0;
-        height: 110dvh;
+        height: 120vh;
         background-size: cover;
-        background-position: center bottom;
-        background-repeat: no-repeat;
+        background-position: center center;
         z-index: -1;
     }
 
@@ -44,9 +43,9 @@
         flex-direction: column;
         align-items: center;
         justify-content: space-between;
-        /* Bottom padding accounts for the bleed and iOS home bar */
-        padding: 48px 32px calc(30px + env(safe-area-inset-bottom));
+        padding: 48px 32px calc(20px + env(safe-area-inset-bottom));
         z-index: 10;
+        /* The shell stays 100% height, while the background 'floats' behind it */
     }
 </style>
 
