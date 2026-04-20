@@ -13,7 +13,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* 1. LOCK THE VIEWPORT */
         html, body {
             height: 100%;
             width: 100%;
@@ -24,114 +23,86 @@
             background-color: #000;
         }
 
-        /* 2. THE TOP FRAME */
-        .frame-top {
+        #bg-layer {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: 50px;
-            background-color: #FF4DFF; /* Pink */
-            border-bottom: 3.5px solid #000;
-            z-index: 50;
+            bottom: 0;
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            z-index: 0;
         }
 
-        /* 3. THE BOTTOM FRAME (THE DEEP ANCHOR) */
-        .frame-bottom {
+        #app-shell {
             position: fixed;
-            /* Start below the screen to swallow the browser shunt */
-            bottom: -45px; 
+            top: 0;
             left: 0;
             right: 0;
-            height: 100px;
-            background-color: #FF4DFF; /* Pink */
-            border-top: 3.5px solid #000;
-            z-index: 50;
-        }
-
-        /* 4. THE STAGE (Action Area) */
-        #stage {
-            position: absolute;
-            top: 50px;    /* Sits below top frame */
-            bottom: 55px; /* Sits above visible bottom frame */
-            left: 0;
-            right: 0;
-            overflow: hidden;
+            bottom: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 30px 32px;
+            /* Using standard safe-area padding for a native feel */
+            padding: calc(40px + env(safe-area-inset-top)) 32px calc(20px + env(safe-area-inset-bottom));
             z-index: 10;
         }
 
-        #bg-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            z-index: -1;
-        }
-
-        /* Gauge resizing for the new Stage constraints */
-        .gauge-container {
+        /* Ensure the gauge doesn't feel cramped */
+        .gauge-wrap {
             position: relative;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: transform 0.3s ease;
+            flex-grow: 1;
         }
     </style>
 </head>
 
 <body id="main-body">
 
-    <div class="frame-top"></div>
-    <div class="frame-bottom"></div>
+    <div id="bg-layer"></div>
 
-    <div id="stage">
-
-        <div id="bg-layer"></div>
+    <div id="app-shell">
 
         <div class="w-full flex justify-center items-center z-20">
             <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
         </div>
 
-        <div class="gauge-container z-10">
+        <div class="gauge-wrap z-10">
             <div class="relative flex items-center justify-center">
-                <svg class="w-64 h-64 transform -rotate-90">
-                    <circle cx="128" cy="128" r="60" stroke="rgba(255,255,255,0.1)" stroke-width="10" fill="transparent" />
-                    <circle id="gauge-progress-border" cx="128" cy="128" r="60" stroke="black" stroke-width="20" fill="transparent"
-                        stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" />
-                    <circle id="gauge-progress" cx="128" cy="128" r="60" stroke="#2ED573" stroke-width="10" fill="transparent"
-                        stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" />
+                <svg class="w-72 h-72 transform -rotate-90">
+                    <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
+                    <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="22" fill="transparent"
+                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                    <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent"
+                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
                 </svg>
 
                 <div class="absolute text-center">
-                    <div id="days-count" class="text-7xl font-black text-white leading-none tracking-tighter"
-                         style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 2px black; paint-order: stroke fill;">
+                    <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter"
+                         style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
                         --
                     </div>
-                    <div class="text-[7px] font-bold text-white uppercase tracking-[0.2em] mt-2 text-brutal max-w-[100px] mx-auto">
-                        Schengen Days
+                    <div class="text-[8px] font-bold text-white uppercase tracking-[0.2em] mt-2 text-brutal max-w-[120px] mx-auto">
+                        Schengen Allowance days remaining
                     </div>
                 </div>
             </div>
 
             <div id="recovery-tagline"
-                 class="absolute bottom-[-35px] left-1/2 -translate-x-1/2 w-72 text-center text-[10px] font-black tracking-widest uppercase leading-relaxed text-brutal">
+                 class="absolute bottom-[-40px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal">
             </div>
         </div>
 
-        <div class="w-full flex flex-col items-center space-y-3 z-20">
+        <div class="w-full flex flex-col items-center space-y-3 z-20 pb-4">
             <a href="plan.html" class="brutalist-btn btn-full bg-white">Plan Ahead</a>
             <div class="flex gap-3">
-                <a href="log.html" class="brutalist-btn btn-half bg-blue text-[10px]">View History</a>
-                <a href="journey.html" class="brutalist-btn btn-half bg-pink text-[10px]">Calendar</a>
+                <a href="log.html" class="brutalist-btn btn-half bg-blue">View past trips</a>
+                <a href="journey.html" class="brutalist-btn btn-half bg-pink">Calendar View</a>
             </div>
         </div>
 
