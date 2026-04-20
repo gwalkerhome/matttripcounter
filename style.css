@@ -43,7 +43,8 @@ html, body {
     z-index: 0;
 }
 
-#ui-layer, #app-shell {
+/* Standardized Shell for all pages */
+#app-shell {
     position: fixed;
     top: 0;
     left: 0;
@@ -54,6 +55,7 @@ html, body {
     flex-direction: column;
     overflow: hidden;
 }
+
 
 
 /* --- NAV BUTTONS --- */
