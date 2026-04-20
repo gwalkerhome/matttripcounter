@@ -62,24 +62,20 @@ function resolveBackgroundImage(trips, todayStr) {
     return "assets/uk2.png";
 }
 
-function updateUI(days, status, location) {
-    // 1. Update the Gauge and Text
-    const daysEl = document.getElementById('days-count');
-    const statusEl = document.getElementById('status-message');
-    if (daysEl) daysEl.innerText = days;
-    if (statusEl) statusEl.innerText = status;
-
-    // 2. Resolve and Update Background
+function updateUI(status, bgImage) {
     const bgLayer = document.getElementById('bg-layer');
-    if (bgLayer) {
-        const bgImage = resolveBackgroundImage(days, location); // Uses your engine logic
-        // Only update if the image has actually changed to prevent flickering
-        if (bgLayer.style.backgroundImage !== `url("${bgImage}")`) {
-            bgLayer.style.backgroundImage = `url("${bgImage}")`;
-        }
-    }
-}
+    if (bgLayer) bgLayer.style.backgroundImage = `url('${bgImage}')`;
 
+    const daysCountEl = document.getElementById('days-count');
+    if (daysCountEl) daysCountEl.innerText = status.remaining;
+
+    const msgEl = document.getElementById('status-message');
+    if (msgEl) {
+        if (status.isTravelDay === 'entry') msgEl.innerText = "Travel Day! ✈️ Spain";
+        else if (status.isTravelDay === 'exit') msgEl.innerText = "Travel Day! ✈️ UK";
+        else if (status.inSpain) msgEl.innerText = "Matt is in Spain!";
+        else msgEl.innerText = "Matt is in the UK.";
+    }
 
     const gauge = document.getElementById('gauge-progress');
     const gaugeBorder = document.getElementById('gauge-progress-border');
