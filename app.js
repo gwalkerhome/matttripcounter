@@ -13,41 +13,23 @@ window.db = firebase.database();
 
 function resolveBackgroundImage(trips, todayStr) {
     const now = new Date(`${todayStr}T12:00:00`);
-
-    // Sort all trips by entry date
     const sorted = [...trips].sort((a, b) => new Date(a.entry) - new Date(b.entry));
-
-    // Find current trip (today is inside a trip)
     const currentTrip = sorted.find(t => todayStr >= t.entry && todayStr <= t.exit);
-
-    // Find next future trip (starts after today)
     const nextTrip = sorted.find(t => t.entry > todayStr);
 
-    // Find yesterday's string to detect "day before travel"
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const tomorrowStr = new Date(now);
-    tomorrowStr.setDate(tomorrowStr.getDate() + 1);
-    const tomorrowDate = `${tomorrowStr.getFullYear()}-${String(tomorrowStr.getMonth()+1).padStart(2,'0')}-${String(tomorrowStr.getDate()).padStart(2,'0')}`;
+    const tomorrowDate = new Date(now);
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+    const tomorrowStr = `${tomorrowDate.getFullYear()}-${String(tomorrowDate.getMonth()+1).padStart(2,'0')}-${String(tomorrowDate.getDate()).padStart(2,'0')}`;
 
-    // Travel day: today is the entry or exit of a trip
     if (currentTrip) {
-        if (todayStr === currentTrip.entry) {
-            // Travelling TO Spain today
-            return "assets/uk-sp.png";
-        }
-        if (todayStr === currentTrip.exit) {
-            // Travelling BACK to UK today
-            return "assets/sp-uk.png";
-        }
+        if (todayStr === currentTrip.entry) return "assets/uk-sp.png";
+        if (todayStr === currentTrip.exit) return "assets/sp-uk.png";
 
-        // Mid-trip in Spain: calculate % through stay
         const entryDate = new Date(`${currentTrip.entry}T12:00:00`);
         const exitDate = new Date(`${currentTrip.exit}T12:00:00`);
         const totalDays = Math.ceil((exitDate - entryDate) / (1000 * 60 * 60 * 24));
         const daysSoFar = Math.ceil((now - entryDate) / (1000 * 60 * 60 * 24));
 
-        // Day before last day of trip = sp4 (packing to leave)
         const dayBeforeExit = new Date(exitDate);
         dayBeforeExit.setDate(dayBeforeExit.getDate() - 1);
         const dayBeforeExitStr = `${dayBeforeExit.getFullYear()}-${String(dayBeforeExit.getMonth()+1).padStart(2,'0')}-${String(dayBeforeExit.getDate()).padStart(2,'0')}`;
@@ -59,13 +41,8 @@ function resolveBackgroundImage(trips, todayStr) {
         return "assets/sp3.png";
     }
 
-    // Not in Spain — in UK
-    // Day before next trip to Spain
-    if (nextTrip && tomorrowDate === nextTrip.entry) {
-        return "assets/uk4.png";
-    }
+    if (nextTrip && tomorrowStr === nextTrip.entry) return "assets/uk4.png";
 
-    // Find last completed trip to calculate % through UK stay
     const pastTrips = sorted.filter(t => t.exit < todayStr);
     if (pastTrips.length > 0) {
         const lastTrip = pastTrips[pastTrips.length - 1];
@@ -82,12 +59,10 @@ function resolveBackgroundImage(trips, todayStr) {
         }
     }
 
-    // Default: no trip data or no context available
     return "assets/uk2.png";
 }
 
 function updateUI(status, bgImage) {
-    // Update background via #bg-layer (not body) to prevent flicker
     const bgLayer = document.getElementById('bg-layer');
     if (bgLayer) {
         bgLayer.style.backgroundImage = `url('${bgImage}')`;
@@ -106,7 +81,6 @@ function updateUI(status, bgImage) {
 
     const gauge = document.getElementById('gauge-progress');
     const gaugeBorder = document.getElementById('gauge-progress-border');
-
     if (gauge) {
         const circ = 439.8;
         const offset = circ - (status.remaining / 90) * circ;
