@@ -11,43 +11,45 @@
     <link rel="apple-touch-icon" href="assets/icon.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            position: fixed;
-            margin: 0;
-            padding: 0;
-            background-color: black;
-        }
+  <style>
+    html, body {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        position: fixed;
+        margin: 0;
+        padding: 0;
+        background-color: #1a1a1a; /* Dark charcoal fallback if image fails */
+    }
 
-        #bg-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-size: cover;
-            background-position: center top;
-            background-repeat: no-repeat;
-            z-index: -1;
-        }
+    #bg-layer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 110dvh;
+        background-size: cover;
+        background-position: center bottom;
+        background-repeat: no-repeat;
+        z-index: -1;
+    }
 
-        #app-shell {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 48px 32px calc(20px + env(safe-area-inset-bottom));
-            overflow: hidden;
-        }
-    </style>
+    #app-shell {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        /* Bottom padding accounts for the bleed and iOS home bar */
+        padding: 48px 32px calc(30px + env(safe-area-inset-bottom));
+        z-index: 10;
+    }
+</style>
+
 </head>
 
 <body id="main-body">
