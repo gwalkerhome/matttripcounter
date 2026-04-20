@@ -3,99 +3,95 @@
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta charset="UTF-8">
     <title>Matt's Journey</title>
-
-    <link rel="apple-touch-icon" href="assets/icon.png">
+    
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    html, body {
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-        position: fixed;
-        margin: 0;
-        padding: 0;
-        background-color: black;
-    }
+    <style>
+        /* The entire screen is the 'Void' */
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: var(--black);
+            margin: 0;
+        }
 
-    #bg-layer {
-        position: fixed;
-        top: -10vh;
-        left: 0;
-        right: 0;
-        height: 120vh;
-        background-size: cover;
-        background-position: center center;
-        z-index: -1;
-    }
+        /* The Frame (Top and Bottom) */
+        .frame-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 50px; /* Adjust this to match the black bar height */
+            z-index: 50;
+        }
+        .frame-top { top: 0; border-bottom: 3px solid var(--black); }
+        .frame-bottom { bottom: 0; border-top: 3px solid var(--black); }
 
-    #app-shell {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-        padding: 48px 32px calc(20px + env(safe-area-inset-bottom));
-        z-index: 10;
-        /* The shell stays 100% height, while the background 'floats' behind it */
-    }
-</style>
+        /* THE STAGE: This is where everything happens */
+        #stage {
+            position: absolute;
+            /* Sit exactly between the bars */
+            top: 50px;
+            bottom: 50px;
+            left: 0;
+            right: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 32px;
+        }
 
+        #bg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center center;
+            z-index: -1;
+        }
+    </style>
 </head>
 
-<body id="main-body">
+<body>
 
-    <div id="bg-layer"></div>
+    <div class="frame-bar frame-top bg-pink"></div>
+    <div class="frame-bar frame-bottom bg-pink"></div>
 
-    <div id="app-shell">
+    <div id="stage">
+        
+        <div id="bg-layer"></div>
 
-        <!-- TOP SECTION -->
         <div class="w-full flex justify-center items-center z-20">
             <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
         </div>
 
-        <!-- GAUGE & TAGLINE SECTION -->
         <div class="relative flex flex-col items-center justify-center z-10">
             <div class="relative flex items-center justify-center">
-                <svg class="w-72 h-72 transform -rotate-90">
-                    <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
-                    <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="22" fill="transparent"
-                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
-                    <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent"
-                        stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round" />
+                <svg class="w-64 h-64 transform -rotate-90">
+                    <circle cx="128" cy="128" r="60" stroke="rgba(255,255,255,0.1)" stroke-width="10" fill="transparent" />
+                    <circle id="gauge-progress-border" cx="128" cy="128" r="60" stroke="black" stroke-width="18" fill="transparent" stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" />
+                    <circle id="gauge-progress" cx="128" cy="128" r="60" stroke="#2ED573" stroke-width="10" fill="transparent" stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" />
                 </svg>
-
                 <div class="absolute text-center">
-                    <div id="days-count" class="text-8xl font-black text-white leading-none tracking-tighter"
-                         style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 3px black; paint-order: stroke fill;">
-                        --
-                    </div>
-                    <div class="text-[8px] font-bold text-white uppercase tracking-[0.2em] mt-2 text-brutal max-w-[120px] mx-auto">
-                        Schengen Allowance days remaining
-                    </div>
+                    <div id="days-count" class="text-7xl font-black text-white leading-none">--</div>
+                    <div class="text-[7px] font-bold text-white uppercase tracking-widest mt-2">Schengen Days</div>
                 </div>
             </div>
-
-            <!-- TAGLINE -->
-            <div id="recovery-tagline"
-                 class="absolute bottom-[-40px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
-            </div>
+            <div id="recovery-tagline" class="absolute bottom-[-30px] w-64 text-center text-[10px] font-black uppercase text-brutal"></div>
         </div>
 
-        <!-- BOTTOM ACTIONS -->
         <div class="w-full flex flex-col items-center space-y-3 z-20">
             <a href="plan.html" class="brutalist-btn btn-full bg-white">Plan Ahead</a>
             <div class="flex gap-3">
-                <a href="log.html" class="brutalist-btn btn-half bg-blue">View past trips</a>
-                <a href="journey.html" class="brutalist-btn btn-half bg-pink">Calendar View</a>
+                <a href="log.html" class="brutalist-btn btn-half bg-blue text-[10px]">View History</a>
+                <a href="journey.html" class="brutalist-btn btn-half bg-pink text-[10px]">Calendar</a>
             </div>
         </div>
 
@@ -105,6 +101,5 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="schengen-engine.js"></script>
     <script src="app.js"></script>
-
 </body>
 </html>
