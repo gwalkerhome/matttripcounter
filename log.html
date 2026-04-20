@@ -10,32 +10,32 @@
     <link rel="apple-touch-icon" href="assets/icon.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    
     <style>
-    /* ... existing trip-card styles ... */
+    /* ... keep all your trip-card and panel logic ... */
+
+    #bg-layer {
+        position: fixed;
+        top: -10vh;
+        left: 0;
+        right: 0;
+        height: 120vh;
+        background-size: cover;
+        background-position: center center;
+        z-index: -1;
+    }
 
     #ui-layer {
         position: fixed;
         top: 0;
-        bottom: 0;
+        bottom: 0; /* Pinned to the actual bottom of the glass */
         left: 0;
         right: 0;
         z-index: 10;
     }
-
-    .bottom-panel {
-        position: absolute;
-        bottom: 0; /* Pinned to the very bottom */
-        left: 0;
-        right: 0;
-        height: 55%;
-        background: rgba(0,0,0,0.65);
-        -webkit-backdrop-filter: blur(15px);
-        backdrop-filter: blur(15px);
-        border-top: 2px solid rgba(255,255,255,0.15);
-        border-radius: 28px 28px 0 0;
-        padding-bottom: env(safe-area-inset-bottom); /* Extra protection */
-    }
 </style>
+
 
 </head>
 
