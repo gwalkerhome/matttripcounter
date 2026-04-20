@@ -68,12 +68,12 @@
 
         .day-cell:active { transform: scale(0.88); }
 
-        .day-empty  { background: transparent; cursor: default; }
-        .day-blank  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); cursor: default; }
-        .day-past   { background: #FF4DFF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
-        .day-current{ background: #2ED573; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
-        .day-future { background: #00A8FF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
-        .day-today  { outline: 2.5px solid #fff; outline-offset: 1px; }
+        .day-empty   { background: transparent; cursor: default; }
+        .day-blank   { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); cursor: default; }
+        .day-past    { background: #FF4DFF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-current { background: #2ED573; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-future  { background: #00A8FF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-today   { outline: 2.5px solid #fff; outline-offset: 1px; }
 
         #page-header {
             position: absolute;
@@ -81,8 +81,8 @@
             left: 0;
             right: 0;
             z-index: 30;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.88) 75%, transparent);
-            padding: calc(env(safe-area-inset-top) + 14px) 20px 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.88) 60%, transparent);
+            padding: calc(env(safe-area-inset-top) + 14px) 20px 40px;
         }
 
         .info-strip {
@@ -124,8 +124,8 @@
             left: 0;
             right: 0;
             z-index: 30;
-            background: linear-gradient(to top, rgba(0,0,0,0.88) 75%, transparent);
-            padding: 20px 20px calc(env(safe-area-inset-bottom) + 16px);
+            background: linear-gradient(to top, rgba(0,0,0,0.88) 60%, transparent);
+            padding: 40px 20px calc(env(safe-area-inset-bottom) + 16px);
             display: flex;
             justify-content: center;
         }
@@ -205,6 +205,53 @@
             gap: 10px;
             margin-top: 4px;
         }
+
+        /* THEMED NAV BUTTONS */
+        .nav-themed {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            border: 2.5px solid #000;
+            box-shadow: 3px 3px 0 #000;
+            cursor: pointer;
+            text-decoration: none;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-themed:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .nav-themed svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .nav-back-themed {
+            background: #FFDE03;
+        }
+
+        .nav-back-themed svg {
+            stroke: #000;
+            fill: none;
+        }
+
+        .nav-help-themed {
+            background: #FF4DFF;
+        }
+
+        .nav-help-themed svg {
+            stroke: #000;
+            fill: none;
+        }
     </style>
 </head>
 
@@ -215,23 +262,22 @@
 
         <!-- FIXED HEADER -->
         <div id="page-header">
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-                <a class="nav-btn nav-back" onclick="history.back()" style="position:relative; top:auto; left:auto; right:auto; flex-shrink:0;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <a class="nav-themed nav-back-themed" onclick="history.back()">
                     <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
                 </a>
                 <h1 class="text-brutal" style="font-size:1rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; margin:0; text-align:center; flex:1;">Trip Calendar</h1>
-                <a class="nav-btn nav-home" href="index.html" style="position:relative; top:auto; left:auto; right:auto; flex-shrink:0;">
-                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <a class="nav-themed nav-help-themed" href="help.html">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
                 </a>
             </div>
 
-            <!-- INFO STRIP -->
             <div class="info-strip">
                 <div class="info-pill">
                     <span class="info-pill-label">Days Remaining</span>
                     <span class="info-pill-value" id="info-remaining" style="color:#2ED573;">--</span>
                 </div>
-                <div class="info-pill" id="info-trip-pill">
+                <div class="info-pill">
                     <span class="info-pill-label" id="info-trip-label">Next Trip</span>
                     <span class="info-pill-value" id="info-trip-value">--</span>
                 </div>
@@ -297,7 +343,6 @@
             return Math.round((b - a) / (1000 * 60 * 60 * 24));
         }
 
-        // ---- INFO STRIP ----
         function updateInfoStrip(trips) {
             const res = SchengenEngine.calculateStatus(trips);
             const remEl = document.getElementById('info-remaining');
@@ -333,7 +378,6 @@
             }
         }
 
-        // ---- CALENDAR RENDER ----
         function renderCalendar(trips) {
             const container = document.getElementById('calendar-container');
             container.innerHTML = '';
@@ -405,7 +449,6 @@
             }, 300);
         }
 
-        // ---- ACTION SHEET ----
         function openActionSheet(trip) {
             selectedTripId = trip.id;
             const d1 = trip.entry.split('-');
@@ -435,7 +478,6 @@
             document.getElementById('add-sheet').style.display = 'block';
         }
 
-        // ---- ADD SHEET ----
         function openAddSheet() {
             editingTripId = null;
             selectedTripId = null;
@@ -467,7 +509,6 @@
             editingTripId = null;
         }
 
-        // ---- DATA ----
         window.addEventListener('tripsUpdated', () => {
             updateInfoStrip(window.allTrips);
             renderCalendar(window.allTrips);
