@@ -11,72 +11,32 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .trip-card {
-            width: 100%;
-            max-width: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            border-radius: 14px;
-            border: 2.5px solid rgba(255,255,255,0.15);
-            background: rgba(0,0,0,0.35);
-            -webkit-backdrop-filter: blur(6px);
-            backdrop-filter: blur(6px);
-            margin-bottom: 8px;
-        }
+    /* ... existing trip-card styles ... */
 
-        .trip-card.past    { border-color: rgba(255,255,255,0.15); }
-        .trip-card.current { border-color: #2ED573; box-shadow: 0 0 12px rgba(46,213,115,0.4); }
-        .trip-card.future  { border-color: #00A8FF; box-shadow: 0 0 12px rgba(0,168,255,0.3); }
+    #ui-layer {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+    }
 
-        .trip-scroll {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            padding: 12px 20px 20px;
-            height: 100%;
-        }
-        .trip-scroll::-webkit-scrollbar { display: none; }
+    .bottom-panel {
+        position: absolute;
+        bottom: 0; /* Pinned to the very bottom */
+        left: 0;
+        right: 0;
+        height: 55%;
+        background: rgba(0,0,0,0.65);
+        -webkit-backdrop-filter: blur(15px);
+        backdrop-filter: blur(15px);
+        border-top: 2px solid rgba(255,255,255,0.15);
+        border-radius: 28px 28px 0 0;
+        padding-bottom: env(safe-area-inset-bottom); /* Extra protection */
+    }
+</style>
 
-        .bottom-panel {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 55%;
-            background: rgba(0,0,0,0.55);
-            -webkit-backdrop-filter: blur(12px);
-            backdrop-filter: blur(12px);
-            border-top: 2px solid rgba(255,255,255,0.12);
-            border-radius: 28px 28px 0 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .panel-header {
-            padding: 16px 20px 8px;
-            flex-shrink: 0;
-        }
-
-        .badge {
-            display: inline-block;
-            font-size: 9px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            padding: 2px 7px;
-            border-radius: 6px;
-        }
-        .badge-past    { background: rgba(255,255,255,0.15); color: #fff; }
-        .badge-current { background: #2ED573; color: #000; }
-        .badge-future  { background: #00A8FF; color: #fff; }
-    </style>
 </head>
 
 <body>
