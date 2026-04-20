@@ -33,15 +33,20 @@ html, body {
 
 #bg-layer {
     position: fixed;
-    top: 0;
+    /* Anchor to bottom to ensure the 'ground' never moves */
+    bottom: 0; 
     left: 0;
     right: 0;
-    bottom: 0;
+    /* 110% height creates a 10% 'safety bleed' behind the notch/address bar area */
+    height: 110dvh; 
     background-size: cover;
-    background-position: center top;
+    /* center bottom is the secret sauce for the black bar glitch */
+    background-position: center bottom; 
     background-repeat: no-repeat;
-    z-index: 0;
+    z-index: -1;
+    pointer-events: none;
 }
+
 
 #ui-layer {
     position: fixed;
