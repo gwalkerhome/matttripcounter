@@ -3,39 +3,57 @@
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta charset="UTF-8">
     <title>Matt's Journey</title>
-    
+
+    <link rel="apple-touch-icon" href="assets/icon.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
-        /* The entire screen is the 'Void' */
+        /* 1. LOCK THE VIEWPORT */
         html, body {
             height: 100%;
             width: 100%;
             overflow: hidden;
-            background-color: var(--black);
+            position: fixed;
             margin: 0;
+            padding: 0;
+            background-color: #000;
         }
 
-        /* The Frame (Top and Bottom) */
-        .frame-bar {
+        /* 2. THE TOP FRAME */
+        .frame-top {
             position: fixed;
+            top: 0;
             left: 0;
             right: 0;
-            height: 50px; /* Adjust this to match the black bar height */
+            height: 50px;
+            background-color: #FF4DFF; /* Pink */
+            border-bottom: 3.5px solid #000;
             z-index: 50;
         }
-        .frame-top { top: 0; border-bottom: 3px solid var(--black); }
-        .frame-bottom { bottom: 0; border-top: 3px solid var(--black); }
 
-        /* THE STAGE: This is where everything happens */
+        /* 3. THE BOTTOM FRAME (THE DEEP ANCHOR) */
+        .frame-bottom {
+            position: fixed;
+            /* Start below the screen to swallow the browser shunt */
+            bottom: -45px; 
+            left: 0;
+            right: 0;
+            height: 100px;
+            background-color: #FF4DFF; /* Pink */
+            border-top: 3.5px solid #000;
+            z-index: 50;
+        }
+
+        /* 4. THE STAGE (Action Area) */
         #stage {
             position: absolute;
-            /* Sit exactly between the bars */
-            top: 50px;
-            bottom: 50px;
+            top: 50px;    /* Sits below top frame */
+            bottom: 55px; /* Sits above visible bottom frame */
             left: 0;
             right: 0;
             overflow: hidden;
@@ -43,7 +61,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 20px 32px;
+            padding: 30px 32px;
+            z-index: 10;
         }
 
         #bg-layer {
@@ -54,37 +73,58 @@
             height: 100%;
             background-size: cover;
             background-position: center center;
+            background-repeat: no-repeat;
             z-index: -1;
+        }
+
+        /* Gauge resizing for the new Stage constraints */
+        .gauge-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
         }
     </style>
 </head>
 
-<body>
+<body id="main-body">
 
-    <div class="frame-bar frame-top bg-pink"></div>
-    <div class="frame-bar frame-bottom bg-pink"></div>
+    <div class="frame-top"></div>
+    <div class="frame-bottom"></div>
 
     <div id="stage">
-        
+
         <div id="bg-layer"></div>
 
         <div class="w-full flex justify-center items-center z-20">
             <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
         </div>
 
-        <div class="relative flex flex-col items-center justify-center z-10">
+        <div class="gauge-container z-10">
             <div class="relative flex items-center justify-center">
                 <svg class="w-64 h-64 transform -rotate-90">
                     <circle cx="128" cy="128" r="60" stroke="rgba(255,255,255,0.1)" stroke-width="10" fill="transparent" />
-                    <circle id="gauge-progress-border" cx="128" cy="128" r="60" stroke="black" stroke-width="18" fill="transparent" stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" />
-                    <circle id="gauge-progress" cx="128" cy="128" r="60" stroke="#2ED573" stroke-width="10" fill="transparent" stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" />
+                    <circle id="gauge-progress-border" cx="128" cy="128" r="60" stroke="black" stroke-width="20" fill="transparent"
+                        stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" />
+                    <circle id="gauge-progress" cx="128" cy="128" r="60" stroke="#2ED573" stroke-width="10" fill="transparent"
+                        stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" />
                 </svg>
+
                 <div class="absolute text-center">
-                    <div id="days-count" class="text-7xl font-black text-white leading-none">--</div>
-                    <div class="text-[7px] font-bold text-white uppercase tracking-widest mt-2">Schengen Days</div>
+                    <div id="days-count" class="text-7xl font-black text-white leading-none tracking-tighter"
+                         style="filter: drop-shadow(6px 6px 0px black); -webkit-text-stroke: 2px black; paint-order: stroke fill;">
+                        --
+                    </div>
+                    <div class="text-[7px] font-bold text-white uppercase tracking-[0.2em] mt-2 text-brutal max-w-[100px] mx-auto">
+                        Schengen Days
+                    </div>
                 </div>
             </div>
-            <div id="recovery-tagline" class="absolute bottom-[-30px] w-64 text-center text-[10px] font-black uppercase text-brutal"></div>
+
+            <div id="recovery-tagline"
+                 class="absolute bottom-[-35px] left-1/2 -translate-x-1/2 w-72 text-center text-[10px] font-black tracking-widest uppercase leading-relaxed text-brutal">
+            </div>
         </div>
 
         <div class="w-full flex flex-col items-center space-y-3 z-20">
@@ -101,5 +141,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="schengen-engine.js"></script>
     <script src="app.js"></script>
+
 </body>
 </html>
