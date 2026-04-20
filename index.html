@@ -11,7 +11,6 @@
     <link rel="apple-touch-icon" href="assets/icon.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <style>
         html, body {
             height: 100%;
@@ -20,7 +19,7 @@
             position: fixed;
             margin: 0;
             padding: 0;
-            background-color: #000;
+            background-color: black;
         }
 
         #bg-layer {
@@ -32,7 +31,7 @@
             background-size: cover;
             background-position: center top;
             background-repeat: no-repeat;
-            z-index: 0;
+            z-index: -1;
         }
 
         #app-shell {
@@ -45,19 +44,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            /* Using standard safe-area padding for a native feel */
-            padding: calc(40px + env(safe-area-inset-top)) 32px calc(20px + env(safe-area-inset-bottom));
-            z-index: 10;
-        }
-
-        /* Ensure the gauge doesn't feel cramped */
-        .gauge-wrap {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
+            padding: 48px 32px calc(20px + env(safe-area-inset-bottom));
+            overflow: hidden;
         }
     </style>
 </head>
@@ -68,11 +56,13 @@
 
     <div id="app-shell">
 
+        <!-- TOP SECTION -->
         <div class="w-full flex justify-center items-center z-20">
             <h1 id="status-message" class="text-[12px] font-black uppercase tracking-[0.4em] text-brutal">Syncing...</h1>
         </div>
 
-        <div class="gauge-wrap z-10">
+        <!-- GAUGE & TAGLINE SECTION -->
+        <div class="relative flex flex-col items-center justify-center z-10">
             <div class="relative flex items-center justify-center">
                 <svg class="w-72 h-72 transform -rotate-90">
                     <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
@@ -93,12 +83,14 @@
                 </div>
             </div>
 
+            <!-- TAGLINE -->
             <div id="recovery-tagline"
-                 class="absolute bottom-[-40px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal">
+                 class="absolute bottom-[-40px] left-1/2 -translate-x-1/2 w-72 text-center text-[11px] font-black tracking-widest uppercase leading-relaxed text-brutal z-10">
             </div>
         </div>
 
-        <div class="w-full flex flex-col items-center space-y-3 z-20 pb-4">
+        <!-- BOTTOM ACTIONS -->
+        <div class="w-full flex flex-col items-center space-y-3 z-20">
             <a href="plan.html" class="brutalist-btn btn-full bg-white">Plan Ahead</a>
             <div class="flex gap-3">
                 <a href="log.html" class="brutalist-btn btn-half bg-blue">View past trips</a>
