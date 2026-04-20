@@ -33,19 +33,20 @@ html, body {
 
 #bg-layer {
     position: fixed;
-    /* Anchor to bottom to ensure the 'ground' never moves */
-    bottom: 0; 
+    /* The 'Over-scan': Start 10% above the screen */
+    top: -10vh; 
     left: 0;
     right: 0;
-    /* 110% height creates a 10% 'safety bleed' behind the notch/address bar area */
-    height: 110dvh; 
+    /* Total height is 120% of the viewport, covering all shifts */
+    height: 120vh; 
     background-size: cover;
-    /* center bottom is the secret sauce for the black bar glitch */
-    background-position: center bottom; 
+    background-position: center center;
     background-repeat: no-repeat;
     z-index: -1;
     pointer-events: none;
+    /* We use 'vh' here intentionally instead of 'dvh' to stay static */
 }
+
 
 
 #ui-layer {
