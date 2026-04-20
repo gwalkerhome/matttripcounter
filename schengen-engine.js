@@ -3,12 +3,10 @@
  */
 
 const SchengenEngine = {
-    // Helper: Convert string YYYY-MM-DD to a Date object at Noon to avoid timezone shifts
     parseDate(dateStr) {
         return new Date(dateStr + 'T12:00:00');
     },
 
-    // 1. THE CORE CALCULATOR
     calculateStatus(trips, checkDate = new Date()) {
         const referenceDate = new Date(checkDate);
         referenceDate.setHours(12, 0, 0, 0);
@@ -42,14 +40,11 @@ const SchengenEngine = {
         };
     },
 
-    // 2. THE RECOVERY CALCULATOR (The "Light at the end of the tunnel")
-    // Finds the next date when days will be added back to the allowance
     getNextIncrease(trips, checkDate = new Date()) {
         const status = this.calculateStatus(trips, checkDate);
         const windowStart = this.parseDate(status.windowStart);
         const refDate = this.parseDate(status.referenceDate);
 
-        // Filter trips that are currently counting towards the 90-day limit
         const activeTrips = trips
             .map(t => ({ entry: this.parseDate(t.entry), exit: this.parseDate(t.exit) }))
             .filter(t => t.exit >= windowStart && t.entry <= refDate)
@@ -58,14 +53,11 @@ const SchengenEngine = {
         if (activeTrips.length === 0) return null;
 
         const firstTrip = activeTrips[0];
-        // The first day that will "leak" out is either the trip entry or the window start
         const firstDayInWindow = firstTrip.entry < windowStart ? windowStart : firstTrip.entry;
-        
-        // A day spent on Date X is returned to the allowance on Date X + 180 days
+
         const recoveryDate = new Date(firstDayInWindow);
         recoveryDate.setDate(recoveryDate.getDate() + 180);
 
-        // Calculate the size of this specific trip "block" currently in the window
         const effectiveExit = firstTrip.exit > refDate ? refDate : firstTrip.exit;
         const diffTime = Math.abs(effectiveExit - firstDayInWindow);
         const blockDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
@@ -76,7 +68,6 @@ const SchengenEngine = {
         };
     },
 
-    // 3. THE "HOW LONG CAN I STAY" TOOL
     calculateMaxStay(allTrips, plannedEntryStr) {
         let entry = this.parseDate(plannedEntryStr);
         let maxDays = 0;
@@ -85,9 +76,7 @@ const SchengenEngine = {
         while (true) {
             const tempTrip = { entry: plannedEntryStr, exit: testExit.toISOString().split('T')[0] };
             const status = this.calculateStatus([...allTrips, tempTrip], testExit);
-            
             if (status.used > 90) break;
-
             maxDays++;
             testExit.setDate(testExit.getDate() + 1);
             if (maxDays > 100) break;
