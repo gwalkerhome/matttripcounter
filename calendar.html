@@ -13,10 +13,7 @@
     <style>
         #calendar-scroll {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
@@ -68,7 +65,6 @@
 
         .day-cell:active { transform: scale(0.88); }
 
-        /* VIEW MODE */
         .day-empty   { background: transparent; cursor: default; }
         .day-blank   { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); cursor: default; }
         .day-past    { background: #FF4DFF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
@@ -76,7 +72,6 @@
         .day-future  { background: #00A8FF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
         .day-today   { outline: 2.5px solid #fff; outline-offset: 1px; }
 
-        /* PLANNING MODE */
         .plan-blank    { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); cursor: pointer; }
         .plan-green    { background: rgba(46,213,115,0.25); color: #2ED573; border-color: rgba(46,213,115,0.4); cursor: pointer; }
         .plan-red      { background: rgba(239,68,68,0.25); color: #ef4444; border-color: rgba(239,68,68,0.4); cursor: not-allowed; }
@@ -84,51 +79,15 @@
         .plan-range    { background: rgba(46,213,115,0.5); color: #fff; border-color: rgba(46,213,115,0.6); cursor: pointer; }
         .plan-locked   { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.2); cursor: not-allowed; }
 
-        /* PLANNING MODE FOOTER */
-        #plan-footer {
-            display: none;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 30;
-            background: linear-gradient(to top,
-                rgba(0,0,0,0.85) 0%,
-                rgba(0,0,0,0.85) 60%,
-                transparent 100%);
-            padding: 16px 20px calc(env(safe-area-inset-bottom) + 12px);
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #plan-status {
-            font-size: 0.65rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: rgba(255,255,255,0.6);
-            text-align: center;
-        }
-
         #page-header {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 30;
-            background: linear-gradient(to bottom,
-                rgba(0,0,0,0.85) 0%,
-                rgba(0,0,0,0.85) 75%,
-                transparent 100%);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 75%, transparent);
             padding: calc(env(safe-area-inset-top) + 10px) 16px 16px;
         }
 
-        .info-strip {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
+        .info-strip { display: flex; gap: 8px; margin-top: 8px; }
 
         .info-pill {
             flex: 1;
@@ -151,25 +110,35 @@
         .info-pill-value {
             font-size: 0.8rem;
             font-weight: 900;
-            color: #fff;
             display: block;
             margin-top: 1px;
             line-height: 1.1;
         }
 
-        #page-footer {
+        #page-footer, #plan-footer {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             z-index: 30;
-            background: linear-gradient(to top,
-                rgba(0,0,0,0.85) 0%,
-                rgba(0,0,0,0.85) 60%,
-                transparent 100%);
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 60%, transparent);
             padding: 16px 20px calc(env(safe-area-inset-bottom) + 12px);
             display: flex;
             justify-content: center;
+        }
+
+        #plan-footer {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #plan-status {
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: rgba(255,255,255,0.6);
+            text-align: center;
         }
 
         #overlay-backdrop {
@@ -182,7 +151,7 @@
             backdrop-filter: blur(4px);
         }
 
-        #action-sheet, #add-sheet {
+        #action-sheet, #add-sheet, #warn-sheet {
             display: none;
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -192,6 +161,8 @@
             border-radius: 24px 24px 0 0;
             padding: 24px 24px calc(env(safe-area-inset-bottom) + 20px);
         }
+
+        #warn-sheet { border-top-color: #f97316; }
 
         .sheet-title {
             font-size: 0.65rem;
@@ -203,18 +174,11 @@
             text-align: center;
         }
 
-        .sheet-btn-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 4px;
-        }
+        .sheet-btn-row { display: flex; gap: 10px; margin-top: 4px; }
 
         .nav-themed {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
             border-radius: 12px;
             border: 2.5px solid #000;
             box-shadow: 3px 3px 0 #000;
@@ -224,14 +188,10 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .nav-themed:active {
-            transform: translate(2px, 2px);
-            box-shadow: 1px 1px 0 #000;
-        }
+        .nav-themed:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
 
         .nav-themed svg {
-            width: 18px;
-            height: 18px;
+            width: 18px; height: 18px;
             stroke-width: 2.5;
             stroke-linecap: round;
             stroke-linejoin: round;
@@ -260,7 +220,6 @@
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="3"/></svg>
                 </a>
             </div>
-
             <div class="info-strip">
                 <div class="info-pill">
                     <span class="info-pill-label">Days Remaining</span>
@@ -277,12 +236,10 @@
             <div id="calendar-container"></div>
         </div>
 
-        <!-- VIEW MODE FOOTER -->
         <div id="page-footer">
             <button onclick="enterPlanningMode()" class="brutalist-btn btn-full bg-green" style="font-size:0.85rem;">+ Add Trip</button>
         </div>
 
-        <!-- PLANNING MODE FOOTER -->
         <div id="plan-footer">
             <div id="plan-status">Tap a start date</div>
             <div style="display:flex; gap:10px; width:100%; max-width:300px;">
@@ -295,7 +252,7 @@
 
     <div id="overlay-backdrop" onclick="closeAll()"></div>
 
-    <!-- ACTION SHEET (tap existing trip) -->
+    <!-- ACTION SHEET -->
     <div id="action-sheet">
         <p class="sheet-title" id="action-sheet-title">Trip Options</p>
         <div style="display:flex; flex-direction:column; gap:10px;">
@@ -324,6 +281,16 @@
         </div>
     </div>
 
+    <!-- WARNING SHEET -->
+    <div id="warn-sheet">
+        <p class="sheet-title" style="color:#f97316;">⚠️ Future Trip Affected</p>
+        <p id="warn-message" style="color:rgba(255,255,255,0.7); font-size:0.8rem; font-weight:700; text-align:center; margin-bottom:20px; line-height:1.5;"></p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <button onclick="scrollToAffectedTrip()" class="brutalist-btn btn-full" style="width:100%; background:#f97316; color:#000; border-color:#000;">Show Me the Trip</button>
+            <button onclick="closeAll()" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.7rem; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer;">Dismiss</button>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="schengen-engine.js"></script>
@@ -337,6 +304,7 @@
         let planningMode = false;
         let planStart = null;
         let planEnd = null;
+        let affectedTripId = null;
 
         // ---- PLANNING MODE ----
 
@@ -366,35 +334,35 @@
             btn.style.opacity = enabled ? '1' : '0.3';
         }
 
+        function isPastDate(dateStr) {
+            return dateStr < todayStr;
+        }
+
         function onPlanningDayTap(dateStr) {
             if (!planStart) {
-                // First tap — set start
                 planStart = dateStr;
                 planEnd = null;
                 setSaveBtn(false);
                 document.getElementById('plan-status').innerText = 'Now tap an end date';
                 renderCalendar(window.allTrips);
             } else if (dateStr === planStart) {
-                // Tapped same day — deselect
                 planStart = null;
                 planEnd = null;
                 setSaveBtn(false);
                 document.getElementById('plan-status').innerText = 'Tap a start date';
                 renderCalendar(window.allTrips);
             } else if (dateStr < planStart) {
-                // Tapped before start — reset and use as new start
                 planStart = dateStr;
                 planEnd = null;
                 setSaveBtn(false);
                 document.getElementById('plan-status').innerText = 'Now tap an end date';
                 renderCalendar(window.allTrips);
             } else {
-                // Second tap — check if valid end date
-                const tempTrip = { entry: planStart, exit: dateStr };
-                const status = SchengenEngine.calculateStatus([...window.allTrips, tempTrip], new Date(`${dateStr}T12:00:00`));
-                if (status.remaining < 0) {
-                    // Over limit — don't allow
-                    return;
+                // Future dates: enforce legality
+                if (!isPastDate(dateStr)) {
+                    const tempTrip = { entry: planStart, exit: dateStr };
+                    const status = SchengenEngine.calculateStatus([...window.allTrips, tempTrip], new Date(`${dateStr}T12:00:00`));
+                    if (status.remaining < 0) return;
                 }
                 planEnd = dateStr;
                 const d1 = planStart.split('-');
@@ -408,8 +376,82 @@
 
         function savePlanningTrip() {
             if (!planStart || !planEnd) return;
-            window.db.ref('trips').push({ entry: planStart, exit: planEnd, timestamp: Date.now() });
+
+            const newTrip = { entry: planStart, exit: planEnd, timestamp: Date.now() };
+
+            // Check if any existing FUTURE trips are now in breach
+            const futurePlannedTrips = window.allTrips.filter(t => t.entry > todayStr);
+            const allTripsWithNew = [...window.allTrips, newTrip];
+            affectedTripId = null;
+
+            for (const ft of futurePlannedTrips) {
+                const exitDate = new Date(`${ft.exit}T12:00:00`);
+                const status = SchengenEngine.calculateStatus(allTripsWithNew, exitDate);
+                if (status.remaining < 0) {
+                    affectedTripId = ft.id;
+                    const d1 = ft.entry.split('-');
+                    const d2 = ft.exit.split('-');
+                    document.getElementById('warn-message').innerText =
+                        `Your trip from ${d1[2]}/${d1[1]}/${d1[0]} to ${d2[2]}/${d2[1]}/${d2[0]} would now exceed your Schengen allowance. Please review and amend it.`;
+                    break;
+                }
+            }
+
+            // Save the trip first
+            window.db.ref('trips').push(newTrip);
             exitPlanningMode();
+
+            // Then show warning if needed
+            if (affectedTripId) {
+                setTimeout(() => {
+                    document.getElementById('overlay-backdrop').style.display = 'block';
+                    document.getElementById('warn-sheet').style.display = 'block';
+                }, 400);
+            }
+        }
+
+        function scrollToAffectedTrip() {
+            closeAll();
+            if (!affectedTripId) return;
+            const trip = window.allTrips.find(t => t.id === affectedTripId);
+            if (!trip) return;
+            // Find the cell for the entry date and scroll to it
+            setTimeout(() => {
+                const entryDate = trip.entry;
+                const [y, m, d] = entryDate.split('-');
+                // Find the month block containing this trip
+                const allBlocks = document.querySelectorAll('.month-block');
+                for (const block of allBlocks) {
+                    const label = block.querySelector('.month-label');
+                    if (label) {
+                        const monthDate = new Date(`${y}-${m}-01T12:00:00`);
+                        const monthName = monthDate.toLocaleString('default', { month: 'long' });
+                        if (label.innerText.includes(monthName) && label.innerText.includes(y)) {
+                            block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            // Flash the affected trip cells
+                            flashAffectedTrip(trip);
+                            break;
+                        }
+                    }
+                }
+            }, 300);
+        }
+
+        function flashAffectedTrip(trip) {
+            // Find all day cells in the affected trip range and pulse them
+            const cells = document.querySelectorAll('.day-cell');
+            cells.forEach(cell => {
+                // We stored dateStr as a data attribute below
+                const ds = cell.getAttribute('data-date');
+                if (ds && ds >= trip.entry && ds <= trip.exit) {
+                    cell.style.outline = '3px solid #f97316';
+                    cell.style.outlineOffset = '2px';
+                    setTimeout(() => {
+                        cell.style.outline = '';
+                        cell.style.outlineOffset = '';
+                    }, 2500);
+                }
+            });
         }
 
         // ---- INFO STRIP ----
@@ -475,25 +517,23 @@
         // ---- CALENDAR RENDER ----
 
         function getPlanningClass(dateStr) {
-            // Is this day part of an existing trip? Lock it.
             const existingTrip = window.allTrips.find(t => dateStr >= t.entry && dateStr <= t.exit);
             if (existingTrip) return 'plan-locked';
 
-            if (!planStart) {
-                // No start selected yet — all free days are tappable
-                return 'plan-blank';
-            }
-
+            if (!planStart) return 'plan-blank';
             if (dateStr === planStart) return 'plan-selected';
-
             if (planEnd && dateStr > planStart && dateStr <= planEnd) return 'plan-range';
-
             if (dateStr < planStart) return 'plan-blank';
 
-            // dateStr is after planStart — check if adding this as exit would be legal
-            const tempTrip = { entry: planStart, exit: dateStr };
-            const status = SchengenEngine.calculateStatus([...window.allTrips, tempTrip], new Date(`${dateStr}T12:00:00`));
-            return status.remaining >= 0 ? 'plan-green' : 'plan-red';
+            // Future dates only get red/green validation
+            if (!isPastDate(dateStr)) {
+                const tempTrip = { entry: planStart, exit: dateStr };
+                const status = SchengenEngine.calculateStatus([...window.allTrips, tempTrip], new Date(`${dateStr}T12:00:00`));
+                return status.remaining >= 0 ? 'plan-green' : 'plan-red';
+            }
+
+            // Past dates after start are always green
+            return 'plan-green';
         }
 
         function renderCalendar(trips) {
@@ -537,6 +577,7 @@
                 for (let d = 1; d <= daysInMonth; d++) {
                     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                     const cell = document.createElement('div');
+                    cell.setAttribute('data-date', dateStr);
 
                     if (planningMode) {
                         const cls = getPlanningClass(dateStr);
@@ -617,6 +658,7 @@
             document.getElementById('overlay-backdrop').style.display = 'none';
             document.getElementById('action-sheet').style.display = 'none';
             document.getElementById('add-sheet').style.display = 'none';
+            document.getElementById('warn-sheet').style.display = 'none';
             selectedTripId = null;
         }
 
