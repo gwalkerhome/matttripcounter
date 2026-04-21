@@ -68,6 +68,7 @@
 
         .day-cell:active { transform: scale(0.88); }
 
+        /* VIEW MODE */
         .day-empty   { background: transparent; cursor: default; }
         .day-blank   { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); cursor: default; }
         .day-past    { background: #FF4DFF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
@@ -75,13 +76,48 @@
         .day-future  { background: #00A8FF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
         .day-today   { outline: 2.5px solid #fff; outline-offset: 1px; }
 
+        /* PLANNING MODE */
+        .plan-blank    { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); cursor: pointer; }
+        .plan-green    { background: rgba(46,213,115,0.25); color: #2ED573; border-color: rgba(46,213,115,0.4); cursor: pointer; }
+        .plan-red      { background: rgba(239,68,68,0.25); color: #ef4444; border-color: rgba(239,68,68,0.4); cursor: not-allowed; }
+        .plan-selected { background: #FFDE03; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; cursor: pointer; }
+        .plan-range    { background: rgba(46,213,115,0.5); color: #fff; border-color: rgba(46,213,115,0.6); cursor: pointer; }
+        .plan-locked   { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.2); cursor: not-allowed; }
+
+        /* PLANNING MODE FOOTER */
+        #plan-footer {
+            display: none;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            background: linear-gradient(to top,
+                rgba(0,0,0,0.85) 0%,
+                rgba(0,0,0,0.85) 60%,
+                transparent 100%);
+            padding: 16px 20px calc(env(safe-area-inset-bottom) + 12px);
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #plan-status {
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+        }
+
         #page-header {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             z-index: 30;
-            background: linear-gradient(to bottom, 
+            background: linear-gradient(to bottom,
                 rgba(0,0,0,0.85) 0%,
                 rgba(0,0,0,0.85) 75%,
                 transparent 100%);
@@ -167,45 +203,6 @@
             text-align: center;
         }
 
-        .date-input-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .date-input-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .date-input-group label {
-            font-size: 0.55rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: rgba(255,255,255,0.4);
-        }
-
-        .date-input-group input[type="date"] {
-            width: 100%;
-            background: rgba(255,255,255,0.08);
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 0.85rem;
-            font-weight: 800;
-            padding: 8px 10px;
-            font-family: inherit;
-            -webkit-appearance: none;
-        }
-
-        .date-input-group input[type="date"]:focus {
-            outline: none;
-            border-color: #00A8FF;
-        }
-
         .sheet-btn-row {
             display: flex;
             gap: 10px;
@@ -280,14 +277,25 @@
             <div id="calendar-container"></div>
         </div>
 
+        <!-- VIEW MODE FOOTER -->
         <div id="page-footer">
-            <button onclick="openAddSheet()" class="brutalist-btn btn-full bg-green" style="font-size:0.85rem;">+ Add Trip</button>
+            <button onclick="enterPlanningMode()" class="brutalist-btn btn-full bg-green" style="font-size:0.85rem;">+ Add Trip</button>
+        </div>
+
+        <!-- PLANNING MODE FOOTER -->
+        <div id="plan-footer">
+            <div id="plan-status">Tap a start date</div>
+            <div style="display:flex; gap:10px; width:100%; max-width:300px;">
+                <button onclick="exitPlanningMode()" class="brutalist-btn btn-half" style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.3); box-shadow:none;">Cancel</button>
+                <button id="plan-save-btn" onclick="savePlanningTrip()" class="brutalist-btn" style="flex:1; height:60px; background:#2ED573; color:#000; border-color:#000; font-size:0.85rem; opacity:0.3;" disabled>Save Trip</button>
+            </div>
         </div>
 
     </div>
 
     <div id="overlay-backdrop" onclick="closeAll()"></div>
 
+    <!-- ACTION SHEET (tap existing trip) -->
     <div id="action-sheet">
         <p class="sheet-title" id="action-sheet-title">Trip Options</p>
         <div style="display:flex; flex-direction:column; gap:10px;">
@@ -297,21 +305,22 @@
         </div>
     </div>
 
+    <!-- EDIT SHEET -->
     <div id="add-sheet">
-        <p class="sheet-title" id="add-sheet-title">Add New Trip</p>
-        <div class="date-input-row">
-            <div class="date-input-group">
-                <label>Entry Date</label>
-                <input type="date" id="input-entry">
+        <p class="sheet-title" id="add-sheet-title">Edit Trip</p>
+        <div style="display:flex; gap:10px; margin-bottom:16px;">
+            <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:0.55rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.4);">Entry Date</label>
+                <input type="date" id="input-entry" style="width:100%; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.2); border-radius:10px; color:#fff; font-size:0.85rem; font-weight:800; padding:8px 10px; font-family:inherit; -webkit-appearance:none;">
             </div>
-            <div class="date-input-group">
-                <label>Exit Date</label>
-                <input type="date" id="input-exit">
+            <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:0.55rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.4);">Exit Date</label>
+                <input type="date" id="input-exit" style="width:100%; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.2); border-radius:10px; color:#fff; font-size:0.85rem; font-weight:800; padding:8px 10px; font-family:inherit; -webkit-appearance:none;">
             </div>
         </div>
         <div class="sheet-btn-row">
             <button onclick="closeAll()" class="brutalist-btn btn-half" style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.3); box-shadow:none;">Cancel</button>
-            <button onclick="saveTrip()" class="brutalist-btn" style="flex:1; height:60px; background:#2ED573; color:#000; border-color:#000; font-size:0.85rem;">Save Trip</button>
+            <button onclick="saveEditTrip()" class="brutalist-btn" style="flex:1; height:60px; background:#2ED573; color:#000; border-color:#000; font-size:0.85rem;">Save</button>
         </div>
     </div>
 
@@ -323,20 +332,99 @@
     <script>
         const now = new Date();
         const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
         let selectedTripId = null;
-        let editingTripId = null;
+        let planningMode = false;
+        let planStart = null;
+        let planEnd = null;
+
+        // ---- PLANNING MODE ----
+
+        function enterPlanningMode() {
+            planningMode = true;
+            planStart = null;
+            planEnd = null;
+            document.getElementById('page-footer').style.display = 'none';
+            document.getElementById('plan-footer').style.display = 'flex';
+            document.getElementById('plan-status').innerText = 'Tap a start date';
+            setSaveBtn(false);
+            renderCalendar(window.allTrips);
+        }
+
+        function exitPlanningMode() {
+            planningMode = false;
+            planStart = null;
+            planEnd = null;
+            document.getElementById('page-footer').style.display = 'flex';
+            document.getElementById('plan-footer').style.display = 'none';
+            renderCalendar(window.allTrips);
+        }
+
+        function setSaveBtn(enabled) {
+            const btn = document.getElementById('plan-save-btn');
+            btn.disabled = !enabled;
+            btn.style.opacity = enabled ? '1' : '0.3';
+        }
+
+        function onPlanningDayTap(dateStr) {
+            if (!planStart) {
+                // First tap — set start
+                planStart = dateStr;
+                planEnd = null;
+                setSaveBtn(false);
+                document.getElementById('plan-status').innerText = 'Now tap an end date';
+                renderCalendar(window.allTrips);
+            } else if (dateStr === planStart) {
+                // Tapped same day — deselect
+                planStart = null;
+                planEnd = null;
+                setSaveBtn(false);
+                document.getElementById('plan-status').innerText = 'Tap a start date';
+                renderCalendar(window.allTrips);
+            } else if (dateStr < planStart) {
+                // Tapped before start — reset and use as new start
+                planStart = dateStr;
+                planEnd = null;
+                setSaveBtn(false);
+                document.getElementById('plan-status').innerText = 'Now tap an end date';
+                renderCalendar(window.allTrips);
+            } else {
+                // Second tap — check if valid end date
+                const tempTrip = { entry: planStart, exit: dateStr };
+                const status = SchengenEngine.calculateStatus([...window.allTrips, tempTrip], new Date(`${dateStr}T12:00:00`));
+                if (status.remaining < 0) {
+                    // Over limit — don't allow
+                    return;
+                }
+                planEnd = dateStr;
+                const d1 = planStart.split('-');
+                const d2 = planEnd.split('-');
+                const nights = daysBetween(new Date(`${planStart}T12:00:00`), new Date(`${planEnd}T12:00:00`));
+                document.getElementById('plan-status').innerText = `${d1[2]}/${d1[1]} — ${d2[2]}/${d2[1]} · ${nights} night${nights !== 1 ? 's' : ''}`;
+                setSaveBtn(true);
+                renderCalendar(window.allTrips);
+            }
+        }
+
+        function savePlanningTrip() {
+            if (!planStart || !planEnd) return;
+            window.db.ref('trips').push({ entry: planStart, exit: planEnd, timestamp: Date.now() });
+            exitPlanningMode();
+        }
+
+        // ---- INFO STRIP ----
 
         function daysBetween(a, b) {
             return Math.round((b - a) / (1000 * 60 * 60 * 24));
         }
 
         function findEarliestReturn(trips) {
-            // Walk forward day by day until we find a date with at least 1 day available
             const test = new Date(`${todayStr}T12:00:00`);
             for (let i = 0; i < 180; i++) {
-                const dateStr = `${test.getFullYear()}-${String(test.getMonth()+1).padStart(2,'0')}-${String(test.getDate()).padStart(2,'0')}`;
                 const status = SchengenEngine.calculateStatus(trips, test);
-                if (status.remaining > 0) return dateStr;
+                if (status.remaining > 0) {
+                    return `${test.getFullYear()}-${String(test.getMonth()+1).padStart(2,'0')}-${String(test.getDate()).padStart(2,'0')}`;
+                }
                 test.setDate(test.getDate() + 1);
             }
             return null;
@@ -354,43 +442,58 @@
             const sorted = [...trips].sort((a, b) => new Date(a.entry) - new Date(b.entry));
             const currentTrip = sorted.find(t => todayStr >= t.entry && todayStr <= t.exit);
             const nextTrip = sorted.find(t => t.entry > todayStr);
-
             const labelEl = document.getElementById('info-status-label');
             const valueEl = document.getElementById('info-status-value');
 
             if (currentTrip) {
-                // In Spain — show days left on this trip
                 const exitDate = new Date(`${currentTrip.exit}T12:00:00`);
                 const days = daysBetween(today, exitDate);
                 labelEl.innerText = 'Days Left in Spain';
                 valueEl.innerText = days === 0 ? 'Last day!' : `${days} day${days !== 1 ? 's' : ''}`;
                 valueEl.style.color = '#2ED573';
             } else if (res.remaining === 0) {
-                // No days left — find earliest return
                 const earliest = findEarliestReturn(trips);
                 if (earliest) {
                     const d = earliest.split('-');
                     labelEl.innerText = 'Earliest Return';
                     valueEl.innerText = `${d[2]}/${d[1]}/${d[0]}`;
                     valueEl.style.color = '#ef4444';
-                } else {
-                    labelEl.innerText = 'Earliest Return';
-                    valueEl.innerText = 'Calculating...';
-                    valueEl.style.color = '#ef4444';
                 }
             } else if (nextTrip) {
-                // Has a future trip planned
                 const entryDate = new Date(`${nextTrip.entry}T12:00:00`);
                 const days = daysBetween(today, entryDate);
                 labelEl.innerText = 'Next Trip';
                 valueEl.innerText = days === 0 ? 'Today!' : `${days} day${days !== 1 ? 's' : ''}`;
                 valueEl.style.color = '#00A8FF';
             } else {
-                // Days available, no trip planned
                 labelEl.innerText = 'Can Travel';
                 valueEl.innerText = 'Any time!';
                 valueEl.style.color = '#2ED573';
             }
+        }
+
+        // ---- CALENDAR RENDER ----
+
+        function getPlanningClass(dateStr) {
+            // Is this day part of an existing trip? Lock it.
+            const existingTrip = window.allTrips.find(t => dateStr >= t.entry && dateStr <= t.exit);
+            if (existingTrip) return 'plan-locked';
+
+            if (!planStart) {
+                // No start selected yet — all free days are tappable
+                return 'plan-blank';
+            }
+
+            if (dateStr === planStart) return 'plan-selected';
+
+            if (planEnd && dateStr > planStart && dateStr <= planEnd) return 'plan-range';
+
+            if (dateStr < planStart) return 'plan-blank';
+
+            // dateStr is after planStart — check if adding this as exit would be legal
+            const tempTrip = { entry: planStart, exit: dateStr };
+            const status = SchengenEngine.calculateStatus([...window.allTrips, tempTrip], new Date(`${dateStr}T12:00:00`));
+            return status.remaining >= 0 ? 'plan-green' : 'plan-red';
         }
 
         function renderCalendar(trips) {
@@ -434,19 +537,28 @@
                 for (let d = 1; d <= daysInMonth; d++) {
                     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
                     const cell = document.createElement('div');
-                    const tripOnDay = trips.find(t => dateStr >= t.entry && dateStr <= t.exit);
 
-                    let cls = 'day-blank';
-                    if (tripOnDay) {
-                        if (dateStr < todayStr) cls = 'day-past';
-                        else if (dateStr === todayStr) cls = 'day-current';
-                        else cls = 'day-future';
+                    if (planningMode) {
+                        const cls = getPlanningClass(dateStr);
+                        cell.className = `day-cell ${cls}`;
+                        cell.innerText = d;
+                        if (cls !== 'plan-locked' && cls !== 'plan-red') {
+                            cell.onclick = () => onPlanningDayTap(dateStr);
+                        }
+                    } else {
+                        const tripOnDay = trips.find(t => dateStr >= t.entry && dateStr <= t.exit);
+                        let cls = 'day-blank';
+                        if (tripOnDay) {
+                            if (dateStr < todayStr) cls = 'day-past';
+                            else if (dateStr === todayStr) cls = 'day-current';
+                            else cls = 'day-future';
+                        }
+                        if (dateStr === todayStr) cls += ' day-today';
+                        cell.className = `day-cell ${cls}`;
+                        cell.innerText = d;
+                        if (tripOnDay) cell.onclick = () => openActionSheet(tripOnDay);
                     }
-                    if (dateStr === todayStr) cls += ' day-today';
 
-                    cell.className = `day-cell ${cls}`;
-                    cell.innerText = d;
-                    if (tripOnDay) cell.onclick = () => openActionSheet(tripOnDay);
                     grid.appendChild(cell);
                 }
 
@@ -454,11 +566,15 @@
                 container.appendChild(block);
             }
 
-            setTimeout(() => {
-                const cur = document.getElementById('current-month');
-                if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 300);
+            if (!planningMode) {
+                setTimeout(() => {
+                    const cur = document.getElementById('current-month');
+                    if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
         }
+
+        // ---- ACTION SHEET ----
 
         function openActionSheet(trip) {
             selectedTripId = trip.id;
@@ -481,7 +597,6 @@
         function editSelectedTrip() {
             const trip = window.allTrips.find(t => t.id === selectedTripId);
             if (!trip) return;
-            editingTripId = selectedTripId;
             document.getElementById('action-sheet').style.display = 'none';
             document.getElementById('add-sheet-title').innerText = 'Edit Trip';
             document.getElementById('input-entry').value = trip.entry;
@@ -489,26 +604,12 @@
             document.getElementById('add-sheet').style.display = 'block';
         }
 
-        function openAddSheet() {
-            editingTripId = null;
-            selectedTripId = null;
-            document.getElementById('add-sheet-title').innerText = 'Add New Trip';
-            document.getElementById('input-entry').value = '';
-            document.getElementById('input-exit').value = '';
-            document.getElementById('overlay-backdrop').style.display = 'block';
-            document.getElementById('add-sheet').style.display = 'block';
-        }
-
-        function saveTrip() {
+        function saveEditTrip() {
             const entry = document.getElementById('input-entry').value;
             const exit = document.getElementById('input-exit').value;
-            if (!entry || !exit) { alert('Please set both entry and exit dates.'); return; }
-            if (exit < entry) { alert('Exit date must be after entry date.'); return; }
-            if (editingTripId) {
-                window.db.ref('trips').child(editingTripId).update({ entry, exit });
-            } else {
-                window.db.ref('trips').push({ entry, exit, timestamp: Date.now() });
-            }
+            if (!entry || !exit) { alert('Please set both dates.'); return; }
+            if (exit < entry) { alert('Exit must be after entry.'); return; }
+            window.db.ref('trips').child(selectedTripId).update({ entry, exit });
             closeAll();
         }
 
@@ -517,9 +618,9 @@
             document.getElementById('action-sheet').style.display = 'none';
             document.getElementById('add-sheet').style.display = 'none';
             selectedTripId = null;
-            editingTripId = null;
         }
 
+        // ---- DATA ----
         window.addEventListener('tripsUpdated', () => {
             updateInfoStrip(window.allTrips);
             renderCalendar(window.allTrips);
