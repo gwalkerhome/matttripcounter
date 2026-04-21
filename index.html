@@ -32,8 +32,8 @@
             <h1 id="status-message" class="text-brutal" style="font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:0.4em; margin:0;">Syncing...</h1>
         </div>
 
-        <!-- GAUGE + RECOVERY -->
-        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -55%); display:flex; flex-direction:column; align-items:center;">
+        <!-- GAUGE -->
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -55%);">
             <div style="position:relative; display:flex; align-items:center; justify-content:center;">
                 <svg style="width:288px; height:288px; transform:rotate(-90deg);">
                     <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent"/>
@@ -48,8 +48,8 @@
                 </div>
             </div>
 
-            <!-- RECOVERY TAGLINE sits tight below gauge -->
-            <div id="recovery-tagline" class="text-brutal" style="margin-top:6px; text-align:center; font-size:0.7rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; line-height:1.6;"></div>
+            <!-- RECOVERY TAGLINE: pulled up tight using negative margin to compensate for SVG whitespace -->
+            <div id="recovery-tagline" class="text-brutal" style="margin-top:-44px; text-align:center; font-size:0.7rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; line-height:1.6;"></div>
         </div>
 
         <!-- BOTTOM BUTTON -->
