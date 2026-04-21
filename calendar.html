@@ -20,7 +20,7 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
-            padding: calc(env(safe-area-inset-top) + 120px) 20px calc(env(safe-area-inset-bottom) + 80px);
+            padding: calc(env(safe-area-inset-top) + 118px) 20px calc(env(safe-area-inset-bottom) + 78px);
         }
         #calendar-scroll::-webkit-scrollbar { display: none; }
 
@@ -81,8 +81,11 @@
             left: 0;
             right: 0;
             z-index: 30;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.82) 55%, transparent);
-            padding: calc(env(safe-area-inset-top) + 12px) 16px 28px;
+            background: linear-gradient(to bottom, 
+                rgba(0,0,0,0.85) 0%,
+                rgba(0,0,0,0.85) 75%,
+                transparent 100%);
+            padding: calc(env(safe-area-inset-top) + 10px) 16px 16px;
         }
 
         .info-strip {
@@ -124,8 +127,11 @@
             left: 0;
             right: 0;
             z-index: 30;
-            background: linear-gradient(to top, rgba(0,0,0,0.82) 45%, transparent);
-            padding: 28px 20px calc(env(safe-area-inset-bottom) + 14px);
+            background: linear-gradient(to top,
+                rgba(0,0,0,0.85) 0%,
+                rgba(0,0,0,0.85) 60%,
+                transparent 100%);
+            padding: 16px 20px calc(env(safe-area-inset-bottom) + 12px);
             display: flex;
             justify-content: center;
         }
@@ -264,8 +270,8 @@
                     <span class="info-pill-value" id="info-remaining" style="color:#2ED573;">--</span>
                 </div>
                 <div class="info-pill">
-                    <span class="info-pill-label" id="info-trip-label">Next Trip</span>
-                    <span class="info-pill-value" id="info-trip-value">--</span>
+                    <span class="info-pill-label" id="info-status-label">Status</span>
+                    <span class="info-pill-value" id="info-status-value">--</span>
                 </div>
             </div>
         </div>
@@ -324,6 +330,18 @@
             return Math.round((b - a) / (1000 * 60 * 60 * 24));
         }
 
+        function findEarliestReturn(trips) {
+            // Walk forward day by day until we find a date with at least 1 day available
+            const test = new Date(`${todayStr}T12:00:00`);
+            for (let i = 0; i < 180; i++) {
+                const dateStr = `${test.getFullYear()}-${String(test.getMonth()+1).padStart(2,'0')}-${String(test.getDate()).padStart(2,'0')}`;
+                const status = SchengenEngine.calculateStatus(trips, test);
+                if (status.remaining > 0) return dateStr;
+                test.setDate(test.getDate() + 1);
+            }
+            return null;
+        }
+
         function updateInfoStrip(trips) {
             const res = SchengenEngine.calculateStatus(trips);
             const remEl = document.getElementById('info-remaining');
@@ -337,25 +355,41 @@
             const currentTrip = sorted.find(t => todayStr >= t.entry && todayStr <= t.exit);
             const nextTrip = sorted.find(t => t.entry > todayStr);
 
-            const labelEl = document.getElementById('info-trip-label');
-            const valueEl = document.getElementById('info-trip-value');
+            const labelEl = document.getElementById('info-status-label');
+            const valueEl = document.getElementById('info-status-value');
 
             if (currentTrip) {
+                // In Spain — show days left on this trip
                 const exitDate = new Date(`${currentTrip.exit}T12:00:00`);
                 const days = daysBetween(today, exitDate);
-                labelEl.innerText = 'Return to UK';
-                valueEl.innerText = days === 0 ? 'Today!' : `${days} day${days !== 1 ? 's' : ''}`;
-                valueEl.style.color = '#FF4DFF';
+                labelEl.innerText = 'Days Left in Spain';
+                valueEl.innerText = days === 0 ? 'Last day!' : `${days} day${days !== 1 ? 's' : ''}`;
+                valueEl.style.color = '#2ED573';
+            } else if (res.remaining === 0) {
+                // No days left — find earliest return
+                const earliest = findEarliestReturn(trips);
+                if (earliest) {
+                    const d = earliest.split('-');
+                    labelEl.innerText = 'Earliest Return';
+                    valueEl.innerText = `${d[2]}/${d[1]}/${d[0]}`;
+                    valueEl.style.color = '#ef4444';
+                } else {
+                    labelEl.innerText = 'Earliest Return';
+                    valueEl.innerText = 'Calculating...';
+                    valueEl.style.color = '#ef4444';
+                }
             } else if (nextTrip) {
+                // Has a future trip planned
                 const entryDate = new Date(`${nextTrip.entry}T12:00:00`);
                 const days = daysBetween(today, entryDate);
                 labelEl.innerText = 'Next Trip';
                 valueEl.innerText = days === 0 ? 'Today!' : `${days} day${days !== 1 ? 's' : ''}`;
                 valueEl.style.color = '#00A8FF';
             } else {
-                labelEl.innerText = 'Next Trip';
-                valueEl.innerText = 'None planned';
-                valueEl.style.color = 'rgba(255,255,255,0.35)';
+                // Days available, no trip planned
+                labelEl.innerText = 'Can Travel';
+                valueEl.innerText = 'Any time!';
+                valueEl.style.color = '#2ED573';
             }
         }
 
