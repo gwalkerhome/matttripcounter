@@ -111,7 +111,16 @@ window.db.ref('trips').on('value', (snap) => {
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const calcDate = new Date(`${todayStr}T12:00:00`);
 
-    const res = SchengenEngine.calculateStatus(trips, calcDate);
+    // Find the last future planned trip exit date for gauge calculation
+    const futureTrips = trips
+        .filter(t => t.entry > todayStr)
+        .sort((a, b) => new Date(a.exit) - new Date(b.exit));
+
+    const gaugeDate = futureTrips.length > 0
+        ? new Date(`${futureTrips[futureTrips.length - 1].exit}T12:00:00`)
+        : calcDate;
+
+    const res = SchengenEngine.calculateStatus(trips, gaugeDate);
     const recovery = SchengenEngine.getNextIncrease(trips, calcDate);
     const currentTrip = trips.find(t => todayStr >= t.entry && todayStr <= t.exit);
     const isTravelDay = currentTrip
