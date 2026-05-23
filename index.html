@@ -543,68 +543,47 @@
 
     <!-- ================================================
          VIEW: BORDER CONTROL
-         Plain, professional, read-only — for showing
-         at the immigration desk. Solid background,
-         no images, three-language toggle at the bottom.
+         Professional screen for showing at the border.
+         background: assets/border.png (passport-style)
+         Fixed header + scrollable trip table + flag toggle.
          ================================================ -->
     <div id="view-border" class="view">
 
-        <div id="border-scroll">
+        <!-- Fixed header — stays visible while table scrolls -->
+        <div id="bc-header">
+            <h1 id="bc-heading">Border Information</h1>
+            <p id="bc-name">Matthew Hilton</p>
+            <p id="bc-dob">DOB 26 / 01 / 1978</p>
+            <p id="bc-today-date">&nbsp;</p>
+        </div>
 
-            <!-- Traveller header -->
-            <div id="bc-header">
-                <p id="bc-label-title">Schengen Entry Record</p>
-                <h1 id="bc-name">Matt Walker</h1>
-                <p id="bc-today-date">&nbsp;</p>
-            </div>
+        <!-- Scrollable table area -->
+        <div id="bc-scroll-area">
+            <p id="bc-table-title">Time Inside Schengen Area</p>
+            <p id="bc-table-sub" id="bc-label-window">Previous 180 Days</p>
 
-            <!-- Status card: IN / OUTSIDE Schengen -->
-            <div id="bc-status-card">
-                <div id="bc-status-dot"></div>
-                <span id="bc-status-label">Loading…</span>
-            </div>
-
-            <!-- Days used / days remaining -->
-            <div class="bc-stat-row">
-                <div class="bc-stat">
-                    <span class="bc-stat-label" id="bc-label-used">Days Used</span>
-                    <span class="bc-stat-value" id="bc-days-used">--</span>
-                    <span class="bc-stat-sub" id="bc-label-of90">of 90</span>
-                </div>
-                <div class="bc-stat">
-                    <span class="bc-stat-label" id="bc-label-left">Days Left</span>
-                    <span class="bc-stat-value" id="bc-days-remaining" style="color:#2ED573;">--</span>
-                </div>
-            </div>
-
-            <!-- 180-day rolling window -->
-            <div id="bc-window-box">
-                <p class="bc-section-label" id="bc-label-window">Current 180-Day Window</p>
-                <div id="bc-window-row">
-                    <div style="text-align:center;">
-                        <span class="bc-window-sublabel" id="bc-label-from">From</span>
-                        <span id="bc-window-start">--</span>
-                    </div>
-                    <span class="bc-arrow">→</span>
-                    <div style="text-align:center;">
-                        <span class="bc-window-sublabel" id="bc-label-today">Today</span>
-                        <span id="bc-window-end">--</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Trips in window -->
-            <p class="bc-section-label" id="bc-label-trips">Trips in Window</p>
+            <!-- Trip rows rendered by JS -->
             <div id="bc-trip-list"></div>
 
-            <!-- Language toggle -->
-            <div id="bc-lang-toggle">
-                <button class="bc-flag active" data-lang="en" onclick="setBcLanguage('en')">🇬🇧</button>
-                <button class="bc-flag"        data-lang="es" onclick="setBcLanguage('es')">🇪🇸</button>
-                <button class="bc-flag"        data-lang="fr" onclick="setBcLanguage('fr')">🇫🇷</button>
+            <!-- Totals -->
+            <div id="bc-totals">
+                <div class="bc-total-row">
+                    <span id="bc-label-used">Total Days Used</span>
+                    <span id="bc-days-used">--</span>
+                </div>
+                <div class="bc-total-row">
+                    <span id="bc-label-left">Days Remaining</span>
+                    <span id="bc-days-remaining">--</span>
+                </div>
             </div>
+        </div>
 
-        </div><!-- end border-scroll -->
+        <!-- Language flags — pinned at the bottom -->
+        <div id="bc-lang-toggle">
+            <button class="bc-flag active" data-lang="en" onclick="setBcLanguage('en')">🇬🇧</button>
+            <button class="bc-flag"        data-lang="es" onclick="setBcLanguage('es')">🇪🇸</button>
+            <button class="bc-flag"        data-lang="fr" onclick="setBcLanguage('fr')">🇫🇷</button>
+        </div>
 
     </div><!-- end view-border -->
 
