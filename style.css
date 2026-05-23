@@ -359,7 +359,12 @@ html, body {
 
 /* ==============================================
    BORDER CONTROL VIEW
+   Plain solid background — no bg-layer image.
    ============================================== */
+
+#view-border {
+    background: #0f1117;
+}
 
 #border-scroll {
     position: absolute;
@@ -367,20 +372,83 @@ html, body {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding: calc(env(safe-area-inset-top) + 16px) 20px calc(var(--nav-h) + 24px);
+    padding: calc(env(safe-area-inset-top) + 20px) 24px calc(var(--nav-h) + 40px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
 }
 #border-scroll::-webkit-scrollbar { display: none; }
 
-.bc-divider {
-    border: none;
-    border-top: 1.5px solid rgba(255,255,255,0.12);
-    margin: 16px 0;
+/* Traveller header */
+#bc-header {
+    text-align: center;
+    width: 100%;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
+#bc-label-title {
+    font-size: 0.45rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: rgba(255,255,255,0.35);
+    margin: 0 0 8px;
+}
+
+#bc-name {
+    font-size: 2rem;
+    font-weight: 900;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+    color: #fff;
+}
+
+#bc-today-date {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    margin: 0;
+    letter-spacing: 0.03em;
+}
+
+/* Status card */
+#bc-status-card {
+    width: 100%;
+    max-width: 300px;
+    border: 2px solid #2ED573;
+    border-radius: 14px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(46,213,115,0.1);
+}
+
+#bc-status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #2ED573;
+    flex-shrink: 0;
+}
+
+#bc-status-label {
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fff;
+}
+
+/* Stats row */
 .bc-stat-row {
     display: flex;
     gap: 10px;
-    margin: 12px 0;
+    width: 100%;
+    max-width: 300px;
 }
 
 .bc-stat {
@@ -407,6 +475,76 @@ html, body {
     font-weight: 900;
     display: block;
     line-height: 1;
+    color: #fff;
+}
+
+.bc-stat-sub {
+    font-size: 0.4rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3);
+    display: block;
+    margin-top: 3px;
+}
+
+/* 180-day window box */
+#bc-window-box {
+    width: 100%;
+    max-width: 300px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+}
+
+#bc-window-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+#bc-window-row span[id] {
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: #fff;
+    display: block;
+}
+
+.bc-window-sublabel {
+    display: block;
+    font-size: 0.42rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 4px;
+}
+
+.bc-arrow {
+    color: rgba(255,255,255,0.2);
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+/* Section labels */
+.bc-section-label {
+    font-size: 0.45rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.4);
+    align-self: flex-start;
+    width: 100%;
+    max-width: 300px;
+    margin: 4px 0 -4px;
+}
+
+/* Trip list */
+#bc-trip-list {
+    width: 100%;
+    max-width: 300px;
 }
 
 .bc-trip-row {
@@ -418,3 +556,50 @@ html, body {
 }
 
 .bc-trip-row:last-child { border-bottom: none; }
+
+/* Language toggle */
+#bc-lang-toggle {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    padding: 16px 0 4px;
+    width: 100%;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin-top: 8px;
+}
+
+.bc-flag {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    font-size: 1.9rem;
+    background: none;
+    border: 3px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bc-flag.active {
+    border-color: #f97316;
+    box-shadow: 0 0 14px rgba(249,115,22,0.5);
+}
+
+/* ==============================================
+   TEXT READABILITY — image-backed views
+   Ensures paragraph text is always legible
+   over the background image.
+   ============================================== */
+
+#view-home p,
+#view-calendar p,
+#view-trips p,
+#view-plan p {
+    text-shadow: 0 1px 4px rgba(0,0,0,1), 0 -1px 4px rgba(0,0,0,1),
+                 1px 0 4px rgba(0,0,0,1), -1px 0 4px rgba(0,0,0,1);
+}

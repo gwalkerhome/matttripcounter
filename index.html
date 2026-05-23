@@ -543,101 +543,66 @@
 
     <!-- ================================================
          VIEW: BORDER CONTROL
-         Read-only summary for showing at the border
+         Plain, professional, read-only — for showing
+         at the immigration desk. Solid background,
+         no images, three-language toggle at the bottom.
          ================================================ -->
     <div id="view-border" class="view">
 
         <div id="border-scroll">
 
             <!-- Traveller header -->
-            <div style="text-align:center; width:100%; margin-bottom:4px;">
-                <p style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
-                          letter-spacing:0.2em; color:rgba(255,255,255,0.35); margin:0 0 6px;">
-                    Schengen Entry Record
-                </p>
-                <h1 class="text-brutal"
-                    style="font-size:1.6rem; font-weight:900; margin:0; letter-spacing:-0.02em;">
-                    Matt Walker
-                </h1>
-                <p id="bc-today-date"
-                   style="font-size:0.62rem; font-weight:700; color:rgba(255,255,255,0.4);
-                          margin:8px 0 0; letter-spacing:0.04em;">
-                    &nbsp;
-                </p>
+            <div id="bc-header">
+                <p id="bc-label-title">Schengen Entry Record</p>
+                <h1 id="bc-name">Matt Walker</h1>
+                <p id="bc-today-date">&nbsp;</p>
             </div>
 
             <!-- Status card: IN / OUTSIDE Schengen -->
-            <div id="bc-status-card"
-                 style="width:100%; max-width:300px;
-                        background:rgba(0,0,0,0.4);
-                        border:2.5px solid #2ED573;
-                        border-radius:20px;
-                        padding:16px 20px;
-                        display:flex; align-items:center; justify-content:center; gap:14px;">
-                <div id="bc-status-dot"
-                     style="width:14px; height:14px; border-radius:50%;
-                            background:#2ED573; flex-shrink:0;
-                            box-shadow:0 0 12px rgba(46,213,115,0.5);">
-                </div>
-                <span id="bc-status-label"
-                      style="font-size:0.95rem; font-weight:900; text-transform:uppercase;
-                             letter-spacing:0.12em; color:#fff;">
-                    Loading…
-                </span>
+            <div id="bc-status-card">
+                <div id="bc-status-dot"></div>
+                <span id="bc-status-label">Loading…</span>
             </div>
 
-            <!-- Days used / days remaining stats -->
-            <div class="bc-stat-row" style="width:100%; max-width:300px;">
+            <!-- Days used / days remaining -->
+            <div class="bc-stat-row">
                 <div class="bc-stat">
-                    <span class="bc-stat-label">Days Used</span>
-                    <span class="bc-stat-value" id="bc-days-used" style="color:#fff;">--</span>
-                    <span style="font-size:0.42rem; font-weight:700; text-transform:uppercase;
-                                 letter-spacing:0.1em; color:rgba(255,255,255,0.3); display:block;
-                                 margin-top:2px;">
-                        of 90
-                    </span>
+                    <span class="bc-stat-label" id="bc-label-used">Days Used</span>
+                    <span class="bc-stat-value" id="bc-days-used">--</span>
+                    <span class="bc-stat-sub" id="bc-label-of90">of 90</span>
                 </div>
                 <div class="bc-stat">
-                    <span class="bc-stat-label">Days Left</span>
+                    <span class="bc-stat-label" id="bc-label-left">Days Left</span>
                     <span class="bc-stat-value" id="bc-days-remaining" style="color:#2ED573;">--</span>
                 </div>
             </div>
 
             <!-- 180-day rolling window -->
-            <div style="width:100%; max-width:300px;
-                        background:rgba(255,255,255,0.05);
-                        border:1.5px solid rgba(255,255,255,0.1);
-                        border-radius:14px; padding:12px 16px;">
-                <p style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
-                          letter-spacing:0.15em; color:rgba(255,255,255,0.35);
-                          margin:0 0 10px; text-align:center;">
-                    Current 180-Day Window
-                </p>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div id="bc-window-box">
+                <p class="bc-section-label" id="bc-label-window">Current 180-Day Window</p>
+                <div id="bc-window-row">
                     <div style="text-align:center;">
-                        <span style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
-                                     letter-spacing:0.1em; color:rgba(255,255,255,0.35); display:block;
-                                     margin-bottom:4px;">From</span>
-                        <span id="bc-window-start"
-                              style="font-size:0.9rem; font-weight:900; color:#fff;">--</span>
+                        <span class="bc-window-sublabel" id="bc-label-from">From</span>
+                        <span id="bc-window-start">--</span>
                     </div>
-                    <span style="color:rgba(255,255,255,0.2); font-size:1.2rem; font-weight:900;">→</span>
+                    <span class="bc-arrow">→</span>
                     <div style="text-align:center;">
-                        <span style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
-                                     letter-spacing:0.1em; color:rgba(255,255,255,0.35); display:block;
-                                     margin-bottom:4px;">Today</span>
-                        <span id="bc-window-end"
-                              style="font-size:0.9rem; font-weight:900; color:#fff;">--</span>
+                        <span class="bc-window-sublabel" id="bc-label-today">Today</span>
+                        <span id="bc-window-end">--</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Trip history within the window -->
-            <hr class="bc-divider" style="width:100%; max-width:300px;">
-            <p class="plan-section-label" style="align-self:flex-start; max-width:300px; width:100%;">
-                Trips in window
-            </p>
-            <div id="bc-trip-list" style="width:100%; max-width:300px;"></div>
+            <!-- Trips in window -->
+            <p class="bc-section-label" id="bc-label-trips">Trips in Window</p>
+            <div id="bc-trip-list"></div>
+
+            <!-- Language toggle -->
+            <div id="bc-lang-toggle">
+                <button class="bc-flag active" data-lang="en" onclick="setBcLanguage('en')">🇬🇧</button>
+                <button class="bc-flag"        data-lang="es" onclick="setBcLanguage('es')">🇪🇸</button>
+                <button class="bc-flag"        data-lang="fr" onclick="setBcLanguage('fr')">🇫🇷</button>
+            </div>
 
         </div><!-- end border-scroll -->
 
