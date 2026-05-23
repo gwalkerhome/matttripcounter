@@ -154,7 +154,7 @@ html, body {
    ============================================== */
 
 :root {
-    --nav-h: 54px; /* height of the bottom nav bar (tab content only, not safe area) */
+    --nav-h: 48px; /* height of the tab content only — not the safe area */
 }
 
 .view {
@@ -177,23 +177,29 @@ html, body {
     bottom: 0; left: 0; right: 0;
     z-index: 120;
     display: flex;
-    background: rgba(0, 0, 0, 0.55);
+    flex-direction: column; /* tab row on top, safe-area fill below */
+    background: transparent;
+}
+
+/* The actual tab row — frosted glass here only */
+#bottom-nav .nav-row {
+    display: flex;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255, 255, 255, 0.15);
-    /* Extend background to cover the iPhone home-indicator safe area */
-    padding-bottom: env(safe-area-inset-bottom);
-    margin-bottom: 0;
 }
 
-/* Fill any gap between nav bar and screen edge with matching colour */
-#bottom-nav::after {
-    content: '';
-    position: absolute;
-    bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
-    left: 0; right: 0;
+/* Safe-area strip below the tabs —
+   very light tint so the background image shows through,
+   no more solid black bar on real iPhones */
+#bottom-nav .nav-safe-area {
+    width: 100%;
     height: env(safe-area-inset-bottom, 0px);
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.15);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
 }
 
 .nav-tab {
@@ -202,7 +208,7 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 7px 0;
+    padding: 5px 0;
     gap: 3px;
     min-height: var(--nav-h);
     font-size: 0.42rem;
