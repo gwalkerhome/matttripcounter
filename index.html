@@ -543,47 +543,42 @@
 
     <!-- ================================================
          VIEW: BORDER CONTROL
-         Professional screen for showing at the border.
-         background: assets/border.png (passport-style)
-         Fixed header + scrollable trip table + flag toggle.
+         border.png passport background with dark overlay.
+         Fixed header → fixed totals → scrollable table.
          ================================================ -->
     <div id="view-border" class="view">
 
-        <!-- Fixed header — stays visible while table scrolls -->
-        <div id="bc-header">
-            <h1 id="bc-heading">Border Information</h1>
-            <p id="bc-name">Matthew Hilton</p>
-            <p id="bc-dob">DOB 26 / 01 / 1978</p>
-            <p id="bc-today-date">&nbsp;</p>
-        </div>
+        <!-- Dark overlay — passport shows softly behind all content -->
+        <div id="bc-overlay">
 
-        <!-- Scrollable table area -->
-        <div id="bc-scroll-area">
-            <p id="bc-table-title">Time Inside Schengen Area</p>
-            <p id="bc-table-sub" id="bc-label-window">Previous 180 Days</p>
+            <!-- Fixed header -->
+            <div id="bc-header">
+                <h1 id="bc-heading">Border Information</h1>
+                <p id="bc-name">Matthew Hilton</p>
+                <p id="bc-dob">DOB 26 / 01 / 1978</p>
+                <p id="bc-today-date">&nbsp;</p>
+            </div>
 
-            <!-- Trip rows rendered by JS -->
-            <div id="bc-trip-list"></div>
-
-            <!-- Totals -->
-            <div id="bc-totals">
-                <div class="bc-total-row">
-                    <span id="bc-label-used">Total Days Used</span>
-                    <span id="bc-days-used">--</span>
+            <!-- Fixed totals strip — always visible above the table -->
+            <div id="bc-totals-fixed">
+                <div class="bc-total-item">
+                    <span class="bc-total-label">Days Used</span>
+                    <span class="bc-total-value" id="bc-days-used">--</span>
                 </div>
-                <div class="bc-total-row">
-                    <span id="bc-label-left">Days Remaining</span>
-                    <span id="bc-days-remaining">--</span>
+                <div class="bc-total-item">
+                    <span class="bc-total-label">Days Remaining</span>
+                    <span class="bc-total-value" id="bc-days-remaining">--</span>
                 </div>
             </div>
-        </div>
 
-        <!-- Language flags — pinned at the bottom -->
-        <div id="bc-lang-toggle">
-            <button class="bc-flag active" data-lang="en" onclick="setBcLanguage('en')">🇬🇧</button>
-            <button class="bc-flag"        data-lang="es" onclick="setBcLanguage('es')">🇪🇸</button>
-            <button class="bc-flag"        data-lang="fr" onclick="setBcLanguage('fr')">🇫🇷</button>
-        </div>
+            <!-- Scrollable trip table -->
+            <div id="bc-scroll-area">
+                <p id="bc-table-title">Time Inside Schengen Area</p>
+                <p id="bc-table-sub">Previous 180 Days</p>
+                <div id="bc-trip-list"></div>
+            </div>
+
+        </div><!-- end bc-overlay -->
 
     </div><!-- end view-border -->
 
