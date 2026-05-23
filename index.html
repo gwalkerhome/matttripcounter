@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- v2.1 — Border Control view + Plan hub (ETIAS, checklist, suggestor) + Home alert -->
 <html lang="en">
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -10,58 +11,707 @@
     <link rel="apple-touch-icon" href="assets/icon.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
-        #bottom-actions {
+        /* ---- CALENDAR VIEW STYLES ---- */
+
+        #cal-scroll {
             position: absolute;
-            bottom: calc(24px + env(safe-area-inset-bottom));
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            /* Top padding clears the header; bottom clears the footer + nav */
+            padding: calc(env(safe-area-inset-top) + 118px) 20px calc(var(--nav-h) + 100px);
+        }
+        #cal-scroll::-webkit-scrollbar { display: none; }
+
+        .month-block  { margin-bottom: 28px; }
+
+        .month-label {
+            font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 0.2em; color: rgba(255,255,255,0.5);
+            margin-bottom: 8px; padding-left: 2px;
+        }
+
+        .day-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+
+        .day-header {
+            text-align: center; font-size: 0.55rem; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            color: rgba(255,255,255,0.3); padding-bottom: 4px;
+        }
+
+        .day-cell {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 900; border-radius: 8px; cursor: pointer;
+            border: 2px solid transparent; transition: transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .day-cell:active { transform: scale(0.88); }
+
+        .day-empty   { background: transparent;               cursor: default; }
+        .day-blank   { background: rgba(255,255,255,0.08);   color: rgba(255,255,255,0.45); cursor: default; }
+        .day-past    { background: #FF4DFF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-current { background: #2ED573; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-future  { background: #00A8FF; color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+        .day-today   { outline: 2.5px solid #fff; outline-offset: 1px; }
+
+        .plan-blank    { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); cursor: pointer; }
+        .plan-green    { background: rgba(46,213,115,0.25);  color: #2ED573; border-color: rgba(46,213,115,0.4); cursor: pointer; }
+        .plan-red      { background: rgba(239,68,68,0.25);   color: #ef4444; border-color: rgba(239,68,68,0.4); cursor: not-allowed; }
+        .plan-selected { background: #FFDE03; color: #000;   border-color: #000; box-shadow: 2px 2px 0 #000; cursor: pointer; }
+        .plan-range    { background: rgba(46,213,115,0.5);   color: #fff;   border-color: rgba(46,213,115,0.6); cursor: pointer; }
+
+        /* Calendar header */
+        #cal-header {
+            position: absolute; top: 0; left: 0; right: 0; z-index: 30;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 75%, transparent);
+            padding: calc(env(safe-area-inset-top) + 10px) 16px 16px;
+        }
+
+        .info-strip { display: flex; gap: 8px; margin-top: 8px; }
+
+        .info-pill {
+            flex: 1; background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            border-radius: 10px; padding: 5px 8px; text-align: center;
+        }
+        .info-pill-label {
+            font-size: 0.45rem; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 0.08em; color: rgba(255,255,255,0.4); display: block;
+        }
+        .info-pill-value {
+            font-size: 0.8rem; font-weight: 900; display: block;
+            margin-top: 1px; line-height: 1.1;
+        }
+
+        /* Calendar footers */
+        #cal-page-footer, #cal-plan-footer {
+            position: absolute;
+            bottom: var(--nav-h); left: 0; right: 0; z-index: 30;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 60%, transparent);
+            padding: 16px 20px 14px;
+            display: flex; justify-content: center;
+        }
+        #cal-plan-footer {
+            display: none;
+            flex-direction: column; align-items: center; gap: 10px;
+        }
+        #cal-plan-status {
+            font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 0.15em; color: rgba(255,255,255,0.6); text-align: center;
+        }
+
+        /* Overlay and bottom sheets */
+        #cal-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 130;
+            -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+        }
+
+        #cal-action-sheet, #cal-add-sheet, #cal-warn-sheet {
+            display: none; position: fixed;
+            bottom: 0; left: 0; right: 0; z-index: 140;
+            background: #1a1a1a;
+            border-top: 2.5px solid #fff;
+            border-radius: 24px 24px 0 0;
+            padding: 24px 24px calc(env(safe-area-inset-bottom) + var(--nav-h) + 8px);
+        }
+        #cal-warn-sheet { border-top-color: #f97316; }
+
+        .sheet-title {
+            font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 0.2em; color: rgba(255,255,255,0.4);
+            margin-bottom: 16px; text-align: center;
+        }
+        .sheet-btn-row { display: flex; gap: 10px; margin-top: 4px; }
+
+        /* ---- TRIPS VIEW STYLES ---- */
+
+        #trips-scroll {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding: calc(env(safe-area-inset-top) + 110px) 20px calc(var(--nav-h) + 24px);
+            display: flex; flex-direction: column; align-items: center;
+        }
+        #trips-scroll::-webkit-scrollbar { display: none; }
+
+        #trips-header {
+            position: absolute; top: 0; left: 0; right: 0; z-index: 30;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 80%, transparent);
+            padding: calc(env(safe-area-inset-top) + 12px) 20px 14px;
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
+
+    <!-- Shared full-screen background image (updated by home.js) -->
     <div id="bg-layer"></div>
 
-    <div id="ui-layer">
 
-        <!-- TOP STATUS -->
-        <div style="position:absolute; top: calc(20px + env(safe-area-inset-top)); left:0; right:0; text-align:center;">
-            <h1 id="status-message" class="text-brutal" style="font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:0.4em; margin:0;">Syncing...</h1>
+    <!-- ================================================
+         VIEW: HOME
+         The gauge screen — Matt's at-a-glance dashboard
+         ================================================ -->
+    <div id="view-home" class="view">
+
+        <!-- Status message: "Matt is in Spain!" etc. -->
+        <div style="position:absolute; top:calc(20px + env(safe-area-inset-top)); left:0; right:0; text-align:center;">
+            <h1 id="home-status-msg" class="text-brutal"
+                style="font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:0.4em; margin:0;">
+                Syncing...
+            </h1>
         </div>
 
-        <!-- GAUGE -->
-        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -55%);">
+        <!-- Alert banner: shown when days are low or a trip is imminent -->
+        <div id="home-alert">
+            <span id="home-alert-text"></span>
+            <button id="home-alert-dismiss" onclick="dismissHomeAlert()">✕</button>
+        </div>
+
+        <!-- Circular gauge + days remaining -->
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -58%);">
             <div style="position:relative; display:flex; align-items:center; justify-content:center;">
                 <svg style="width:288px; height:288px; transform:rotate(-90deg);">
-                    <circle cx="144" cy="144" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent"/>
-                    <circle id="gauge-progress-border" cx="144" cy="144" r="70" stroke="black" stroke-width="22" fill="transparent"
+                    <!-- Track -->
+                    <circle cx="144" cy="144" r="70"
+                        stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent"/>
+                    <!-- Shadow ring (gives the progress bar depth) -->
+                    <circle id="home-gauge-border" cx="144" cy="144" r="70"
+                        stroke="black" stroke-width="22" fill="transparent"
                         stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round"/>
-                    <circle id="gauge-progress" cx="144" cy="144" r="70" stroke="#2ED573" stroke-width="12" fill="transparent"
+                    <!-- Coloured progress ring -->
+                    <circle id="home-gauge-progress" cx="144" cy="144" r="70"
+                        stroke="#2ED573" stroke-width="12" fill="transparent"
                         stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round"/>
                 </svg>
+                <!-- Days count and label centred inside the ring -->
                 <div style="position:absolute; text-align:center;">
-                    <div id="days-count" class="text-brutal" style="font-size:5rem; font-weight:900; line-height:1; letter-spacing:-0.05em; -webkit-text-stroke:3px black; paint-order:stroke fill;">--</div>
-                    <div class="text-brutal" style="font-size:0.5rem; font-weight:700; text-transform:uppercase; letter-spacing:0.2em; margin-top:8px; max-width:120px;">Schengen Allowance Days Remaining</div>
+                    <div id="home-days-count" class="text-brutal"
+                         style="font-size:5rem; font-weight:900; line-height:1; letter-spacing:-0.05em;
+                                -webkit-text-stroke:3px black; paint-order:stroke fill;">
+                        --
+                    </div>
+                    <div class="text-brutal"
+                         style="font-size:0.5rem; font-weight:700; text-transform:uppercase;
+                                letter-spacing:0.2em; margin-top:8px; max-width:120px;">
+                        Schengen Days Remaining
+                    </div>
                 </div>
             </div>
 
-            <!-- RECOVERY TAGLINE: pulled up tight using negative margin to compensate for SVG whitespace -->
-            <div id="recovery-tagline" class="text-brutal" style="margin-top:-44px; text-align:center; font-size:0.7rem; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; line-height:1.6;"></div>
+            <!-- Recovery tagline (e.g. "3 DAYS TO BE ADDED FROM 14/07/2025") -->
+            <div id="home-recovery" class="text-brutal"
+                 style="margin-top:-44px; text-align:center; font-size:0.7rem; font-weight:900;
+                        text-transform:uppercase; letter-spacing:0.15em; line-height:1.6;">
+            </div>
         </div>
 
-        <!-- BOTTOM BUTTON -->
-        <div id="bottom-actions">
-            <button onclick="window.location.assign('calendar.html')" class="brutalist-btn btn-full bg-pink">View &amp; Edit Trips</button>
+    </div><!-- end view-home -->
+
+
+    <!-- ================================================
+         VIEW: CALENDAR
+         Visual month calendar — add, edit, delete trips
+         ================================================ -->
+    <div id="view-calendar" class="view">
+
+        <!-- Header: title + info strip -->
+        <div id="cal-header">
+            <h1 class="text-brutal"
+                style="font-size:0.8rem; font-weight:900; text-transform:uppercase;
+                       letter-spacing:0.2em; margin:0; text-align:center;">
+                Trip Calendar
+            </h1>
+            <div class="info-strip">
+                <div class="info-pill">
+                    <span class="info-pill-label">Days Remaining</span>
+                    <span class="info-pill-value" id="cal-info-remaining" style="color:#2ED573;">--</span>
+                </div>
+                <div class="info-pill">
+                    <span class="info-pill-label" id="cal-info-status-label">Status</span>
+                    <span class="info-pill-value" id="cal-info-status-value">--</span>
+                </div>
+            </div>
         </div>
 
-    </div>
+        <!-- Scrollable calendar grid -->
+        <div id="cal-scroll">
+            <div id="cal-container"></div>
+        </div>
 
+        <!-- Footer: Add Trip button (hidden during planning mode) -->
+        <div id="cal-page-footer">
+            <button onclick="enterPlanningMode()"
+                    class="brutalist-btn btn-full bg-green" style="font-size:0.85rem;">
+                + Add Trip
+            </button>
+        </div>
+
+        <!-- Footer: Planning mode controls (hidden by default) -->
+        <div id="cal-plan-footer">
+            <div id="cal-plan-status">Tap a start date</div>
+            <div style="display:flex; gap:10px; width:100%; max-width:300px;">
+                <button onclick="exitPlanningMode()"
+                        class="brutalist-btn btn-half"
+                        style="background:rgba(255,255,255,0.1); color:#fff;
+                               border-color:rgba(255,255,255,0.3); box-shadow:none;">
+                    Cancel
+                </button>
+                <button id="cal-plan-save-btn" onclick="saveCalPlanningTrip()"
+                        class="brutalist-btn"
+                        style="flex:1; height:60px; background:#2ED573; color:#000;
+                               border-color:#000; font-size:0.85rem; opacity:0.3;" disabled>
+                    Save Trip
+                </button>
+            </div>
+        </div>
+
+        <!-- Overlay backdrop for sheets -->
+        <div id="cal-overlay" onclick="closeCalAll()"></div>
+
+        <!-- Action sheet: tap an existing trip -->
+        <div id="cal-action-sheet">
+            <p class="sheet-title" id="cal-action-title">Trip Options</p>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button onclick="editCalTrip()"
+                        class="brutalist-btn btn-full bg-blue" style="width:100%;">
+                    Edit Trip
+                </button>
+                <button onclick="deleteCalTrip()"
+                        class="brutalist-btn btn-full"
+                        style="width:100%; background:#ef4444; color:#fff; border-color:#000;">
+                    Delete Trip
+                </button>
+                <button onclick="closeCalAll()"
+                        style="background:none; border:none; color:rgba(255,255,255,0.4);
+                               font-size:0.7rem; font-weight:900; text-transform:uppercase;
+                               letter-spacing:0.1em; cursor:pointer; margin-top:4px;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <!-- Edit sheet: change trip dates -->
+        <div id="cal-add-sheet">
+            <p class="sheet-title" id="cal-add-title">Edit Trip</p>
+            <div style="display:flex; gap:10px; margin-bottom:16px;">
+                <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+                    <label style="font-size:0.55rem; font-weight:900; text-transform:uppercase;
+                                  letter-spacing:0.15em; color:rgba(255,255,255,0.4);">Entry Date</label>
+                    <input type="date" id="cal-input-entry"
+                           style="width:100%; background:rgba(255,255,255,0.08);
+                                  border:2px solid rgba(255,255,255,0.2); border-radius:10px;
+                                  color:#fff; font-size:0.85rem; font-weight:800;
+                                  padding:8px 10px; font-family:inherit; -webkit-appearance:none;">
+                </div>
+                <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+                    <label style="font-size:0.55rem; font-weight:900; text-transform:uppercase;
+                                  letter-spacing:0.15em; color:rgba(255,255,255,0.4);">Exit Date</label>
+                    <input type="date" id="cal-input-exit"
+                           style="width:100%; background:rgba(255,255,255,0.08);
+                                  border:2px solid rgba(255,255,255,0.2); border-radius:10px;
+                                  color:#fff; font-size:0.85rem; font-weight:800;
+                                  padding:8px 10px; font-family:inherit; -webkit-appearance:none;">
+                </div>
+            </div>
+            <div class="sheet-btn-row">
+                <button onclick="closeCalAll()"
+                        class="brutalist-btn btn-half"
+                        style="background:rgba(255,255,255,0.1); color:#fff;
+                               border-color:rgba(255,255,255,0.3); box-shadow:none;">
+                    Cancel
+                </button>
+                <button onclick="saveCalEditTrip()"
+                        class="brutalist-btn"
+                        style="flex:1; height:60px; background:#2ED573;
+                               color:#000; border-color:#000; font-size:0.85rem;">
+                    Save
+                </button>
+            </div>
+        </div>
+
+        <!-- Warning sheet: a new trip conflicts with a future one -->
+        <div id="cal-warn-sheet">
+            <p class="sheet-title" style="color:#f97316;">⚠️ Future Trip Affected</p>
+            <p id="cal-warn-message"
+               style="color:rgba(255,255,255,0.7); font-size:0.8rem; font-weight:700;
+                      text-align:center; margin-bottom:20px; line-height:1.5;"></p>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button onclick="scrollToAffectedTrip()"
+                        class="brutalist-btn btn-full"
+                        style="width:100%; background:#f97316; color:#000; border-color:#000;">
+                    Show Me the Trip
+                </button>
+                <button onclick="closeCalAll()"
+                        style="background:none; border:none; color:rgba(255,255,255,0.4);
+                               font-size:0.7rem; font-weight:900; text-transform:uppercase;
+                               letter-spacing:0.1em; cursor:pointer;">
+                    Dismiss
+                </button>
+            </div>
+        </div>
+
+    </div><!-- end view-calendar -->
+
+
+    <!-- ================================================
+         VIEW: TRIPS
+         Scrollable list of all trips
+         ================================================ -->
+    <div id="view-trips" class="view">
+
+        <!-- Header -->
+        <div id="trips-header">
+            <h1 class="text-brutal"
+                style="font-size:0.8rem; font-weight:900; text-transform:uppercase;
+                       letter-spacing:0.2em; margin:0 0 6px; text-align:center;">
+                Matt's Trips
+            </h1>
+            <!-- Remaining days pill -->
+            <div style="display:flex; justify-content:center; margin-bottom:6px;">
+                <div style="background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.12);
+                            border-radius:10px; padding:4px 16px; text-align:center;">
+                    <span style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
+                                 letter-spacing:0.1em; color:rgba(255,255,255,0.4); display:block;">
+                        Schengen Days Remaining
+                    </span>
+                    <span id="trips-remaining"
+                          style="font-size:1.1rem; font-weight:900; color:#2ED573;">--</span>
+                </div>
+            </div>
+            <!-- Situational status line -->
+            <p id="trips-status-line"
+               style="font-size:0.6rem; font-weight:700; text-transform:uppercase;
+                      letter-spacing:0.1em; color:rgba(255,255,255,0.5);
+                      text-align:center; margin:0;">
+                Loading...
+            </p>
+        </div>
+
+        <!-- Trip cards scroll area -->
+        <div id="trips-scroll">
+            <div id="trips-list"></div>
+        </div>
+
+    </div><!-- end view-trips -->
+
+
+    <!-- ================================================
+         VIEW: PLAN
+         Three sections: ETIAS info, pre-trip checklist,
+         and earliest departure suggestor
+         ================================================ -->
+    <div id="view-plan" class="view">
+
+        <div id="plan-scroll">
+
+            <!-- Header: title + remaining days pill -->
+            <div style="text-align:center; width:100%;">
+                <h1 class="text-brutal"
+                    style="font-size:0.8rem; font-weight:900; text-transform:uppercase;
+                           letter-spacing:0.2em; margin:0 0 10px;">
+                    Plan a Trip
+                </h1>
+                <div style="display:inline-block; background:rgba(255,255,255,0.08);
+                            border:1.5px solid rgba(255,255,255,0.12); border-radius:10px;
+                            padding:4px 20px; text-align:center;">
+                    <span style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
+                                 letter-spacing:0.1em; color:rgba(255,255,255,0.4); display:block;">
+                        Schengen Days Remaining
+                    </span>
+                    <span id="plan-remaining"
+                          style="font-size:1.1rem; font-weight:900; color:#2ED573;">--</span>
+                </div>
+            </div>
+
+            <!-- ---- SECTION 1: ETIAS ---- -->
+            <p class="plan-section-label">Travel Documents</p>
+
+            <div id="plan-etias-card">
+                <p id="plan-etias-title"
+                   style="font-size:0.65rem; font-weight:900; text-transform:uppercase;
+                          letter-spacing:0.12em; color:#f97316; margin:0 0 6px;">
+                    ℹ️ ETIAS — Coming Soon
+                </p>
+                <p id="plan-etias-body"
+                   style="font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.75);
+                          margin:0 0 10px; line-height:1.5;">
+                    From Q4 2026, UK travellers will need an ETIAS pre-travel authorisation before entering Spain. No action needed yet — but worth knowing.
+                </p>
+                <a id="plan-etias-link"
+                   href="https://travel-europe.europa.eu/etias_en" target="_blank"
+                   style="display:none; font-size:0.6rem; font-weight:900; text-transform:uppercase;
+                          letter-spacing:0.1em; color:#f97316; text-decoration:underline;">
+                    Apply for ETIAS →
+                </a>
+            </div>
+
+            <!-- ---- SECTION 2: PRE-TRIP CHECKLIST ---- -->
+            <!-- Hidden by plan.js unless next trip is within 7 days -->
+            <div id="plan-checklist-section" style="display:none;">
+                <p class="plan-section-label" id="plan-checklist-title">
+                    ✈️ Checklist
+                </p>
+
+                <div class="plan-card" style="padding:8px 16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;
+                                margin-bottom:4px; padding-bottom:8px;
+                                border-bottom:1px solid rgba(255,255,255,0.07);">
+                        <span style="font-size:0.5rem; font-weight:900; text-transform:uppercase;
+                                     letter-spacing:0.15em; color:rgba(255,255,255,0.35);">
+                            Progress
+                        </span>
+                        <span id="plan-checklist-count"
+                              style="font-size:0.5rem; font-weight:900; text-transform:uppercase;
+                                     letter-spacing:0.1em; color:rgba(255,255,255,0.5);">
+                            0 of 11 done
+                        </span>
+                    </div>
+                    <div id="plan-checklist-items"></div>
+                </div>
+            </div>
+
+            <!-- ---- SECTION 3: NIGHT SUGGESTOR ---- -->
+            <p class="plan-section-label">Find Earliest Dates</p>
+
+            <!-- Night selector -->
+            <div class="plan-card" style="text-align:center;">
+                <p style="font-size:0.5rem; font-weight:900; text-transform:uppercase;
+                          letter-spacing:0.15em; color:rgba(255,255,255,0.4); margin:0 0 14px;">
+                    How many nights?
+                </p>
+                <div style="display:flex; align-items:center; justify-content:center; gap:20px;">
+                    <button onclick="changePlanNights(-1)"
+                            class="brutalist-btn bg-pink"
+                            style="width:52px; height:52px; font-size:1.4rem; padding:0; border-radius:14px;">
+                        −
+                    </button>
+                    <div id="plan-nights-display"
+                         class="text-brutal"
+                         style="font-size:3.5rem; font-weight:900; line-height:1;
+                                min-width:60px; text-align:center;">
+                        14
+                    </div>
+                    <button onclick="changePlanNights(1)"
+                            class="brutalist-btn bg-green"
+                            style="width:52px; height:52px; font-size:1.4rem; padding:0; border-radius:14px;">
+                        +
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result card -->
+            <div id="plan-result-card"
+                 style="background:rgba(0,0,0,0.4); border:2.5px solid #2ED573;
+                        border-radius:20px; padding:20px 24px; width:100%; max-width:300px;
+                        text-align:center; transition:opacity 0.3s;">
+                <p style="font-size:0.5rem; font-weight:900; text-transform:uppercase;
+                          letter-spacing:0.15em; color:#2ED573; margin:0 0 8px;">
+                    Earliest You Can Go
+                </p>
+                <p id="plan-result-date"
+                   class="text-brutal"
+                   style="font-size:1.3rem; font-weight:900; margin:0 0 4px;">
+                    Calculating...
+                </p>
+                <p id="plan-result-range"
+                   style="font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.5);
+                          margin:0 0 18px;">
+                    --
+                </p>
+                <button onclick="savePlanSuggestion()"
+                        class="brutalist-btn btn-full bg-green"
+                        style="margin:0 auto;">
+                    Save These Dates
+                </button>
+            </div>
+
+        </div><!-- end plan-scroll -->
+
+    </div><!-- end view-plan -->
+
+
+    <!-- ================================================
+         VIEW: BORDER CONTROL
+         Read-only summary for showing at the border
+         ================================================ -->
+    <div id="view-border" class="view">
+
+        <div id="border-scroll">
+
+            <!-- Traveller header -->
+            <div style="text-align:center; width:100%; margin-bottom:4px;">
+                <p style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
+                          letter-spacing:0.2em; color:rgba(255,255,255,0.35); margin:0 0 6px;">
+                    Schengen Entry Record
+                </p>
+                <h1 class="text-brutal"
+                    style="font-size:1.6rem; font-weight:900; margin:0; letter-spacing:-0.02em;">
+                    Matt Walker
+                </h1>
+                <p id="bc-today-date"
+                   style="font-size:0.62rem; font-weight:700; color:rgba(255,255,255,0.4);
+                          margin:8px 0 0; letter-spacing:0.04em;">
+                    &nbsp;
+                </p>
+            </div>
+
+            <!-- Status card: IN / OUTSIDE Schengen -->
+            <div id="bc-status-card"
+                 style="width:100%; max-width:300px;
+                        background:rgba(0,0,0,0.4);
+                        border:2.5px solid #2ED573;
+                        border-radius:20px;
+                        padding:16px 20px;
+                        display:flex; align-items:center; justify-content:center; gap:14px;">
+                <div id="bc-status-dot"
+                     style="width:14px; height:14px; border-radius:50%;
+                            background:#2ED573; flex-shrink:0;
+                            box-shadow:0 0 12px rgba(46,213,115,0.5);">
+                </div>
+                <span id="bc-status-label"
+                      style="font-size:0.95rem; font-weight:900; text-transform:uppercase;
+                             letter-spacing:0.12em; color:#fff;">
+                    Loading…
+                </span>
+            </div>
+
+            <!-- Days used / days remaining stats -->
+            <div class="bc-stat-row" style="width:100%; max-width:300px;">
+                <div class="bc-stat">
+                    <span class="bc-stat-label">Days Used</span>
+                    <span class="bc-stat-value" id="bc-days-used" style="color:#fff;">--</span>
+                    <span style="font-size:0.42rem; font-weight:700; text-transform:uppercase;
+                                 letter-spacing:0.1em; color:rgba(255,255,255,0.3); display:block;
+                                 margin-top:2px;">
+                        of 90
+                    </span>
+                </div>
+                <div class="bc-stat">
+                    <span class="bc-stat-label">Days Left</span>
+                    <span class="bc-stat-value" id="bc-days-remaining" style="color:#2ED573;">--</span>
+                </div>
+            </div>
+
+            <!-- 180-day rolling window -->
+            <div style="width:100%; max-width:300px;
+                        background:rgba(255,255,255,0.05);
+                        border:1.5px solid rgba(255,255,255,0.1);
+                        border-radius:14px; padding:12px 16px;">
+                <p style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
+                          letter-spacing:0.15em; color:rgba(255,255,255,0.35);
+                          margin:0 0 10px; text-align:center;">
+                    Current 180-Day Window
+                </p>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="text-align:center;">
+                        <span style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
+                                     letter-spacing:0.1em; color:rgba(255,255,255,0.35); display:block;
+                                     margin-bottom:4px;">From</span>
+                        <span id="bc-window-start"
+                              style="font-size:0.9rem; font-weight:900; color:#fff;">--</span>
+                    </div>
+                    <span style="color:rgba(255,255,255,0.2); font-size:1.2rem; font-weight:900;">→</span>
+                    <div style="text-align:center;">
+                        <span style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
+                                     letter-spacing:0.1em; color:rgba(255,255,255,0.35); display:block;
+                                     margin-bottom:4px;">Today</span>
+                        <span id="bc-window-end"
+                              style="font-size:0.9rem; font-weight:900; color:#fff;">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trip history within the window -->
+            <hr class="bc-divider" style="width:100%; max-width:300px;">
+            <p class="plan-section-label" style="align-self:flex-start; max-width:300px; width:100%;">
+                Trips in window
+            </p>
+            <div id="bc-trip-list" style="width:100%; max-width:300px;"></div>
+
+        </div><!-- end border-scroll -->
+
+    </div><!-- end view-border -->
+
+
+    <!-- ================================================
+         BOTTOM NAVIGATION BAR
+         Always visible — switches between views
+         ================================================ -->
+    <nav id="bottom-nav">
+
+        <button class="nav-tab active" data-view="home" onclick="showView('home')">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Home
+        </button>
+
+        <button class="nav-tab" data-view="calendar" onclick="showView('calendar')">
+            <svg viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8"  y1="2" x2="8"  y2="6"/>
+                <line x1="3"  y1="10" x2="21" y2="10"/>
+            </svg>
+            Calendar
+        </button>
+
+        <button class="nav-tab" data-view="trips" onclick="showView('trips')">
+            <svg viewBox="0 0 24 24">
+                <line x1="8"  y1="6"  x2="21" y2="6"/>
+                <line x1="8"  y1="12" x2="21" y2="12"/>
+                <line x1="8"  y1="18" x2="21" y2="18"/>
+                <line x1="3"  y1="6"  x2="3.01" y2="6"/>
+                <line x1="3"  y1="12" x2="3.01" y2="12"/>
+                <line x1="3"  y1="18" x2="3.01" y2="18"/>
+            </svg>
+            Trips
+        </button>
+
+        <button class="nav-tab" data-view="plan" onclick="showView('plan')">
+            <svg viewBox="0 0 24 24">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Plan
+        </button>
+
+        <button class="nav-tab" data-view="border" onclick="showView('border')">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Border
+        </button>
+
+    </nav>
+
+
+    <!-- ================================================
+         SCRIPTS — loaded in dependency order:
+         Firebase → engine → app → views
+         ================================================ -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="schengen-engine.js"></script>
     <script src="app.js"></script>
+    <script src="home.js"></script>
+    <script src="calendar.js"></script>
+    <script src="trips.js"></script>
+    <script src="plan.js"></script>
+    <script src="bordercontrol.js"></script>
+
 </body>
 </html>
