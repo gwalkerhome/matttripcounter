@@ -154,7 +154,7 @@ html, body {
    ============================================== */
 
 :root {
-    --nav-h: 68px; /* height of the bottom nav bar */
+    --nav-h: 54px; /* height of the bottom nav bar (tab content only, not safe area) */
 }
 
 .view {
@@ -177,11 +177,23 @@ html, body {
     bottom: 0; left: 0; right: 0;
     z-index: 120;
     display: flex;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.55);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255, 255, 255, 0.15);
+    /* Extend background to cover the iPhone home-indicator safe area */
     padding-bottom: env(safe-area-inset-bottom);
+    margin-bottom: 0;
+}
+
+/* Fill any gap between nav bar and screen edge with matching colour */
+#bottom-nav::after {
+    content: '';
+    position: absolute;
+    bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+    left: 0; right: 0;
+    height: env(safe-area-inset-bottom, 0px);
+    background: rgba(0, 0, 0, 0.55);
 }
 
 .nav-tab {
@@ -190,10 +202,10 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 10px 0;
-    gap: 4px;
+    padding: 7px 0;
+    gap: 3px;
     min-height: var(--nav-h);
-    font-size: 0.48rem;
+    font-size: 0.42rem;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.12em;
@@ -206,8 +218,8 @@ html, body {
 }
 
 .nav-tab svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     fill: none;
     stroke: currentColor;
     stroke-width: 2.5;
@@ -217,9 +229,6 @@ html, body {
 
 .nav-tab.active { color: var(--yellow); }
 .nav-tab:active  { transform: scale(0.88); }
-
-/* 5-tab nav needs slightly smaller labels */
-.nav-tab { font-size: 0.42rem; }
 
 /* ==============================================
    HOME ALERT BANNER
