@@ -381,56 +381,113 @@ html, body {
     flex-direction: column;
 }
 
-/* ---- FIXED HEADER ---- */
+/* ---- SECTION 1: IDENTITY HEADER ---- */
 #bc-header {
     flex-shrink: 0;
-    text-align: center;
-    padding: calc(env(safe-area-inset-top) + 16px) 20px 14px;
+    padding: calc(env(safe-area-inset-top) + 14px) 20px 14px;
     border-bottom: 1px solid rgba(255,255,255,0.15);
-}
-
-#bc-heading {
-    font-size: 0.65rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: rgba(255,255,255,0.75);
-    margin: 0 0 8px;
+    text-align: center;
 }
 
 #bc-name {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     font-weight: 900;
     color: #fff;
-    margin: 0 0 4px;
+    margin: 0 0 10px;
     letter-spacing: 0.01em;
+    line-height: 1.1;
 }
 
-#bc-dob {
-    font-size: 0.6rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.55);
-    margin: 0 0 6px;
-    letter-spacing: 0.08em;
+#bc-id-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.bc-id-field {
+    flex: 1;
+    max-width: 160px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 7px 10px;
+    text-align: left;
+}
+
+.bc-id-label {
+    display: block;
+    font-size: 0.42rem;
+    font-weight: 900;
     text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 3px;
 }
 
-#bc-today-date {
-    font-size: 0.58rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.4);
-    margin: 0;
+.bc-id-value {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 900;
+    color: #fff;
     letter-spacing: 0.04em;
 }
 
-/* ---- FIXED TOTALS STRIP (above the table) ---- */
+.bc-id-blank {
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    min-width: 80px;
+    display: block;
+    height: 1.1rem;
+}
+
+/* ---- SECTION 2: CURRENT TRIP ---- */
+#bc-current-trip {
+    flex-shrink: 0;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+#bc-current-trip .bc-ct-label {
+    font-size: 0.42rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 6px;
+    display: block;
+}
+
+#bc-current-trip .bc-ct-dates {
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: #fff;
+    display: block;
+    margin-bottom: 3px;
+}
+
+#bc-current-trip .bc-ct-days {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #2ED573;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: block;
+}
+
+#bc-current-trip .bc-ct-none {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.45);
+    font-style: italic;
+}
+
+/* ---- SECTION 3: PREVIOUS DAYS TALLY ---- */
 #bc-totals-fixed {
     flex-shrink: 0;
     display: flex;
     gap: 8px;
-    padding: 10px 16px;
+    padding: 10px 20px;
     border-bottom: 1px solid rgba(255,255,255,0.12);
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.15);
 }
 
 .bc-total-item {
@@ -451,48 +508,45 @@ html, body {
     letter-spacing: 0.1em;
     color: rgba(255,255,255,0.5);
     display: block;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 
 .bc-total-value {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     font-weight: 900;
     color: #fff;
     display: block;
     line-height: 1;
 }
 
-/* ---- SCROLLABLE TABLE AREA ---- */
+/* ---- SECTION 4: SCROLLABLE PAST TRIPS TABLE ---- */
 #bc-scroll-area {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding: 14px 16px calc(env(safe-area-inset-bottom) + var(--nav-h) + 12px);
+    padding: 12px 20px calc(env(safe-area-inset-bottom) + var(--nav-h) + 12px);
 }
 #bc-scroll-area::-webkit-scrollbar { display: none; }
 
 #bc-table-title {
-    font-size: 0.55rem;
+    font-size: 0.52rem;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: rgba(255,255,255,0.6);
-    text-align: center;
+    color: rgba(255,255,255,0.55);
     margin: 0 0 2px;
 }
 
 #bc-table-sub {
-    font-size: 0.44rem;
+    font-size: 0.42rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.35);
-    text-align: center;
-    margin: 0 0 12px;
+    color: rgba(255,255,255,0.3);
+    margin: 0 0 10px;
 }
 
-/* Trip rows — marginally transparent cells */
 #bc-trip-list {
     display: flex;
     flex-direction: column;

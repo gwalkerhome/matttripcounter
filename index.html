@@ -551,18 +551,28 @@
         <!-- Dark overlay — passport shows softly behind all content -->
         <div id="bc-overlay">
 
-            <!-- Fixed header -->
+            <!-- SECTION 1: Identity — fixed -->
             <div id="bc-header">
-                <h1 id="bc-heading">Border Information</h1>
-                <p id="bc-name">Matthew Hilton</p>
-                <p id="bc-dob">DOB 26 / 01 / 1978</p>
-                <p id="bc-today-date">&nbsp;</p>
+                <h1 id="bc-name">Matthew Hilton</h1>
+                <div id="bc-id-row">
+                    <div class="bc-id-field">
+                        <span class="bc-id-label">Date of Birth</span>
+                        <span class="bc-id-value">26 / 01 / 1978</span>
+                    </div>
+                    <div class="bc-id-field">
+                        <span class="bc-id-label">Passport No.</span>
+                        <span class="bc-id-value bc-id-blank">&nbsp;</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Fixed totals strip — always visible above the table -->
+            <!-- SECTION 2: Current trip — fixed, rendered by JS -->
+            <div id="bc-current-trip"></div>
+
+            <!-- SECTION 3: Previous days tally — fixed -->
             <div id="bc-totals-fixed">
                 <div class="bc-total-item">
-                    <span class="bc-total-label">Days Used</span>
+                    <span class="bc-total-label">Prior Schengen Days</span>
                     <span class="bc-total-value" id="bc-days-used">--</span>
                 </div>
                 <div class="bc-total-item">
@@ -571,10 +581,10 @@
                 </div>
             </div>
 
-            <!-- Scrollable trip table -->
+            <!-- SECTION 4: Past trips table — scrollable -->
             <div id="bc-scroll-area">
-                <p id="bc-table-title">Time Inside Schengen Area</p>
-                <p id="bc-table-sub">Previous 180 Days</p>
+                <p id="bc-table-title">Previous Trips</p>
+                <p id="bc-table-sub">Within 180-Day Window</p>
                 <div id="bc-trip-list"></div>
             </div>
 
