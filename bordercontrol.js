@@ -76,11 +76,12 @@ function updateBorderView(trips) {
                             color:#fff; letter-spacing:-0.01em;">
                     ${toUKDate(t.entry)} — ${toUKDate(t.exit)}
                 </div>
+                ${(partial || isCurrent) ? `
                 <div style="font-size:0.48rem; font-weight:700;
                             text-transform:uppercase; letter-spacing:0.08em;
                             color:rgba(255,255,255,0.5); margin-top:3px;
                             display:flex; align-items:center; gap:6px;">
-                    ${nights} night${nights !== 1 ? 's' : ''}${partial ? ' · partial window' : ''}
+                    ${partial ? 'partial window' : ''}
                     ${isCurrent
                         ? `<span style="background:#2ED573; color:#000; padding:1px 7px;
                                        border-radius:5px; font-size:0.42rem; font-weight:900;
@@ -88,7 +89,7 @@ function updateBorderView(trips) {
                                Current Visit
                            </span>`
                         : ''}
-                </div>
+                </div>` : ''}
             </div>
             <div style="font-size:1.05rem; font-weight:900;
                         color:rgba(255,255,255,0.85); text-align:right;
