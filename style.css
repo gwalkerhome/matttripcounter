@@ -319,19 +319,20 @@ body {
 
 /* ==============================================
    PLAN VIEW — ETIAS NOTIFICATION
-   Dismissible banner at top of Plan view
+   Brutalist solid orange box
    ============================================== */
 
 .plan-notification {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    background: rgba(249, 115, 22, 0.35);
-    border: 2px solid #f97316;
+    background: #f97316;
+    border: 3px solid var(--black);
     border-radius: 16px;
+    box-shadow: 4px 4px 0 var(--black);
     padding: 14px 16px;
     width: 100%;
-    max-width: 300px;
+    flex-shrink: 0;
 }
 
 .plan-notif-title {
@@ -339,14 +340,14 @@ body {
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: #f97316;
+    color: var(--black);
     margin: 0 0 6px;
 }
 
 .plan-notif-body {
     font-size: 0.72rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.75);
+    color: var(--black);
     margin: 0;
     line-height: 1.5;
 }
@@ -358,7 +359,7 @@ body {
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #f97316;
+    color: var(--black);
     text-decoration: underline;
 }
 
@@ -366,7 +367,7 @@ body {
     flex-shrink: 0;
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.45);
+    color: var(--black);
     font-size: 1.1rem;
     line-height: 1;
     padding: 0;
@@ -383,7 +384,7 @@ body {
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(0, 0, 0, 0.5);
     text-decoration: underline;
     cursor: pointer;
     padding: 0;
@@ -393,25 +394,16 @@ body {
 
 /* ==============================================
    PLAN VIEW — COLLAPSIBLE DROPDOWNS
+   Brutalist solid headers, dark body
    ============================================== */
 
 .plan-dropdown {
     width: 100%;
     border-radius: 16px;
     overflow: hidden;
-    border: 2.5px solid rgba(255, 255, 255, 0.2);
-    background: rgba(0, 0, 0, 0.75);
-    box-shadow: 3px 3px 0 var(--black);
-}
-
-/* Checklist dropdown: green accent */
-.plan-dropdown.dropdown-checklist {
-    border-color: var(--green);
-}
-
-/* Help dropdown: blue accent */
-.plan-dropdown.dropdown-help {
-    border-color: var(--blue);
+    border: 3px solid var(--black);
+    box-shadow: 4px 4px 0 var(--black);
+    flex-shrink: 0;  /* prevents flex container clipping the open dropdown */
 }
 
 .plan-dropdown-header {
@@ -419,10 +411,10 @@ body {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 15px 18px;
+    padding: 16px 18px;
     background: none;
     border: none;
-    color: #fff;
+    color: var(--black);
     font-size: 0.7rem;
     font-weight: 900;
     text-transform: uppercase;
@@ -433,12 +425,22 @@ body {
     font-family: inherit;
 }
 
+/* Checklist header: green */
+.dropdown-checklist .plan-dropdown-header {
+    background: var(--green);
+}
+
+/* Help header: blue */
+.dropdown-help .plan-dropdown-header {
+    background: var(--blue);
+}
+
 .plan-dropdown-chevron {
     width: 18px;
     height: 18px;
     flex-shrink: 0;
     fill: none;
-    stroke: rgba(255, 255, 255, 0.4);
+    stroke: var(--black);
     stroke-width: 2.5;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -451,8 +453,9 @@ body {
 
 .plan-dropdown-body {
     display: none;
-    padding: 4px 16px 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px 12px 14px;
+    background: #111;
+    border-top: 3px solid var(--black);
 }
 
 .plan-dropdown-body.open {
@@ -461,6 +464,7 @@ body {
 
 /* ==============================================
    PLAN VIEW — HELP ITEMS
+   Brutalist solid colour buttons, each a different colour
    ============================================== */
 
 .plan-help-item {
@@ -468,28 +472,35 @@ body {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 15px 4px;
-    background: none;
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    color: #fff;
-    font-size: 0.88rem;
-    font-weight: 800;
+    padding: 14px 16px;
+    border: 2.5px solid var(--black);
+    border-radius: 12px;
+    box-shadow: 3px 3px 0 var(--black);
+    color: var(--black);
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
     text-align: left;
     cursor: pointer;
     font-family: inherit;
-    letter-spacing: 0.02em;
+    margin-bottom: 8px;
     -webkit-tap-highlight-color: transparent;
-    transition: color 0.1s;
+    transition: transform 0.08s, box-shadow 0.08s;
 }
 
-.plan-help-item:last-child {
-    border-bottom: none;
-    padding-bottom: 4px;
-}
+.plan-help-item:last-child { margin-bottom: 0; }
+
+.plan-help-item:nth-child(1) { background: var(--yellow); }
+.plan-help-item:nth-child(2) { background: var(--green); }
+.plan-help-item:nth-child(3) { background: var(--blue); }
+.plan-help-item:nth-child(4) { background: var(--pink); }
+.plan-help-item:nth-child(5) { background: #f97316; }
+.plan-help-item:nth-child(6) { background: #c084fc; }
 
 .plan-help-item:active {
-    color: var(--yellow);
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--black);
 }
 
 .plan-help-item svg {
@@ -497,7 +508,7 @@ body {
     height: 18px;
     flex-shrink: 0;
     fill: none;
-    stroke: var(--blue);
+    stroke: var(--black);
     stroke-width: 2.5;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -510,34 +521,36 @@ body {
 .checklist-item {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 13px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    gap: 12px;
+    padding: 10px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    min-height: 48px; /* iOS recommended tap target */
+    min-height: 48px;
 }
 
 .checklist-item:last-child { border-bottom: none; }
 
 .checklist-box {
     width: 26px; height: 26px;
-    border: 2.5px solid rgba(255,255,255,0.25);
-    border-radius: 8px;
+    border: 2.5px solid var(--black);
+    border-radius: 7px;
+    background: rgba(255,255,255,0.9);
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 2px 2px 0 var(--black);
     transition: background 0.15s, border-color 0.15s;
 }
 
 .checklist-item.done .checklist-box {
     background: var(--green);
-    border-color: var(--green);
+    border-color: var(--black);
 }
 
 .checklist-label {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: #fff;
     line-height: 1.3;
