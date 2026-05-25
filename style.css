@@ -322,6 +322,12 @@ body {
    Brutalist solid orange box
    ============================================== */
 
+.plan-notification p,
+.plan-notification a,
+.plan-notification button {
+    text-shadow: none;
+}
+
 .plan-notification {
     display: flex;
     align-items: flex-start;
