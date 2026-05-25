@@ -423,9 +423,13 @@ async function fetchTravelNews() {
 
     if (results.length === 0) {
         body.innerHTML = `
-            <div class="help-section" style="align-items:center; padding-top:40px;">
-                <p class="help-body-text" style="text-align:center; color:rgba(255,255,255,0.35);">
-                    No relevant travel news found right now.<br>Try again later.
+            <div class="help-section" style="align-items:center; padding-top:40px; text-align:center;">
+                <div style="font-size:2.5rem; margin-bottom:16px;">👍</div>
+                <p class="help-body-text" style="text-align:center; color:rgba(255,255,255,0.8);">
+                    There are no known issues that should affect your trip.
+                </p>
+                <p class="help-body-text" style="text-align:center; color:rgba(255,255,255,0.35); margin-top:8px;">
+                    All clear — enjoy Spain!
                 </p>
             </div>`;
         return;
