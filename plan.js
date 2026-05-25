@@ -58,7 +58,7 @@ function updateEtiasSection() {
         if (permBtn) permBtn.style.display = 'none';
     } else {
         titleEl.innerText    = 'ℹ️ ETIAS — Coming Soon';
-        bodyEl.innerText     = 'From Q4 2026, UK travellers will need an ETIAS pre-travel authorisation (like the US ESTA) before entering Spain. No action needed yet — but worth knowing.';
+        bodyEl.innerText     = 'From Q4 2026, UK passport holders will need an ETIAS pre-travel authorisation before entering Spain. It\'s a quick online application and costs €7. No action needed yet — but worth knowing.';
         linkEl.style.display = 'none';
         // Hide if permanently dismissed OR session-dismissed
         const permDismissed = localStorage.getItem(ETIAS_PERM_KEY) === 'true';
