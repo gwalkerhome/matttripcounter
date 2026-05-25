@@ -79,12 +79,396 @@ function togglePlanDropdown(id) {
     if (chevron) chevron.classList.toggle('open', isOpen);
 }
 
-// ---- HELP ITEM TAPS ----
-// Placeholder — each item's behaviour to be wired up later
+// ---- PLAN HELP OVERLAY ----
+
+function openPlanHelpOverlay(title, contentHTML) {
+    document.getElementById('plan-help-overlay-title').textContent = title;
+    document.getElementById('plan-help-overlay-body').innerHTML = contentHTML;
+    document.getElementById('plan-help-overlay').classList.add('open');
+}
+
+function closePlanHelpOverlay() {
+    document.getElementById('plan-help-overlay').classList.remove('open');
+}
 
 function planHelpTap(item) {
-    // TODO: wire up each item
-    console.log('Plan help tapped:', item);
+    switch (item) {
+        case 'schengen': showTripData();     break;
+        case 'flights':  showFlightSearch(); break;
+        case 'ryanair':  showRyanair();      break;
+        case 'carhire':  showCarHire();      break;
+        case 'news':     showTravelNews();   break;
+        case 'claudia':  showClaudia();      break;
+    }
+}
+
+// ---- HELPER: default date strings ----
+
+function defaultDates() {
+    const today = todayStr();
+    const dep = new Date(); dep.setDate(dep.getDate() + 7);
+    const ret = new Date(); ret.setDate(ret.getDate() + 21);
+    return {
+        today,
+        dep: dep.toISOString().split('T')[0],
+        ret: ret.toISOString().split('T')[0]
+    };
+}
+
+// ---- HELPER: save / restore notepad ----
+
+function saveHelpNotes(key) {
+    const el = document.getElementById(`${key}-notepad`);
+    if (!el) return;
+    localStorage.setItem(`help_notes_${key}`, el.value);
+    const btn = el.nextElementSibling;
+    if (btn) { btn.textContent = 'Saved ✓'; setTimeout(() => { btn.textContent = 'Save Notes'; }, 1600); }
+}
+
+// ---- 1. MY SCHENGEN TRIP DATA ----
+
+function showTripData() {
+    const trips  = window.allTrips || [];
+    const today  = todayStr();
+    const now    = new Date(`${today}T12:00:00`);
+
+    // Days remaining right now (past + current trips only)
+    const pastAndCurrent = trips.filter(t => t.entry <= today);
+    const nowStatus      = SchengenEngine.calculateStatus(pastAndCurrent, now);
+
+    // Days remaining after all future planned trips complete
+    const futureTrips = trips.filter(t => t.entry > today)
+                             .sort((a, b) => new Date(a.exit) - new Date(b.exit));
+    let afterStatus = nowStatus;
+    if (futureTrips.length > 0) {
+        const lastExit = new Date(`${futureTrips[futureTrips.length - 1].exit}T12:00:00`);
+        afterStatus = SchengenEngine.calculateStatus(trips, lastExit);
+    }
+
+    // Trips inside the current 180-day window
+    const windowStart = nowStatus.windowStart;
+    const windowTrips = trips
+        .filter(t => t.exit >= windowStart)
+        .sort((a, b) => new Date(a.entry) - new Date(b.entry));
+
+    // Build the two-number cards
+    let cards = `
+        <div class="schengen-numbers">
+            <div class="schengen-number-card card-now">
+                <span class="schengen-big-num">${nowStatus.remaining}</span>
+                <span class="schengen-num-label">Right Now</span>
+                <span class="schengen-num-desc">Based on trips already taken</span>
+            </div>`;
+
+    if (futureTrips.length > 0) {
+        cards += `
+            <div class="schengen-number-card card-after">
+                <span class="schengen-big-num">${afterStatus.remaining}</span>
+                <span class="schengen-num-label">After Planned Trips</span>
+                <span class="schengen-num-desc">Once all booked trips are done</span>
+            </div>`;
+    }
+    cards += `</div>`;
+
+    // Plain-English explanation
+    const explain = `
+        <div class="help-section">
+            <p class="help-section-title">How It Works</p>
+            <p class="help-body-text">The Schengen rule allows a maximum of <strong>90 days</strong> in any rolling <strong>180-day window</strong>. Every time you check, the app counts every day spent in Spain over the last 180 days. Your remaining allowance is 90 minus that total.</p>
+            ${futureTrips.length > 0
+                ? `<p class="help-body-text">You have ${futureTrips.length} planned trip${futureTrips.length > 1 ? 's' : ''} ahead. The second number shows what will be left once those are done — useful for planning trips further ahead.</p>`
+                : ''}
+        </div>`;
+
+    // Trip breakdown rows
+    let rows = '';
+    let usedInWindow = 0;
+    windowTrips.forEach(t => {
+        const entry   = new Date(`${t.entry}T12:00:00`);
+        const exit    = new Date(`${t.exit}T12:00:00`);
+        const capExit = exit > now ? now : exit;
+        const days    = t.entry > today ? 0
+                      : Math.ceil(Math.abs(capExit - (entry < new Date(`${windowStart}T12:00:00`) ? new Date(`${windowStart}T12:00:00`) : entry)) / 86400000) + 1;
+        usedInWindow += days;
+
+        const isCurrent = t.entry <= today && t.exit >= today;
+        const isFuture  = t.entry > today;
+        const badge     = isCurrent ? '🟢 Current' : isFuture ? '🔵 Planned' : '⚫ Past';
+        const daysLabel = isFuture ? '–' : `${days}d`;
+
+        rows += `
+            <div class="trip-breakdown-row">
+                <div>
+                    <span class="trip-breakdown-badge">${badge}</span>
+                    <span class="trip-breakdown-dates">${toUKDate(t.entry)} → ${toUKDate(t.exit)}</span>
+                </div>
+                <span class="trip-breakdown-days">${daysLabel}</span>
+            </div>`;
+    });
+
+    const breakdown = windowTrips.length > 0 ? `
+        <div class="help-section">
+            <p class="help-section-title">Trips in Your 180-Day Window</p>
+            <p class="help-body-text" style="font-size:0.58rem; color:rgba(255,255,255,0.35);">
+                Window: ${toUKDate(windowStart)} → Today
+            </p>
+            <div class="trip-breakdown-list">${rows}</div>
+            <div class="trip-breakdown-total">
+                <span>Days Used</span>
+                <span>${nowStatus.used} / 90</span>
+            </div>
+        </div>` : `
+        <div class="help-section">
+            <p class="help-body-text" style="color:rgba(255,255,255,0.35); text-align:center;">
+                No Schengen trips in the last 180 days.
+            </p>
+        </div>`;
+
+    openPlanHelpOverlay('My Schengen Data', `
+        <div class="help-section">
+            <p class="help-section-title">Your Days Remaining</p>
+            ${cards}
+        </div>
+        ${explain}
+        ${breakdown}
+    `);
+}
+
+// ---- 2. CHECK FLIGHTS ----
+
+function showFlightSearch() {
+    const d = defaultDates();
+    const saved = localStorage.getItem('help_notes_flights') || '';
+    openPlanHelpOverlay('Check Flights', `
+        <div class="help-section">
+            <p class="help-section-title">East Midlands → Alicante</p>
+            <div class="date-row">
+                <div class="date-field">
+                    <label>Depart</label>
+                    <input type="date" id="fl-dep" value="${d.dep}" min="${d.today}">
+                </div>
+                <div class="date-field">
+                    <label>Return</label>
+                    <input type="date" id="fl-ret" value="${d.ret}" min="${d.today}">
+                </div>
+            </div>
+        </div>
+        <div class="help-section">
+            <p class="help-section-title">Search</p>
+            <div class="help-btn-stack">
+                <button class="help-action-btn bg-blue" onclick="openFlightUrl('skyscanner')">Skyscanner</button>
+                <button class="help-action-btn bg-green" onclick="openFlightUrl('google')">Google Flights</button>
+            </div>
+        </div>
+        <div class="help-section">
+            <p class="help-section-title">My Notes</p>
+            <textarea id="flights-notepad" class="help-notepad" placeholder="Paste flight details, prices or reference numbers here…">${saved}</textarea>
+            <button class="help-action-btn bg-yellow" onclick="saveHelpNotes('flights')">Save Notes</button>
+        </div>
+    `);
+}
+
+function openFlightUrl(provider) {
+    const dep = document.getElementById('fl-dep').value;
+    const ret = document.getElementById('fl-ret').value;
+    if (!dep || !ret) return;
+    let url;
+    if (provider === 'skyscanner') {
+        const d = dep.replace(/-/g, '').slice(2);
+        const r = ret.replace(/-/g, '').slice(2);
+        url = `https://www.skyscanner.net/transport/flights/ema/alc/${d}/${r}/`;
+    } else {
+        url = `https://www.google.com/travel/flights#flt=EMA.ALC.${dep}*ALC.EMA.${ret};c:GBP;e:1;sd:1;t:f`;
+    }
+    window.open(url, '_blank');
+}
+
+// ---- 3. RYANAIR ----
+
+function showRyanair() {
+    const d = defaultDates();
+    const saved = localStorage.getItem('help_notes_ryanair') || '';
+    openPlanHelpOverlay('Ryanair', `
+        <div class="help-section">
+            <p class="help-section-title">EMA → ALC</p>
+            <p class="help-body-text">Opens Ryanair pre-filled with your dates. If you're already signed in on Safari, your account will be recognised automatically.</p>
+            <div class="date-row">
+                <div class="date-field">
+                    <label>Outbound</label>
+                    <input type="date" id="ry-dep" value="${d.dep}" min="${d.today}">
+                </div>
+                <div class="date-field">
+                    <label>Return</label>
+                    <input type="date" id="ry-ret" value="${d.ret}" min="${d.today}">
+                </div>
+            </div>
+            <button class="help-action-btn" style="background:#073590;color:#fff;border-color:#000;box-shadow:3px 3px 0 #000; margin-top:4px;" onclick="openRyanairUrl()">
+                Open Ryanair
+            </button>
+        </div>
+        <div class="help-section">
+            <p class="help-section-title">My Notes</p>
+            <textarea id="ryanair-notepad" class="help-notepad" placeholder="Save flight reference numbers or prices here…">${saved}</textarea>
+            <button class="help-action-btn bg-yellow" onclick="saveHelpNotes('ryanair')">Save Notes</button>
+        </div>
+    `);
+}
+
+function openRyanairUrl() {
+    const dep = document.getElementById('ry-dep').value;
+    const ret = document.getElementById('ry-ret').value;
+    if (!dep || !ret) return;
+    const url = `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${dep}&dateIn=${ret}&isConnectedFlight=false&isReturn=true&discount=0&promoCode=&originIata=EMA&destinationIata=ALC&tpAdults=1&tpTeens=0&tpChildren=0&tpInfants=0&tpStartDate=${dep}&tpEndDate=${ret}&tpDiscount=0&tpPromoCode=&tpOriginIata=EMA&tpDestinationIata=ALC`;
+    window.open(url, '_blank');
+}
+
+// ---- 4. CAR HIRE ----
+
+function showCarHire() {
+    const d = defaultDates();
+    const saved = localStorage.getItem('help_notes_carhire') || '';
+    openPlanHelpOverlay('Car Hire', `
+        <div class="help-section">
+            <p class="help-section-title">Alicante Airport</p>
+            <div class="date-row">
+                <div class="date-field">
+                    <label>Pick Up</label>
+                    <input type="date" id="ch-pick" value="${d.dep}" min="${d.today}">
+                </div>
+                <div class="date-field">
+                    <label>Drop Off</label>
+                    <input type="date" id="ch-drop" value="${d.ret}" min="${d.today}">
+                </div>
+            </div>
+        </div>
+        <div class="help-section">
+            <p class="help-section-title">Search</p>
+            <div class="help-btn-stack">
+                <button class="help-action-btn bg-blue"  onclick="openCarUrl('rentalcars')">Rentalcars.com</button>
+                <button class="help-action-btn bg-pink"  onclick="openCarUrl('kayak')">Kayak Car Hire</button>
+            </div>
+        </div>
+        <div class="help-section">
+            <p class="help-section-title">My Notes</p>
+            <textarea id="carhire-notepad" class="help-notepad" placeholder="Save car hire quotes or booking references here…">${saved}</textarea>
+            <button class="help-action-btn bg-yellow" onclick="saveHelpNotes('carhire')">Save Notes</button>
+        </div>
+    `);
+}
+
+function openCarUrl(provider) {
+    const pick = document.getElementById('ch-pick').value;
+    const drop = document.getElementById('ch-drop').value;
+    if (!pick || !drop) return;
+    const [py, pm, pd] = pick.split('-');
+    const [dy, dm, dd] = drop.split('-');
+    let url;
+    if (provider === 'rentalcars') {
+        url = `https://www.rentalcars.com/SearchResults.do?puCountry=ES&puStation=ALC&puDay=${pd}&puMonth=${pm}&puYear=${py}&doDay=${dd}&doMonth=${dm}&doYear=${dy}&puHour=12&puMinute=00&doHour=12&doMinute=00&driverAge=30&currency=GBP`;
+    } else {
+        url = `https://www.kayak.co.uk/cars/ALC-airport/${pick}/${drop}/`;
+    }
+    window.open(url, '_blank');
+}
+
+// ---- 5. TRAVEL NEWS ----
+
+function showTravelNews() {
+    openPlanHelpOverlay('Travel News', `
+        <div class="help-section" style="align-items:center; padding-top:40px;">
+            <p class="help-body-text" style="text-align:center; color:rgba(255,255,255,0.4);">
+                Fetching latest news…
+            </p>
+        </div>
+    `);
+    fetchTravelNews();
+}
+
+async function fetchTravelNews() {
+    const feeds = [
+        'https://feeds.bbci.co.uk/news/world/europe/rss.xml',
+        'https://www.theguardian.com/travel/rss'
+    ];
+    const relevantWords = ['spain','schengen','alicante','travel','passport','visa','border','flight','etias','uk','british','strike','airport'];
+    const urgentWords   = ['strike','ban','emergency','closed','suspended','danger','warning','crisis','terror'];
+    const cautionWords  = ['delay','change','new rules','update','advice','disruption','queue','congestion'];
+
+    const results = [];
+
+    for (const feed of feeds) {
+        try {
+            const resp = await fetch(
+                `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed)}&count=25`
+            );
+            const data = await resp.json();
+            if (data.status !== 'ok' || !data.items) continue;
+
+            data.items.forEach(item => {
+                const text = (item.title + ' ' + (item.description || '')).toLowerCase();
+                if (!relevantWords.some(w => text.includes(w))) return;
+                const isUrgent  = urgentWords.some(w => text.includes(w));
+                const isCaution = cautionWords.some(w => text.includes(w));
+                results.push({
+                    title:  item.title,
+                    link:   item.link,
+                    date:   new Date(item.pubDate),
+                    colour: isUrgent ? 'var(--pink)' : isCaution ? '#f97316' : 'var(--green)'
+                });
+            });
+        } catch (e) { /* feed unavailable — skip silently */ }
+    }
+
+    const body = document.getElementById('plan-help-overlay-body');
+    if (!body) return;
+
+    if (results.length === 0) {
+        body.innerHTML = `
+            <div class="help-section" style="align-items:center; padding-top:40px;">
+                <p class="help-body-text" style="text-align:center; color:rgba(255,255,255,0.35);">
+                    No relevant travel news found right now.<br>Try again later.
+                </p>
+            </div>`;
+        return;
+    }
+
+    results.sort((a, b) => b.date - a.date);
+
+    let html = `
+        <div class="help-section">
+            <p class="help-section-title">Colour Guide</p>
+            <div class="news-legend">
+                <span style="color:var(--pink)">● Urgent</span>
+                <span style="color:#f97316">● Caution</span>
+                <span style="color:var(--green)">● Info</span>
+            </div>
+        </div>
+        <div class="news-list">`;
+
+    results.slice(0, 15).forEach(item => {
+        const dateStr = item.date.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+        html += `
+            <a href="${item.link}" target="_blank" class="news-item" style="border-left-color:${item.colour};">
+                <div class="news-content">
+                    <span class="news-title">${item.title}</span>
+                    <span class="news-date">${dateStr}</span>
+                </div>
+            </a>`;
+    });
+
+    html += `</div>`;
+    body.innerHTML = html;
+}
+
+// ---- 6. CHAT WITH CLAUDIA (placeholder) ----
+
+function showClaudia() {
+    openPlanHelpOverlay('Chat with ClaudiA', `
+        <div class="help-section" style="align-items:center; padding-top:60px;">
+            <p class="help-body-text" style="text-align:center; color:rgba(255,255,255,0.4);">
+                ClaudiA is coming soon.
+            </p>
+        </div>
+    `);
 }
 
 // ---- PRE-TRIP CHECKLIST ----

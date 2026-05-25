@@ -627,6 +627,23 @@
 
 
     <!-- ================================================
+         PLAN HELP OVERLAY
+         Slides in from the right over the plan view.
+         Populated by planHelpTap() in plan.js
+         ================================================ -->
+    <div id="plan-help-overlay">
+        <div id="plan-help-overlay-header">
+            <button class="plan-help-back-btn" onclick="closePlanHelpOverlay()">
+                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                Back
+            </button>
+            <span id="plan-help-overlay-title"></span>
+        </div>
+        <div id="plan-help-overlay-body"></div>
+    </div>
+
+
+    <!-- ================================================
          SCRIPTS — loaded in dependency order:
          Firebase → engine → app → views
          ================================================ -->

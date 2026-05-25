@@ -454,11 +454,13 @@ body {
     display: none;
     padding: 4px 16px 16px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    /* No max-height cap — expands fully and the page scrolls */
 }
 
 .plan-dropdown-body.open {
     display: block;
+    max-height: 65vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* ==============================================
@@ -769,4 +771,338 @@ body {
 #view-plan p {
     text-shadow: 0 1px 4px rgba(0,0,0,1), 0 -1px 4px rgba(0,0,0,1),
                  1px 0 4px rgba(0,0,0,1), -1px 0 4px rgba(0,0,0,1);
+}
+
+/* ==============================================
+   PLAN HELP OVERLAY
+   Slides in from the right, sits above everything
+   ============================================== */
+
+#plan-help-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 200;
+    background: rgba(10, 10, 20, 0.96);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.28s ease;
+}
+
+#plan-help-overlay.open {
+    transform: translateX(0);
+}
+
+#plan-help-overlay-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: calc(env(safe-area-inset-top) + 14px) 20px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.plan-help-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    color: var(--yellow);
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+}
+
+.plan-help-back-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: var(--yellow);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#plan-help-overlay-title {
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #fff;
+}
+
+#plan-help-overlay-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 24px 20px calc(env(safe-area-inset-bottom) + 40px);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Generic section block */
+.help-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.help-section-title {
+    font-size: 0.52rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.38);
+    margin: 0;
+}
+
+.help-body-text {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Date pickers */
+.date-row {
+    display: flex;
+    gap: 12px;
+}
+
+.date-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.date-field label {
+    font-size: 0.48rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.date-field input[type="date"] {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 800;
+    padding: 9px 10px;
+    font-family: inherit;
+    -webkit-appearance: none;
+}
+
+/* Action buttons */
+.help-btn-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.help-action-btn {
+    width: 100%;
+    height: 54px;
+    border-radius: 14px;
+    border: 2.5px solid var(--black);
+    box-shadow: 3px 3px 0 var(--black);
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.help-action-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--black);
+}
+
+.help-action-btn.bg-blue   { background: var(--blue);   color: #000; }
+.help-action-btn.bg-yellow { background: var(--yellow); color: #000; }
+.help-action-btn.bg-pink   { background: var(--pink);   color: #000; }
+.help-action-btn.bg-green  { background: var(--green);  color: #000; }
+.help-action-btn.bg-white  { background: var(--white);  color: #000; }
+
+/* Notepad textarea */
+.help-notepad {
+    width: 100%;
+    min-height: 110px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 2px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 12px;
+    font-family: inherit;
+    resize: none;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+/* ---- TRIP DATA ---- */
+
+.schengen-numbers {
+    display: flex;
+    gap: 10px;
+}
+
+.schengen-number-card {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.schengen-number-card.card-now   { border-color: var(--green); background: rgba(46,213,115,0.08); }
+.schengen-number-card.card-after { border-color: var(--blue);  background: rgba(0,168,255,0.08); }
+
+.schengen-big-num {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+    -webkit-text-stroke: 2px #000;
+    paint-order: stroke fill;
+}
+
+.schengen-num-label {
+    font-size: 0.48rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.schengen-num-desc {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.32);
+    line-height: 1.4;
+    margin-top: 4px;
+}
+
+.trip-breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.trip-breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+
+.trip-breakdown-badge {
+    font-size: 0.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.38);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.trip-breakdown-dates {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.trip-breakdown-days {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--yellow);
+}
+
+.trip-breakdown-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* ---- TRAVEL NEWS ---- */
+
+.news-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 0.52rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.news-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    border-left: 4px solid;
+    padding: 12px 14px;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.news-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
+
+.news-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.4;
+}
+
+.news-date {
+    font-size: 0.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.32);
 }
