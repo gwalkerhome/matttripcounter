@@ -322,9 +322,9 @@ body {
    Brutalist solid orange box
    ============================================== */
 
-.plan-notification p,
-.plan-notification a,
-.plan-notification button {
+#view-plan .plan-notification p,
+#view-plan .plan-notification a,
+#view-plan .plan-notification button {
     text-shadow: none;
 }
 
