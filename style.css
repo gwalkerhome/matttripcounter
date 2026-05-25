@@ -154,7 +154,7 @@ html, body {
    ============================================== */
 
 :root {
-    --nav-h: 48px; /* height of the tab content only — not the safe area */
+    --nav-h: 44px; /* height of the floating pill row — not the safe area */
 }
 
 .view {
@@ -181,51 +181,45 @@ html, body {
     background: transparent;
 }
 
-/* The actual tab row — frosted glass here only */
+/* Tab row — no background bar, pills float over the content */
 #bottom-nav .nav-row {
     display: flex;
     width: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    background: transparent;
+    justify-content: space-around;
+    align-items: center;
+    padding: 4px 10px 4px;
 }
 
-/* Safe-area strip below the tabs —
-   very light tint so the background image shows through,
-   no more solid black bar on real iPhones */
+/* Safe-area strip — invisible, just reserves height for iPhone home indicator */
 #bottom-nav .nav-safe-area {
     width: 100%;
     height: env(safe-area-inset-bottom, 0px);
-    background: rgba(0, 0, 0, 0.15);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    background: transparent;
 }
 
+/* Each tab is its own frosted-glass pill */
 .nav-tab {
-    flex: 1;
+    flex: 0 0 auto;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 5px 0;
-    gap: 3px;
-    min-height: var(--nav-h);
-    font-size: 0.42rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: rgba(255, 255, 255, 0.3);
-    background: none;
-    border: none;
+    width: 52px;
+    height: 36px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.48);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    color: rgba(255, 255, 255, 0.5);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    transition: color 0.15s;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
 }
 
 .nav-tab svg {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     fill: none;
     stroke: currentColor;
     stroke-width: 2.5;
@@ -233,8 +227,12 @@ html, body {
     stroke-linejoin: round;
 }
 
-.nav-tab.active { color: var(--yellow); }
-.nav-tab:active  { transform: scale(0.88); }
+.nav-tab.active {
+    color: var(--yellow);
+    background: rgba(255, 222, 3, 0.12);
+    border-color: rgba(255, 222, 3, 0.5);
+}
+.nav-tab:active { transform: scale(0.88); }
 
 /* ==============================================
    HOME ALERT BANNER
