@@ -17,9 +17,22 @@
 const ETIAS_LAUNCH_DATE = new Date('2026-10-01');
 const ETIAS_APPLY_URL   = 'https://travel-europe.europa.eu/etias_en';
 
+// Session-only dismiss (resets each time app is opened)
 let etiasNotifDismissed = false;
 
+// Permanent dismiss key — cleared when ETIAS goes live so the live alert
+// always breaks through regardless of prior dismissal
+const ETIAS_PERM_KEY = 'etias_perm_dismiss_pre_launch';
+
 function dismissEtiasNotification() {
+    // Hides for this session only — shows again next time app opens
+    etiasNotifDismissed = true;
+    const notif = document.getElementById('plan-etias-notification');
+    if (notif) notif.style.display = 'none';
+}
+
+function permanentlyDismissEtias() {
+    localStorage.setItem(ETIAS_PERM_KEY, 'true');
     etiasNotifDismissed = true;
     const notif = document.getElementById('plan-etias-notification');
     if (notif) notif.style.display = 'none';
@@ -34,19 +47,22 @@ function updateEtiasSection() {
     if (!titleEl || !notif) return;
 
     if (isLive) {
-        // ETIAS is live — force visible, no dismiss
-        titleEl.innerText        = '⚠️ ETIAS Required';
-        bodyEl.innerText         = 'You now need an ETIAS authorisation before travelling to Spain. Apply online — it takes a few minutes and costs €7.';
-        linkEl.style.display     = 'block';
-        notif.style.display      = 'flex';
-        etiasNotifDismissed      = false; // can't stay dismissed once live
-        const dismissBtn = notif.querySelector('.plan-notif-dismiss');
-        if (dismissBtn) dismissBtn.style.display = 'none';
+        // ETIAS live — force visible regardless of any prior dismissal,
+        // hide the "don't show again" option since action is now required
+        titleEl.innerText    = '⚠️ ETIAS Required';
+        bodyEl.innerText     = 'You now need an ETIAS authorisation before travelling to Spain. Apply online — it takes a few minutes and costs €7.';
+        linkEl.style.display = 'block';
+        notif.style.display  = 'flex';
+        localStorage.removeItem(ETIAS_PERM_KEY); // clear pre-launch dismissal
+        const permBtn = notif.querySelector('.plan-notif-permanent-dismiss');
+        if (permBtn) permBtn.style.display = 'none';
     } else {
         titleEl.innerText    = 'ℹ️ ETIAS — Coming Soon';
         bodyEl.innerText     = 'From Q4 2026, UK travellers will need an ETIAS pre-travel authorisation (like the US ESTA) before entering Spain. No action needed yet — but worth knowing.';
         linkEl.style.display = 'none';
-        notif.style.display  = etiasNotifDismissed ? 'none' : 'flex';
+        // Hide if permanently dismissed OR session-dismissed
+        const permDismissed = localStorage.getItem(ETIAS_PERM_KEY) === 'true';
+        notif.style.display = (permDismissed || etiasNotifDismissed) ? 'none' : 'flex';
     }
 }
 

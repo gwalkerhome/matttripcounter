@@ -414,27 +414,19 @@
 
         <div id="plan-scroll">
 
-            <!-- Header: title + remaining days pill -->
+            <!-- Header: title only — remaining days shown in Schengen data section -->
             <div style="text-align:center; width:100%;">
                 <h1 class="text-brutal"
                     style="font-size:0.8rem; font-weight:900; text-transform:uppercase;
-                           letter-spacing:0.2em; margin:0 0 10px;">
+                           letter-spacing:0.2em; margin:0;">
                     Plan a Trip
                 </h1>
-                <div style="display:inline-block; background:rgba(255,255,255,0.08);
-                            border:1.5px solid rgba(255,255,255,0.12); border-radius:10px;
-                            padding:4px 20px; text-align:center;">
-                    <span style="font-size:0.42rem; font-weight:900; text-transform:uppercase;
-                                 letter-spacing:0.1em; color:rgba(255,255,255,0.4); display:block;">
-                        Schengen Days Remaining
-                    </span>
-                    <span id="plan-remaining"
-                          style="font-size:1.1rem; font-weight:900; color:#2ED573;">--</span>
-                </div>
+                <!-- plan-remaining hidden here; kept for JS compatibility -->
+                <span id="plan-remaining" style="display:none;"></span>
             </div>
 
             <!-- ---- ETIAS NOTIFICATION ---- -->
-            <!-- Dismissed per session; force-shown when ETIAS goes live -->
+            <!-- Shows every session until permanently dismissed via localStorage -->
             <div id="plan-etias-notification" class="plan-notification">
                 <div style="flex:1;">
                     <p id="plan-etias-title" class="plan-notif-title">ℹ️ ETIAS — Coming Soon</p>
@@ -447,12 +439,16 @@
                        class="plan-notif-link" style="display:none;">
                         Apply for ETIAS →
                     </a>
+                    <button class="plan-notif-permanent-dismiss"
+                            onclick="permanentlyDismissEtias()">
+                        Don't show again
+                    </button>
                 </div>
                 <button class="plan-notif-dismiss" onclick="dismissEtiasNotification()">✕</button>
             </div>
 
             <!-- ---- CHECKLIST DROPDOWN ---- -->
-            <div class="plan-dropdown">
+            <div class="plan-dropdown dropdown-checklist">
                 <button class="plan-dropdown-header" onclick="togglePlanDropdown('checklist')">
                     <span id="plan-checklist-title">✈️ Pre-Trip Checklist</span>
                     <svg class="plan-dropdown-chevron" id="checklist-chevron" viewBox="0 0 24 24">
@@ -478,7 +474,7 @@
             </div>
 
             <!-- ---- HELP PLANNING A TRIP DROPDOWN ---- -->
-            <div class="plan-dropdown">
+            <div class="plan-dropdown dropdown-help">
                 <button class="plan-dropdown-header" onclick="togglePlanDropdown('help')">
                     <span>Help Planning A Trip</span>
                     <svg class="plan-dropdown-chevron" id="help-chevron" viewBox="0 0 24 24">
