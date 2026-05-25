@@ -327,7 +327,7 @@ body {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    background: rgba(249, 115, 22, 0.1);
+    background: rgba(249, 115, 22, 0.35);
     border: 2px solid #f97316;
     border-radius: 16px;
     padding: 14px 16px;
@@ -458,9 +458,6 @@ body {
 
 .plan-dropdown-body.open {
     display: block;
-    max-height: 65vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 /* ==============================================
