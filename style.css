@@ -334,6 +334,7 @@ body {
     width: 100%;
     flex-shrink: 0;
     -webkit-font-smoothing: antialiased;
+    transform: translateZ(0);
 }
 
 .plan-notif-title {

@@ -26,54 +26,59 @@ function renderTripsList(trips) {
         return;
     }
 
+    // 180-day window — trips with exit before this are off the radar
+    const windowStart = new Date(`${today}T12:00:00`);
+    windowStart.setDate(windowStart.getDate() - 179);
+    const windowStartStr = windowStart.toISOString().split('T')[0];
+
     // Most recent trip first
     const sorted = [...trips].sort((a, b) => new Date(b.entry) - new Date(a.entry));
 
     sorted.forEach(t => {
-        // Determine status
+        // Determine category
         let label  = 'Past';
-        let colour = 'rgba(255,255,255,0.2)';
-        let textColour = 'rgba(255,255,255,0.5)';
-        let glow   = 'none';
+        let bg     = '#FF4DFF'; // pink  — past but still in 180-day window
 
         if (today >= t.entry && today <= t.exit) {
-            label      = 'Now';
-            colour     = '#2ED573';
-            textColour = '#000';
-            glow       = '0 0 14px rgba(46,213,115,0.4)';
+            label = 'Now';
+            bg    = '#00A8FF'; // blue — current
         } else if (t.entry > today) {
-            label      = 'Upcoming';
-            colour     = '#00A8FF';
-            textColour = '#fff';
-            glow       = '0 0 14px rgba(0,168,255,0.3)';
+            label = 'Upcoming';
+            bg    = '#00A8FF'; // blue — future
+        } else if (t.exit < windowStartStr) {
+            label = 'Archived';
+            bg    = '#c084fc'; // purple — off the 180-day radar
         }
 
-        const nights = daysBetween(
+        // Schengen days = nights + 1 (both entry and exit day count)
+        const nights     = daysBetween(
             new Date(`${t.entry}T12:00:00`),
             new Date(`${t.exit}T12:00:00`)
         );
+        const schengenDays = nights + 1;
 
         const card = document.createElement('div');
         card.style.cssText = `
             width: 100%; max-width: 300px;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 16px;
+            display: flex; align-items: center;
+            padding: 12px 14px;
             border-radius: 14px;
-            border: 2.5px solid ${colour};
-            background: rgba(0,0,0,0.35);
-            -webkit-backdrop-filter: blur(6px);
-            backdrop-filter: blur(6px);
-            box-shadow: ${glow};
-            margin-bottom: 10px;
+            border: 3px solid #000;
+            background: ${bg};
+            box-shadow: 4px 4px 0 #000;
+            margin-bottom: 12px;
+            -webkit-font-smoothing: antialiased;
         `;
-        // Delete button is on the LEFT — away from Matt's scrolling thumb
+
+        // Delete button on the LEFT — away from Matt's scrolling thumb
         card.innerHTML = `
             <button onclick="deleteTripFromList('${t.id}')"
                 style="background:none; border:none;
-                       color:rgba(255,80,80,0.55); cursor:pointer;
-                       padding:6px 10px 6px 0; flex-shrink:0;
-                       display:flex; align-items:center;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       color:rgba(0,0,0,0.45); cursor:pointer;
+                       padding:6px 12px 6px 0; flex-shrink:0;
+                       display:flex; align-items:center;
+                       -webkit-tap-highlight-color:transparent;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2.5"
                      stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"/>
@@ -82,20 +87,20 @@ function renderTripsList(trips) {
                     <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
                 </svg>
             </button>
-            <div style="display:flex; flex-direction:column; gap:5px; flex:1;">
+            <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
                 <span style="
-                    display:inline-block;
+                    display:inline-block; width:fit-content;
                     font-size:0.48rem; font-weight:900;
                     text-transform:uppercase; letter-spacing:0.12em;
                     padding:2px 8px; border-radius:6px;
-                    background:${colour}; color:${textColour};
+                    background:rgba(0,0,0,0.2); color:#000;
                 ">${label}</span>
-                <span style="color:#fff; font-weight:900; font-size:0.9rem; letter-spacing:-0.01em;">
+                <span style="color:#000; font-weight:900; font-size:0.88rem; letter-spacing:-0.01em;">
                     ${toUKDate(t.entry)} — ${toUKDate(t.exit)}
                 </span>
-                <span style="color:rgba(255,255,255,0.45); font-size:0.65rem; font-weight:700;
+                <span style="color:rgba(0,0,0,0.55); font-size:0.62rem; font-weight:800;
                              text-transform:uppercase; letter-spacing:0.08em;">
-                    ${nights} night${nights !== 1 ? 's' : ''}
+                    ${schengenDays} day${schengenDays !== 1 ? 's' : ''}
                 </span>
             </div>
         `;
