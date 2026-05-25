@@ -10,30 +10,65 @@
 //   3. NIGHT SUGGESTOR — always visible.
 //      Enter desired nights, get earliest valid date.
 
-// ---- ETIAS ----
-// ETIAS is the EU pre-travel authorisation for UK citizens.
-// Expected to launch Q4 2026. After that date the banner
-// message changes to prompt Matt to actually apply.
+// ---- ETIAS NOTIFICATION ----
+// Dismissible banner. Dismissed state is per-session only.
+// When ETIAS goes live the notification is forced visible and cannot be dismissed.
 
 const ETIAS_LAUNCH_DATE = new Date('2026-10-01');
 const ETIAS_APPLY_URL   = 'https://travel-europe.europa.eu/etias_en';
 
+let etiasNotifDismissed = false;
+
+function dismissEtiasNotification() {
+    etiasNotifDismissed = true;
+    const notif = document.getElementById('plan-etias-notification');
+    if (notif) notif.style.display = 'none';
+}
+
 function updateEtiasSection() {
-    const isLive   = new Date() >= ETIAS_LAUNCH_DATE;
-    const titleEl  = document.getElementById('plan-etias-title');
-    const bodyEl   = document.getElementById('plan-etias-body');
-    const linkEl   = document.getElementById('plan-etias-link');
-    if (!titleEl) return;
+    const isLive  = new Date() >= ETIAS_LAUNCH_DATE;
+    const titleEl = document.getElementById('plan-etias-title');
+    const bodyEl  = document.getElementById('plan-etias-body');
+    const linkEl  = document.getElementById('plan-etias-link');
+    const notif   = document.getElementById('plan-etias-notification');
+    if (!titleEl || !notif) return;
 
     if (isLive) {
-        titleEl.innerText = '⚠️ ETIAS Required';
-        bodyEl.innerText  = 'You now need an ETIAS authorisation before travelling to Spain. Apply online — it takes a few minutes and costs €7.';
-        linkEl.style.display = 'block';
+        // ETIAS is live — force visible, no dismiss
+        titleEl.innerText        = '⚠️ ETIAS Required';
+        bodyEl.innerText         = 'You now need an ETIAS authorisation before travelling to Spain. Apply online — it takes a few minutes and costs €7.';
+        linkEl.style.display     = 'block';
+        notif.style.display      = 'flex';
+        etiasNotifDismissed      = false; // can't stay dismissed once live
+        const dismissBtn = notif.querySelector('.plan-notif-dismiss');
+        if (dismissBtn) dismissBtn.style.display = 'none';
     } else {
-        titleEl.innerText = 'ℹ️ ETIAS — Coming Soon';
-        bodyEl.innerText  = 'From Q4 2026, UK travellers will need an ETIAS pre-travel authorisation (like the US ESTA) before entering Spain. No action needed yet — but worth knowing.';
+        titleEl.innerText    = 'ℹ️ ETIAS — Coming Soon';
+        bodyEl.innerText     = 'From Q4 2026, UK travellers will need an ETIAS pre-travel authorisation (like the US ESTA) before entering Spain. No action needed yet — but worth knowing.';
         linkEl.style.display = 'none';
+        notif.style.display  = etiasNotifDismissed ? 'none' : 'flex';
     }
+}
+
+// ---- DROPDOWN TOGGLE ----
+
+function togglePlanDropdown(id) {
+    const bodyId    = id === 'checklist' ? 'plan-checklist-body' : 'plan-help-body';
+    const chevronId = id === 'checklist' ? 'checklist-chevron'   : 'help-chevron';
+    const body      = document.getElementById(bodyId);
+    const chevron   = document.getElementById(chevronId);
+    if (!body) return;
+
+    const isOpen = body.classList.toggle('open');
+    if (chevron) chevron.classList.toggle('open', isOpen);
+}
+
+// ---- HELP ITEM TAPS ----
+// Placeholder — each item's behaviour to be wired up later
+
+function planHelpTap(item) {
+    // TODO: wire up each item
+    console.log('Plan help tapped:', item);
 }
 
 // ---- PRE-TRIP CHECKLIST ----
@@ -184,9 +219,9 @@ function savePlanSuggestion() {
 // ---- UPDATE PLAN VIEW ----
 
 function updatePlanView(trips) {
-    const today  = todayStr();
-    const now    = new Date(`${today}T12:00:00`);
-    const sorted = [...trips].sort((a, b) => new Date(a.entry) - new Date(b.entry));
+    const today    = todayStr();
+    const now      = new Date(`${today}T12:00:00`);
+    const sorted   = [...trips].sort((a, b) => new Date(a.entry) - new Date(b.entry));
     const nextTrip = sorted.find(t => t.entry > today);
 
     // Update remaining days pill
@@ -199,34 +234,28 @@ function updatePlanView(trips) {
                           : '#ef4444';
     }
 
-    // ETIAS section
+    // ETIAS notification
     updateEtiasSection();
 
-    // Checklist section — show when next trip is within 7 days
-    const checklistSection  = document.getElementById('plan-checklist-section');
-    const checklistTitle    = document.getElementById('plan-checklist-title');
-    if (checklistSection) {
+    // Checklist dropdown — always visible; title reflects days to next trip
+    const checklistTitle = document.getElementById('plan-checklist-title');
+    if (checklistTitle) {
         if (nextTrip) {
             const daysToTrip = daysBetween(now, new Date(`${nextTrip.entry}T12:00:00`));
-            if (daysToTrip >= 0 && daysToTrip <= 7) {
-                checklistSection.style.display = 'contents';
-                if (checklistTitle) {
-                    checklistTitle.innerText = daysToTrip === 0
-                        ? '✈️ Travel day checklist'
-                        : `✈️ ${daysToTrip} day${daysToTrip !== 1 ? 's' : ''} to go — checklist`;
-                }
-                renderChecklist(nextTrip.entry);
+            if (daysToTrip === 0) {
+                checklistTitle.innerText = '✈️ Travel Day — Checklist';
+            } else if (daysToTrip > 0 && daysToTrip <= 30) {
+                checklistTitle.innerText =
+                    `✈️ ${daysToTrip} Day${daysToTrip !== 1 ? 's' : ''} to Go — Checklist`;
             } else {
-                checklistSection.style.display = 'none';
+                checklistTitle.innerText = '✈️ Pre-Trip Checklist';
             }
+            renderChecklist(nextTrip.entry);
         } else {
-            checklistSection.style.display = 'none';
+            checklistTitle.innerText = '✈️ Pre-Trip Checklist';
+            renderChecklist('no-trip');
         }
     }
-
-    // Suggestor
-    document.getElementById('plan-nights-display').innerText = planDesiredNights;
-    findEarliestDeparture();
 }
 
 // ---- EVENT LISTENERS ----

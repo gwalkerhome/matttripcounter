@@ -407,8 +407,8 @@
 
     <!-- ================================================
          VIEW: PLAN
-         Three sections: ETIAS info, pre-trip checklist,
-         and earliest departure suggestor
+         ETIAS notification, pre-trip checklist dropdown,
+         and Help Planning A Trip dropdown
          ================================================ -->
     <div id="view-plan" class="view">
 
@@ -433,45 +433,42 @@
                 </div>
             </div>
 
-            <!-- ---- SECTION 1: ETIAS ---- -->
-            <p class="plan-section-label">Travel Documents</p>
-
-            <div id="plan-etias-card">
-                <p id="plan-etias-title"
-                   style="font-size:0.65rem; font-weight:900; text-transform:uppercase;
-                          letter-spacing:0.12em; color:#f97316; margin:0 0 6px;">
-                    ℹ️ ETIAS — Coming Soon
-                </p>
-                <p id="plan-etias-body"
-                   style="font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.75);
-                          margin:0 0 10px; line-height:1.5;">
-                    From Q4 2026, UK travellers will need an ETIAS pre-travel authorisation before entering Spain. No action needed yet — but worth knowing.
-                </p>
-                <a id="plan-etias-link"
-                   href="https://travel-europe.europa.eu/etias_en" target="_blank"
-                   style="display:none; font-size:0.6rem; font-weight:900; text-transform:uppercase;
-                          letter-spacing:0.1em; color:#f97316; text-decoration:underline;">
-                    Apply for ETIAS →
-                </a>
+            <!-- ---- ETIAS NOTIFICATION ---- -->
+            <!-- Dismissed per session; force-shown when ETIAS goes live -->
+            <div id="plan-etias-notification" class="plan-notification">
+                <div style="flex:1;">
+                    <p id="plan-etias-title" class="plan-notif-title">ℹ️ ETIAS — Coming Soon</p>
+                    <p id="plan-etias-body" class="plan-notif-body">
+                        From Q4 2026, UK travellers will need an ETIAS pre-travel authorisation
+                        before entering Spain. No action needed yet — but worth knowing.
+                    </p>
+                    <a id="plan-etias-link"
+                       href="https://travel-europe.europa.eu/etias_en" target="_blank"
+                       class="plan-notif-link" style="display:none;">
+                        Apply for ETIAS →
+                    </a>
+                </div>
+                <button class="plan-notif-dismiss" onclick="dismissEtiasNotification()">✕</button>
             </div>
 
-            <!-- ---- SECTION 2: PRE-TRIP CHECKLIST ---- -->
-            <!-- Hidden by plan.js unless next trip is within 7 days -->
-            <div id="plan-checklist-section" style="display:none;">
-                <p class="plan-section-label" id="plan-checklist-title">
-                    ✈️ Checklist
-                </p>
-
-                <div class="plan-card" style="padding:8px 16px;">
+            <!-- ---- CHECKLIST DROPDOWN ---- -->
+            <div class="plan-dropdown">
+                <button class="plan-dropdown-header" onclick="togglePlanDropdown('checklist')">
+                    <span id="plan-checklist-title">✈️ Pre-Trip Checklist</span>
+                    <svg class="plan-dropdown-chevron" id="checklist-chevron" viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="plan-dropdown-body" id="plan-checklist-body">
                     <div style="display:flex; justify-content:space-between; align-items:center;
-                                margin-bottom:4px; padding-bottom:8px;
+                                padding-bottom:10px; margin-bottom:4px;
                                 border-bottom:1px solid rgba(255,255,255,0.07);">
-                        <span style="font-size:0.5rem; font-weight:900; text-transform:uppercase;
+                        <span style="font-size:0.48rem; font-weight:900; text-transform:uppercase;
                                      letter-spacing:0.15em; color:rgba(255,255,255,0.35);">
                             Progress
                         </span>
                         <span id="plan-checklist-count"
-                              style="font-size:0.5rem; font-weight:900; text-transform:uppercase;
+                              style="font-size:0.48rem; font-weight:900; text-transform:uppercase;
                                      letter-spacing:0.1em; color:rgba(255,255,255,0.5);">
                             0 of 11 done
                         </span>
@@ -480,59 +477,47 @@
                 </div>
             </div>
 
-            <!-- ---- SECTION 3: NIGHT SUGGESTOR ---- -->
-            <p class="plan-section-label">Find Earliest Dates</p>
-
-            <!-- Night selector -->
-            <div class="plan-card" style="text-align:center;">
-                <p style="font-size:0.5rem; font-weight:900; text-transform:uppercase;
-                          letter-spacing:0.15em; color:rgba(255,255,255,0.4); margin:0 0 14px;">
-                    How many nights?
-                </p>
-                <div style="display:flex; align-items:center; justify-content:center; gap:20px;">
-                    <button onclick="changePlanNights(-1)"
-                            class="brutalist-btn bg-pink"
-                            style="width:52px; height:52px; font-size:1.4rem; padding:0; border-radius:14px;">
-                        −
-                    </button>
-                    <div id="plan-nights-display"
-                         class="text-brutal"
-                         style="font-size:3.5rem; font-weight:900; line-height:1;
-                                min-width:60px; text-align:center;">
-                        14
-                    </div>
-                    <button onclick="changePlanNights(1)"
-                            class="brutalist-btn bg-green"
-                            style="width:52px; height:52px; font-size:1.4rem; padding:0; border-radius:14px;">
-                        +
-                    </button>
-                </div>
-            </div>
-
-            <!-- Result card -->
-            <div id="plan-result-card"
-                 style="background:rgba(0,0,0,0.4); border:2.5px solid #2ED573;
-                        border-radius:20px; padding:20px 24px; width:100%; max-width:300px;
-                        text-align:center; transition:opacity 0.3s;">
-                <p style="font-size:0.5rem; font-weight:900; text-transform:uppercase;
-                          letter-spacing:0.15em; color:#2ED573; margin:0 0 8px;">
-                    Earliest You Can Go
-                </p>
-                <p id="plan-result-date"
-                   class="text-brutal"
-                   style="font-size:1.3rem; font-weight:900; margin:0 0 4px;">
-                    Calculating...
-                </p>
-                <p id="plan-result-range"
-                   style="font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.5);
-                          margin:0 0 18px;">
-                    --
-                </p>
-                <button onclick="savePlanSuggestion()"
-                        class="brutalist-btn btn-full bg-green"
-                        style="margin:0 auto;">
-                    Save These Dates
+            <!-- ---- HELP PLANNING A TRIP DROPDOWN ---- -->
+            <div class="plan-dropdown">
+                <button class="plan-dropdown-header" onclick="togglePlanDropdown('help')">
+                    <span>Help Planning A Trip</span>
+                    <svg class="plan-dropdown-chevron" id="help-chevron" viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
                 </button>
+                <div class="plan-dropdown-body" id="plan-help-body">
+
+                    <button class="plan-help-item" onclick="planHelpTap('schengen')">
+                        <span>My Schengen Trip Data</span>
+                        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+
+                    <button class="plan-help-item" onclick="planHelpTap('flights')">
+                        <span>Check Flights and Prices</span>
+                        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+
+                    <button class="plan-help-item" onclick="planHelpTap('ryanair')">
+                        <span>Ryanair</span>
+                        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+
+                    <button class="plan-help-item" onclick="planHelpTap('carhire')">
+                        <span>Car Hire</span>
+                        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+
+                    <button class="plan-help-item" onclick="planHelpTap('news')">
+                        <span>Latest Travel News</span>
+                        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+
+                    <button class="plan-help-item" onclick="planHelpTap('claudia')">
+                        <span>Chat with ClaudiA</span>
+                        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+
+                </div>
             </div>
 
         </div><!-- end plan-scroll -->
