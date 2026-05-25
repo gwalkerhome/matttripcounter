@@ -333,6 +333,7 @@ body {
     padding: 14px 16px;
     width: 100%;
     flex-shrink: 0;
+    -webkit-font-smoothing: antialiased;
 }
 
 .plan-notif-title {
@@ -1114,4 +1115,70 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: rgba(255, 255, 255, 0.32);
+}
+
+/* ==============================================
+   BORDER — PASSPORT EDIT POPUP
+   ============================================== */
+
+#bc-passport-overlay {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 300;
+    background: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    align-items: flex-end;
+    justify-content: center;
+}
+
+#bc-passport-overlay.open {
+    display: flex;
+}
+
+#bc-passport-sheet {
+    width: 100%;
+    background: #1a1a1a;
+    border-top: 3px solid var(--yellow);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 24px calc(env(safe-area-inset-bottom) + var(--nav-h) + 16px);
+}
+
+.bc-sheet-title {
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+    margin: 0 0 16px;
+}
+
+#bc-passport-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2.5px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    font-family: inherit;
+    color: #fff;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+}
+
+#bc-passport-input:focus {
+    outline: none;
+    border-color: var(--yellow);
+}
+
+.bc-sheet-btn-row {
+    display: flex;
+    gap: 10px;
 }

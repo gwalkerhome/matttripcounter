@@ -122,6 +122,47 @@ function updateBorderView(trips) {
     });
 }
 
+// ---- PASSPORT NUMBER ----
+
+const PASSPORT_KEY = 'bc_passport_number';
+
+function loadPassportNumber() {
+    const num = localStorage.getItem(PASSPORT_KEY) || '';
+    const el  = document.getElementById('bc-passport-display');
+    if (!el) return;
+    if (num) {
+        el.innerText = num;
+        el.classList.remove('bc-id-blank');
+    } else {
+        el.innerHTML = '&nbsp;';
+        el.classList.add('bc-id-blank');
+    }
+}
+
+function openPassportEdit() {
+    const num   = localStorage.getItem(PASSPORT_KEY) || '';
+    const input = document.getElementById('bc-passport-input');
+    if (input) input.value = num;
+    const overlay = document.getElementById('bc-passport-overlay');
+    if (overlay) overlay.classList.add('open');
+    setTimeout(() => { if (input) input.focus(); }, 150);
+}
+
+function savePassportNumber() {
+    const input = document.getElementById('bc-passport-input');
+    if (!input) return;
+    const num = input.value.trim().toUpperCase();
+    if (num) localStorage.setItem(PASSPORT_KEY, num);
+    else localStorage.removeItem(PASSPORT_KEY);
+    closePassportEdit();
+    loadPassportNumber();
+}
+
+function closePassportEdit() {
+    const overlay = document.getElementById('bc-passport-overlay');
+    if (overlay) overlay.classList.remove('open');
+}
+
 // ---- EVENT LISTENERS ----
 
 window.addEventListener('tripsUpdated', () => {
@@ -131,5 +172,9 @@ window.addEventListener('tripsUpdated', () => {
 window.addEventListener('viewChanged', (e) => {
     if (e.detail.view === 'border' && window.allTrips) {
         updateBorderView(window.allTrips);
+        loadPassportNumber();
     }
 });
+
+// Load passport on first render
+window.addEventListener('DOMContentLoaded', loadPassportNumber);

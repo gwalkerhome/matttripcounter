@@ -68,7 +68,7 @@
         /* Calendar header */
         #cal-header {
             position: absolute; top: 0; left: 0; right: 0; z-index: 30;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 75%, transparent);
+            background: transparent;
             padding: calc(env(safe-area-inset-top) + 10px) 16px 16px;
         }
 
@@ -92,7 +92,7 @@
         #cal-page-footer, #cal-plan-footer {
             position: absolute;
             bottom: var(--nav-h); left: 0; right: 0; z-index: 30;
-            background: linear-gradient(to top, rgba(0,0,0,0.85) 60%, transparent);
+            background: transparent;
             padding: 16px 20px 14px;
             display: flex; justify-content: center;
         }
@@ -145,7 +145,7 @@
 
         #trips-header {
             position: absolute; top: 0; left: 0; right: 0; z-index: 30;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 80%, transparent);
+            background: transparent;
             padding: calc(env(safe-area-inset-top) + 12px) 20px 14px;
             text-align: center;
         }
@@ -539,9 +539,9 @@
                         <span class="bc-id-label">Date of Birth</span>
                         <span class="bc-id-value">26 / 01 / 1978</span>
                     </div>
-                    <div class="bc-id-field">
+                    <div class="bc-id-field" onclick="openPassportEdit()" style="cursor:pointer;">
                         <span class="bc-id-label">Passport No.</span>
-                        <span class="bc-id-value bc-id-blank">&nbsp;</span>
+                        <span id="bc-passport-display" class="bc-id-value bc-id-blank">&nbsp;</span>
                     </div>
                 </div>
             </div>
@@ -569,6 +569,27 @@
             </div>
 
         </div><!-- end bc-overlay -->
+
+        <!-- Passport number edit popup -->
+        <div id="bc-passport-overlay" onclick="closePassportEdit()">
+            <div id="bc-passport-sheet" onclick="event.stopPropagation()">
+                <p class="bc-sheet-title">Edit Passport Number</p>
+                <input id="bc-passport-input" type="text"
+                       placeholder="e.g. 123456789"
+                       maxlength="20"
+                       autocapitalize="characters"
+                       autocorrect="off"
+                       spellcheck="false">
+                <div class="bc-sheet-btn-row">
+                    <button class="brutalist-btn" style="flex:1; height:52px; font-size:0.7rem;
+                                background:#333; color:#fff; border-color:#fff;"
+                            onclick="closePassportEdit()">Cancel</button>
+                    <button class="brutalist-btn" style="flex:1; height:52px; font-size:0.7rem;
+                                background:var(--yellow); color:#000; border-color:#000;"
+                            onclick="savePassportNumber()">Save</button>
+                </div>
+            </div>
+        </div>
 
     </div><!-- end view-border -->
 
