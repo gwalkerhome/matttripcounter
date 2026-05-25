@@ -69,10 +69,10 @@ function updateHomeView(trips) {
     const today = todayStr();
     const now   = new Date(`${today}T12:00:00`);
 
-    // Always update the shared background layer
+    // Set background on the html element — paints to the full canvas
+    // edge-to-edge on iPhone home screen apps, including safe areas
     const bgImage = resolveBackgroundImage(trips, today);
-    const bgLayer = document.getElementById('bg-layer');
-    if (bgLayer) bgLayer.style.backgroundImage = `url('${bgImage}')`;
+    document.documentElement.style.backgroundImage = `url('${bgImage}')`;
 
     // -- Schengen status calculation --
     // Use the last future trip's exit date for the gauge, so planned

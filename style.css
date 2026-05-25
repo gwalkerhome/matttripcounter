@@ -16,31 +16,38 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html, body {
+html {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
     overflow: hidden;
     position: fixed;
+    /* html background paints to the full canvas — edge to edge on iPhone,
+       including safe areas, regardless of viewport-fit. This is the only
+       reliable way to fill the home indicator zone on a home screen web app. */
     background-color: var(--black);
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    background: transparent;
     font-family: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
 
 /* --- TWO-LAYER TEMPLATE SYSTEM --- */
 
-#bg-layer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-size: cover;
-    background-position: center top;
-    background-repeat: no-repeat;
-    z-index: 0;
-}
+/* #bg-layer removed — background is now on the html element,
+   which guarantees full canvas coverage on iPhone home screen apps */
 
 #ui-layer {
     position: fixed;
