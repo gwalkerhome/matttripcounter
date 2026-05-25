@@ -1118,6 +1118,135 @@ body {
 }
 
 /* ==============================================
+   CLAUDIA CHAT
+   ============================================== */
+
+/* Override overlay body padding in chat mode */
+#plan-help-overlay.claudia-mode #plan-help-overlay-body {
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+}
+
+#claudia-wrap {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#claudia-messages {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px 14px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.claudia-msg {
+    display: flex;
+    width: 100%;
+}
+
+.claudia-msg.claudia-user  { justify-content: flex-end; }
+.claudia-msg.claudia-model { justify-content: flex-start; }
+
+.claudia-bubble {
+    max-width: 82%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    border: 2.5px solid var(--black);
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+.claudia-msg.claudia-user .claudia-bubble {
+    background: var(--yellow);
+    color: var(--black);
+    border-radius: 16px 16px 4px 16px;
+    box-shadow: 2px 2px 0 var(--black);
+}
+
+.claudia-msg.claudia-model .claudia-bubble {
+    background: var(--blue);
+    color: var(--black);
+    border-radius: 16px 16px 16px 4px;
+    box-shadow: 2px 2px 0 var(--black);
+}
+
+.claudia-thinking {
+    opacity: 0.6;
+    font-style: italic;
+}
+
+#claudia-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px calc(env(safe-area-inset-bottom) + 10px);
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
+    background: #111;
+    flex-shrink: 0;
+}
+
+#claudia-text {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: #fff;
+    -webkit-appearance: none;
+}
+
+#claudia-text:focus {
+    outline: none;
+    border-color: var(--yellow);
+}
+
+#claudia-mic,
+#claudia-send {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2.5px solid var(--black);
+    box-shadow: 2px 2px 0 var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.08s, box-shadow 0.08s;
+}
+
+#claudia-mic:active,
+#claudia-send:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--black);
+}
+
+#claudia-mic            { background: var(--green); font-size: 1.1rem; }
+#claudia-mic.mic-active { background: var(--pink); }
+
+#claudia-send { background: var(--yellow); }
+
+#claudia-send svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--black);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ==============================================
    BORDER — PASSPORT EDIT POPUP
    ============================================== */
 

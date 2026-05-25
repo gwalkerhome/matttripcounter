@@ -88,7 +88,9 @@ function openPlanHelpOverlay(title, contentHTML) {
 }
 
 function closePlanHelpOverlay() {
-    document.getElementById('plan-help-overlay').classList.remove('open');
+    // Stop mic if active
+    if (claudiaMicActive && claudiaRecognition) claudiaRecognition.stop();
+    document.getElementById('plan-help-overlay').classList.remove('open', 'claudia-mode');
 }
 
 function planHelpTap(item) {
@@ -463,16 +465,238 @@ async function fetchTravelNews() {
     body.innerHTML = html;
 }
 
-// ---- 6. CHAT WITH CLAUDIA (placeholder) ----
+// ---- 6. CHAT WITH CLAUDIA ----
+
+let claudiaHistory     = [];
+let claudiaApiKey      = null;
+let claudiaRecognition = null;
+let claudiaMicActive   = false;
+
+function buildClaudiaSystemPrompt() {
+    const today  = todayStr();
+    const now    = new Date(`${today}T12:00:00`);
+    const trips  = window.allTrips || [];
+    const status = SchengenEngine.calculateStatus(trips, now);
+
+    const sorted      = [...trips].sort((a, b) => new Date(a.entry) - new Date(b.entry));
+    const currentTrip = sorted.find(t => today >= t.entry && today <= t.exit);
+    const futureTrips = sorted.filter(t => t.entry > today);
+    const pastTrips   = sorted.filter(t => t.exit < today).slice(-5);
+
+    let situation = currentTrip
+        ? `Matt is currently in Spain (entered ${toUKDate(currentTrip.entry)}, leaving ${toUKDate(currentTrip.exit)}).`
+        : 'Matt is currently in the UK.';
+
+    if (futureTrips.length > 0) {
+        situation += ` He has ${futureTrips.length} planned trip${futureTrips.length > 1 ? 's' : ''} booked: ` +
+            futureTrips.map(t => `${toUKDate(t.entry)} to ${toUKDate(t.exit)}`).join(', ') + '.';
+    }
+    if (pastTrips.length > 0) {
+        situation += ` Recent past trips: ` +
+            pastTrips.map(t => `${toUKDate(t.entry)} to ${toUKDate(t.exit)}`).join(', ') + '.';
+    }
+
+    return `You are ClaudiA, a warm and knowledgeable travel assistant built into Matt's Journey — a personal app for Matthew Hilton.
+
+About Matt: British, born 26 January 1978. He splits his time between the UK and Dénia, near Alicante, Spain. He flies between East Midlands Airport (EMA) and Alicante Airport (ALC), predominantly on Ryanair. He has a dog called Benji.
+
+Current Schengen status (today is ${toUKDate(today)}):
+- Days used in current 180-day window: ${status.used} out of 90
+- Days remaining: ${status.remaining}
+- ${situation}
+
+Schengen rules: UK passport holders may spend a maximum of 90 days in any rolling 180-day period across the Schengen zone. Spain is in the Schengen zone. Each day of entry and exit counts as a full day.
+
+ETIAS: From Q4 2026, UK passport holders will need an ETIAS pre-travel authorisation before entering Spain. Quick online application, costs €7. Not yet required.
+
+Keep responses friendly, concise and in plain English. Matt is not particularly tech-savvy. Help with anything — Schengen rules, trip planning, things to do in Dénia or Spain, packing tips, travel advice, or general questions. Be warm and human.`;
+}
+
+function claudiaSpeak(text) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang  = 'en-GB';
+    utter.rate  = 0.92;
+    utter.pitch = 1.1;
+
+    const pickVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+        utter.voice = voices.find(v => v.name === 'Martha')           // Yorkshire
+                   || voices.find(v => v.name === 'Serena')           // British female enhanced
+                   || voices.find(v => v.lang === 'en-GB' && !v.name.toLowerCase().includes('daniel'))
+                   || voices.find(v => v.lang === 'en-GB')
+                   || null;
+        window.speechSynthesis.speak(utter);
+    };
+
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+        pickVoice();
+    } else {
+        window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.onvoiceschanged = null;
+            pickVoice();
+        };
+    }
+}
 
 function showClaudia() {
+    claudiaHistory = [];
+
     openPlanHelpOverlay('Chat with ClaudiA', `
-        <div class="help-section" style="align-items:center; padding-top:60px;">
-            <p class="help-body-text" style="text-align:center; color:rgba(255,255,255,0.4);">
-                ClaudiA is coming soon.
-            </p>
+        <div id="claudia-wrap">
+            <div id="claudia-messages">
+                <div class="claudia-msg claudia-model">
+                    <div class="claudia-bubble">Hi Matt! I'm ClaudiA 👋 I know all about your Schengen days and trips. Ask me anything about travelling to Spain — or anything else!</div>
+                </div>
+            </div>
+            <div id="claudia-input-row">
+                <button id="claudia-mic" onclick="toggleClaudiaMic()">🎤</button>
+                <input id="claudia-text" type="text" placeholder="Ask me anything…"
+                       onkeydown="if(event.key==='Enter')sendClaudiaMessage()"
+                       autocorrect="off" spellcheck="false">
+                <button id="claudia-send" onclick="sendClaudiaMessage()">
+                    <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+            </div>
         </div>
     `);
+
+    document.getElementById('plan-help-overlay').classList.add('claudia-mode');
+
+    // Speak the greeting
+    claudiaSpeak("Hello, My Little Blue Smurf. What can I help you with today?");
+
+    // Pre-load API key from Firebase
+    if (!claudiaApiKey && window.db) {
+        window.db.ref('gemini-config/apiKey').once('value', snap => {
+            claudiaApiKey = snap.val();
+        });
+    }
+}
+
+async function sendClaudiaMessage() {
+    const input = document.getElementById('claudia-text');
+    if (!input) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    appendClaudiaMessage('user', text);
+    claudiaHistory.push({ role: 'user', parts: [{ text }] });
+
+    const thinkingId = appendClaudiaThinking();
+
+    // Fetch key if not yet loaded
+    if (!claudiaApiKey && window.db) {
+        const snap = await window.db.ref('gemini-config/apiKey').once('value');
+        claudiaApiKey = snap.val();
+    }
+
+    if (!claudiaApiKey) {
+        removeThinking(thinkingId);
+        appendClaudiaMessage('model', "Sorry, I'm not available right now. Please try again later.");
+        return;
+    }
+
+    try {
+        const resp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${claudiaApiKey}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    system_instruction: { parts: [{ text: buildClaudiaSystemPrompt() }] },
+                    contents: claudiaHistory,
+                    generationConfig: { temperature: 0.7, maxOutputTokens: 512 }
+                })
+            }
+        );
+        const data  = await resp.json();
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
+                    || "Sorry, I couldn't get a response. Please try again.";
+
+        removeThinking(thinkingId);
+        appendClaudiaMessage('model', reply);
+        claudiaHistory.push({ role: 'model', parts: [{ text: reply }] });
+
+    } catch (e) {
+        removeThinking(thinkingId);
+        appendClaudiaMessage('model', 'Sorry, something went wrong. Please check your connection and try again.');
+    }
+}
+
+function appendClaudiaMessage(role, text) {
+    const msgs = document.getElementById('claudia-messages');
+    if (!msgs) return;
+    const div = document.createElement('div');
+    div.className = `claudia-msg claudia-${role}`;
+    div.innerHTML = `<div class="claudia-bubble">${text.replace(/\n/g, '<br>')}</div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+}
+
+function appendClaudiaThinking() {
+    const msgs = document.getElementById('claudia-messages');
+    if (!msgs) return null;
+    const id  = 'thinking-' + Date.now();
+    const div = document.createElement('div');
+    div.id        = id;
+    div.className = 'claudia-msg claudia-model';
+    div.innerHTML = '<div class="claudia-bubble claudia-thinking">ClaudiA is thinking…</div>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return id;
+}
+
+function removeThinking(id) {
+    if (id) { const el = document.getElementById(id); if (el) el.remove(); }
+}
+
+function toggleClaudiaMic() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        appendClaudiaMessage('model', "Voice input isn't available in this browser — try typing instead!");
+        return;
+    }
+
+    if (claudiaMicActive) {
+        if (claudiaRecognition) claudiaRecognition.stop();
+        return;
+    }
+
+    claudiaRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    claudiaRecognition.lang             = 'en-GB';
+    claudiaRecognition.interimResults   = false;
+    claudiaRecognition.maxAlternatives  = 1;
+
+    claudiaRecognition.onstart = () => {
+        claudiaMicActive = true;
+        const btn = document.getElementById('claudia-mic');
+        if (btn) { btn.textContent = '⏹'; btn.classList.add('mic-active'); }
+    };
+
+    claudiaRecognition.onresult = (e) => {
+        const text  = e.results[0][0].transcript;
+        const input = document.getElementById('claudia-text');
+        if (input) input.value = text;
+        sendClaudiaMessage();
+    };
+
+    claudiaRecognition.onerror = () => {
+        claudiaMicActive = false;
+        const btn = document.getElementById('claudia-mic');
+        if (btn) { btn.textContent = '🎤'; btn.classList.remove('mic-active'); }
+    };
+
+    claudiaRecognition.onend = () => {
+        claudiaMicActive = false;
+        const btn = document.getElementById('claudia-mic');
+        if (btn) { btn.textContent = '🎤'; btn.classList.remove('mic-active'); }
+    };
+
+    claudiaRecognition.start();
 }
 
 // ---- PRE-TRIP CHECKLIST ----
