@@ -181,21 +181,16 @@ html, body {
     background: transparent;
 }
 
-/* Tab row — no background bar, pills float over the content */
+/* Tab row — no background bar, pills float over the content.
+   Bottom padding absorbs the iPhone home indicator safe area directly,
+   so there is no separate div blocking the background image. */
 #bottom-nav .nav-row {
     display: flex;
     width: 100%;
     background: transparent;
     justify-content: space-around;
     align-items: center;
-    padding: 4px 10px 4px;
-}
-
-/* Safe-area strip — invisible, just reserves height for iPhone home indicator */
-#bottom-nav .nav-safe-area {
-    width: 100%;
-    height: env(safe-area-inset-bottom, 0px);
-    background: transparent;
+    padding: 6px 10px calc(env(safe-area-inset-bottom, 0px) + 6px);
 }
 
 /* Each tab is its own frosted-glass pill */
